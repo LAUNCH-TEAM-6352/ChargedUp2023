@@ -4,16 +4,25 @@
 
 package frc.robot.commands;
 
-import frc.robot.subsystems.ExampleSubsystem;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 
 public final class Autos
 {
-    /** Example static factory for an autonomous command. */
-    public static CommandBase exampleAuto(ExampleSubsystem subsystem)
+    /** A command that does nothing. */
+    public static CommandBase doNothing()
     {
-        return Commands.sequence(subsystem.exampleMethodCommand(), new ExampleCommand(subsystem));
+        return new InstantCommand(() -> {});
+    }
+
+    public static CommandBase leaveCommunityViaShortPath()
+    {
+        return new InstantCommand(() -> {});
+    }
+
+    public static CommandBase leaveCommunityViaLongPath()
+    {
+        return new InstantCommand(() -> {});
     }
 
     private Autos()

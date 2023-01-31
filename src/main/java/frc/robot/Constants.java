@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import com.revrobotics.CANSparkMax.IdleMode;
+
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -12,11 +15,131 @@ package frc.robot;
  * <p>
  * It is advised to statically import this class (or one of its inner classes) wherever the
  * constants are needed, to reduce verbosity.
+ * 
+ * <p>
+ * Inner clases are in alphabetical order. Keep it that way.
  */
 public final class Constants
 {
-    public static class OperatorConstants
-    {
-        public static final int kDriverControllerPort = 0;
+    public static final class DashboardConstants
+	{
+		public static final String driveTrainLeftPositionKey = "DT Left Pos";
+		public static final String driveTrainRightPositionKey = "DT Right Pos";
+		public static final String driveTrainOpenLoopRampRateKey = "DT OL Ramp Rate (secs)";
+		public static final String driveTrainClosedLoopRampRateKey = "DT CL Ramp Rate (secs)";
+        public static final String driveTrainLeftPercentOutputKey = "DT Left % Output";
+        public static final String driveTrainRightPercentOutputKey = "DT Right % Output";
+        public static final String driveTrainAutoTargetPositionKey = "DT Auto Target Pos";
+        public static final String driveTrainAutoLeaveCommunityPositionShortKey = "DT Auto Leave Comm Pos Shrt";
+        public static final String driveTrainAutoLeaveCommunityPositionLongKey = "DT Auto Leave Comm Pos Lng";
+        
+        public static final String driveToPositionPidPKey = "DTP PID P";
+        public static final String driveToPositionPidIKey = "DTP PID I";
+        public static final String driveToPositionPidDKey = "DTP PID D";
+        public static final String driveToPositionPidIZKey = "DTP PID IZ";
+        public static final String driveToPositionPidFFKey = "DTP PID FF";
+        public static final String driveToPositionPidMaxOutputKey = "DTP PID Max";
+        public static final String driveToPositionPidMinOutputKey = "DTP PID Min";
+        public static final String driveToPositionPidTarget = "DTP PID Target";
+        public static final String driveToPositionPidCurrent = "DTP PID Current";
+        
+        public static final String levelPidPKey = "Lvl PID P";
+        public static final String levelPidIKey = "Lvl PID I";
+        public static final String levelPidDKey = "Lvl PID D";
+        public static final String levelPidIZKey = "Lvl PID IZ";
+        public static final String levelPidFFKey = "Lvl PID FF";
+        public static final String levelPidMaxOutputKey = "Lvl PID Max";
+        public static final String levelPidMinOutputKey = "Lvl PID Min";
+        public static final String levelPidTarget = "Lvl PID Target";
+        public static final String levelPidCurrent = "Lvl PID Current";
     }
+
+	public static final class DriveTrainConstants
+	{
+        /**
+         * Used to give names to motors.
+         */
+        public static class MotorName
+        {
+            public final int channel;
+            public final String name;
+            public final String abbreviation;
+
+            public MotorName (int channel, String name, String abbreviation)
+            {
+                this.channel = channel;
+                this.name = name;
+                this.abbreviation = abbreviation;
+            }
+        }
+
+        // Motor controllers are SPARK MAX:
+		public static final int leftFrontMotorChannel = 14;
+		public static final int leftRearMotorChannel = 13;
+		public static final int leftTopMotorChannel = 15;
+		public static final int rightFrontMotorChannel = 11;
+		public static final int rightRearMotorChannel = 10;
+		public static final int rightTopMotorChannel = 12;
+
+        public static final int[] leftMotorChannels = {leftFrontMotorChannel, leftRearMotorChannel, leftTopMotorChannel};
+        public static final int[] rightMotorChannels = {rightFrontMotorChannel, rightRearMotorChannel, rightTopMotorChannel};
+
+        public static final MotorName[] motorNames =
+        {
+            new MotorName(leftFrontMotorChannel, "Left Front", "LF"),
+            new MotorName(leftTopMotorChannel, "Left Top", "LT"),
+            new MotorName(leftRearMotorChannel, "Left Rear", "LR"),
+            new MotorName(rightFrontMotorChannel, "Right Front", "RF"),
+            new MotorName(rightTopMotorChannel, "Right Top", "RT"),
+            new MotorName(rightRearMotorChannel, "Right Rear", "RR")
+        };
+
+        // Indicates if motor controller should output negative of commanded percentage:
+		public static final boolean areLeftMotorsInverted = true;
+		public static final boolean areRightMotorsInverted = false;
+
+        // Indicates if encoder signal is inverted:
+        public static final boolean isLeftEncoderInverted = false;
+        public static final boolean isRightEncoderInverted = false;
+
+        // If motors should coast or brake to a stop:
+        public static final IdleMode idleMode = IdleMode.kCoast;
+
+        public static final double defaultAutoLeaveCommunityPositionShort = 28;
+        public static final double defaultAutoLeaveCommunityPositionLong = 28;
+        public static final double defaultAutoChargeStationPosition = 28;
+
+        // Tolerance for determining if at target position:
+        public static final double positionTolerance = 10;
+
+        // Default values for PID controller used for driving to a specific position:
+        public static final double defaultDriveToPositionPidP = 0.08;
+        public static final double defaultDriveToPositionPidI = 0.00001;
+        public static final double defaultDriveToPositionPidD = 1.0;
+        public static final double defaultDriveToPositionPidIZ = 10.0;
+        public static final double defaultDriveToPositionPidFF = 0.0;
+        public static final double defaultDriveToPositionPidMinOutput = -0.25;
+        public static final double defaultDriveToPositionPidMaxOutput = +0.25;
+
+        // Default values for PID controller used to level robot on Charge Station:
+        public static final double defaultLevelPidP = 0.08;
+        public static final double defaultLevelPidI = 0.00001;
+        public static final double defaultLevelPidD = 1.0;
+        public static final double defaultLevelPidIZ = 10.0;
+        public static final double defaultLevelPidFF = 0.0;
+        public static final double defaultLevelPidMinOutput = -0.25;
+        public static final double defaultLevelPidMaxOutput = +0.25;
+
+
+        // Default values for Smart Dashboard:
+        public static final double defaultOpenLoopRampRate = 0.0;
+        public static final double defaultClosedLoopRampRate = 2.0;
+	}
+
+	public static final class OIConstants
+	{
+		public static final int gamepadPort = 1;
+		public static final int leftJoystickPort = 2;
+		public static final int rightJoystickPort = 3;
+	}
 }
