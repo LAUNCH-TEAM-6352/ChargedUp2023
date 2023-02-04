@@ -62,7 +62,7 @@ public class RobotContainer
      */
     public RobotContainer()
     {
-            // Get the game data message fom the driver station.
+        // Get the game data message fom the driver station.
         // This message is primarily used during development to
         // construct only certain subsystems.
         // If the merssage is blank (or all whitespace),
@@ -73,38 +73,43 @@ public class RobotContainer
         //   -oi-   Look for OI devices
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
+        SmartDashboard.putString("Game Data", gameData);
 
         // Create OI devices:
-        if (gameData.contains("-oi-"))
-        {
-            // Explicitly look for OI devices:
-            gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
-                ? new XboxController(OIConstants.gamepadPort)
-                : null;
-            leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
-                ? new Joystick(OIConstants.leftJoystickPort)
-                : null;
-            rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
-                ? new Joystick(OIConstants.rightJoystickPort)
-                : null;
-        }
-        else
-        {
+        // if (gameData.contains("-oi-"))
+        //
+        //     // Explicitly look for OI devices:
+        //     gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
+        //         ? new XboxController(OIConstants.gamepadPort)
+        //         : null;
+        //     leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
+        //         ? new Joystick(OIConstants.leftJoystickPort)
+        //         : null;
+        //     rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
+        //         ? new Joystick(OIConstants.rightJoystickPort)
+        //         : null;
+        // }
+        // else
+        // {
             // In competition, don't tskr chsances and always create all OI devices:
             gamepad = new XboxController(OIConstants.gamepadPort);
-            leftStick = new Joystick(OIConstants.leftJoystickPort);
-            rightStick = new Joystick(OIConstants.rightJoystickPort);
-        }
+            leftStick = null;
+            rightStick = null;
+            // leftStick = new Joystick(OIConstants.leftJoystickPort);
+            // rightStick = new Joystick(OIConstants.rightJoystickPort);
+        // }
 
         SmartDashboard.putBoolean("Gamepad Detected", gamepad != null);
         SmartDashboard.putBoolean("Left Joystick Detected", leftStick != null);
         SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
 
         // Create pneumatics compressor:
-        compressor = gameData.isBlank() || gameData.contains("-p-") ? Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType)) : Optional.empty();
+        compressor = Optional.empty();
+        // compressor = Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType));
 
         // Create subsystems:
-		driveTrain = gameData.isBlank() || gameData.contains("-dt-") ? Optional.of(new DriveTrain()) : Optional.empty();
+		// driveTrain = Optional.empty();
+		driveTrain = Optional.of(new DriveTrain());
 
         // Configure default commands:
         configureDefaultCommands();

@@ -16,10 +16,14 @@ import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
+
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
@@ -46,6 +50,9 @@ public class DriveTrain extends SubsystemBase
     // The current open loop ramp rate:
     private double openLoopRampRate = DriveTrainConstants.defaultOpenLoopRampRate;
 
+    // The gyro:
+    private ADIS16470_IMU adis16470Imu;
+
     /**
      * Creates a new DriveTrain.
      */
@@ -70,6 +77,10 @@ public class DriveTrain extends SubsystemBase
             rightMotors.add(motor);
             motors.put(Integer.valueOf(channel), motor);
         }
+
+        // Construct the IMU:
+        adis16470Imu = new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
+        SmartDashboard.putData("Gyro", adis16470Imu);
     }
 
     /**
@@ -180,8 +191,8 @@ public class DriveTrain extends SubsystemBase
         left = MathUtil.clamp(left, -1.0, +1.0);
         right = MathUtil.clamp(right, -1.0, +1.0);
 
-        double leftOut = Math.copySign(left * left, left);
-        double rightOut = Math.copySign(right * right, right);
+        double leftOut = Math.copySign(left * left * left, left);
+        double rightOut = Math.copySign(right * right * right, right);
         
         setPercentage(leftMotors, leftOut);
         setPercentage(rightMotors, rightOut);
@@ -313,5 +324,15 @@ public class DriveTrain extends SubsystemBase
     private void setPercentage(List<CANSparkMax> motors, double percentage)
     {
         motors.forEach((motor) -> motor.set(percentage));
+    }
+
+    public double getAngle()
+    {
+        return adis16470Imu.getAngle();
+    }
+
+    public void resetAngle()
+    {
+        adis16470Imu.reset();
     }
 }
