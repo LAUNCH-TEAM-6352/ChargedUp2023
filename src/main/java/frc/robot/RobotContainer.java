@@ -9,7 +9,15 @@ import java.util.Optional;
 import frc.robot.Constants.DashboardConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.PneumaticsConstants;
+import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
+import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
+import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
+import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveToRelativePosition;
+import frc.robot.commands.DriveWithGamepad;
+import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.subsystems.DriveTrain;
 
 import edu.wpi.first.wpilibj.Compressor;
@@ -22,8 +30,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -64,35 +70,68 @@ public class RobotContainer
         // Otherwise, OI devices and subsystems are constructed
         // depending upon the substrings found in the message:
         //   -dt-   Drive train
-        //   -p-    Pneumatics
-        //   -s-    Shooter
-        //   -int-  Intake
-        //   -idx-  Indexer
-        //   -c-    Climber
+        //   -oi-   Look for OI devices
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
 
         // Create OI devices:
-		// gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
-        //     ? new XboxController(OIConstants.gamepadPort)
-        //     : null;
-        // leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
-        //     ? new Joystick(OIConstants.leftJoystickPort)
-        //     : null;
-        // rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
-        //     ? new Joystick(OIConstants.rightJoystickPort)
-        //     : null;
-
-        gamepad = new XboxController(OIConstants.gamepadPort);
-        leftStick = new Joystick(OIConstants.leftJoystickPort);
-        rightStick = new Joystick(OIConstants.rightJoystickPort);
+        if (gameData.contains("-oi-"))
+        {
+            // Explicitly look for OI devices:
+            gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
+                ? new XboxController(OIConstants.gamepadPort)
+                : null;
+            leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
+                ? new Joystick(OIConstants.leftJoystickPort)
+                : null;
+            rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
+                ? new Joystick(OIConstants.rightJoystickPort)
+                : null;
+        }
+        else
+        {
+            // In competition, don't tskr chsances and always create all OI devices:
+            gamepad = new XboxController(OIConstants.gamepadPort);
+            leftStick = new Joystick(OIConstants.leftJoystickPort);
+            rightStick = new Joystick(OIConstants.rightJoystickPort);
+        }
 
         SmartDashboard.putBoolean("Gamepad Detected", gamepad != null);
         SmartDashboard.putBoolean("Left Joystick Detected", leftStick != null);
         SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
 
+        // Create pneumatics compressor:
+        compressor = gameData.isBlank() || gameData.contains("-p-") ? Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType)) : Optional.empty();
+
+        // Create subsystems:
+		driveTrain = gameData.isBlank() || gameData.contains("-dt-") ? Optional.of(new DriveTrain()) : Optional.empty();
+
+        // Configure default commands:
+        configureDefaultCommands();
+
         // Configure the trigger bindings
-        configureBindings();
+        configureTriggerBindings();
+
+        // Configure the Smart Dashboard:
+        configureSmartDashboard();
+    }
+
+    /**
+     * Configures the default commands.
+     */
+    private void configureDefaultCommands()
+    {
+        driveTrain.ifPresent((dt) ->
+        {
+            if (leftStick != null && rightStick != null)
+            {
+                dt.setDefaultCommand(new DriveWithJoysticks(dt, leftStick, rightStick));
+            }
+            else if (gamepad != null)
+            {
+                dt.setDefaultCommand(new DriveWithGamepad(dt, gamepad));
+            }
+        });
     }
 
     /**
@@ -104,7 +143,7 @@ public class RobotContainer
      * {@link edu.wpi.first.wpilibj2.command.button.CommandPS4Controller PS4} controlers or
      * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight} joysticks.
      */
-    private void configureBindings()
+    private void configureTriggerBindings()
     {
     }
 
@@ -125,13 +164,21 @@ public class RobotContainer
         SmartDashboard.putNumber(DashboardConstants.driveTrainOpenLoopRampRateKey, DriveTrainConstants.defaultOpenLoopRampRate);
         SmartDashboard.putNumber(DashboardConstants.driveTrainClosedLoopRampRateKey, DriveTrainConstants.defaultClosedLoopRampRate);
 
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidPKey, DriveTrainConstants.defaultDriveToPositionPidP);
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidIKey, DriveTrainConstants.defaultDriveToPositionPidI);
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidDKey, DriveTrainConstants.defaultDriveToPositionPidD);
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidIZKey, DriveTrainConstants.defaultDriveToPositionPidIZ);
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidFFKey, DriveTrainConstants.defaultDriveToPositionPidFF);
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidMinOutputKey, DriveTrainConstants.defaultDriveToPositionPidMinOutput);
-        SmartDashboard.putNumber(DashboardConstants.driveToPositionPidMaxOutputKey, DriveTrainConstants.defaultDriveToPositionPidMaxOutput);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.kP, DriveToPositionPidDefaultValues.kP);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.kI, DriveToPositionPidDefaultValues.kI);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.kD, DriveToPositionPidDefaultValues.kD);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.kIZ, DriveToPositionPidDefaultValues.iZone);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.kFF, DriveToPositionPidDefaultValues.ff);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.minOutput, DriveToPositionPidDefaultValues.minOutput);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.maxOutput, DriveToPositionPidDefaultValues.maxOutput);
+
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.kP, LevelChargeStationPidDefaultValues.kP);
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.kI, LevelChargeStationPidDefaultValues.kI);
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.kD, LevelChargeStationPidDefaultValues.kD);
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.kIZ, LevelChargeStationPidDefaultValues.iZone);
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.kFF, LevelChargeStationPidDefaultValues.ff);
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.minOutput, LevelChargeStationPidDefaultValues.minOutput);
+        SmartDashboard.putNumber(LevelChargeStationPidKeys.maxOutput, LevelChargeStationPidDefaultValues.maxOutput);
 
         SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
         SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
@@ -139,8 +186,10 @@ public class RobotContainer
         // The following deal with driving to a specified position:
         SmartDashboard.putData("Drive to Target Pos",
             new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoTargetPositionKey).withTimeout(10));
-        SmartDashboard.putData("Drive to Leave Tarmac Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveTarmacPositionKey).withTimeout(10));
+            SmartDashboard.putData("Drive to Leave Community Long Pos",
+            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10));
+            SmartDashboard.putData("Drive to Leave Community Short Pos",
+            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey).withTimeout(10));
         SmartDashboard.putData("Reset DT Pos", new InstantCommand(() -> driveTrain.resetPosition()));
 
         // The following are to be used to quickly test the individual drive train motors:

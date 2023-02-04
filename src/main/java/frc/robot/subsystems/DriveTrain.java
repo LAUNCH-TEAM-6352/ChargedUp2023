@@ -12,6 +12,7 @@ import java.util.Map;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.ExternalFollower;
+import com.revrobotics.CANSparkMax.IdleMode;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.math.MathUtil;
@@ -20,8 +21,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
+import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DashboardConstants;
 
+/***
+ * Models the robot's drive train.
+ * 
+ * TODO: Add IMU sensor and methods for getting and resetting robot's current angle.
+ */
 public class DriveTrain extends SubsystemBase
 {
     // Lists of motors on left and right side of drive train:
@@ -31,7 +39,7 @@ public class DriveTrain extends SubsystemBase
     // A map of motors:
     private final Map<Integer, CANSparkMax> motors = new HashMap<Integer, CANSparkMax>();
 
-    // The following used diring PID control:
+    // The following used during PID control:
     private CANSparkMax pidLeader = null;
     private double targetPosition;
 
@@ -73,12 +81,13 @@ public class DriveTrain extends SubsystemBase
         rightMotors.forEach((motor) -> motor.follow(ExternalFollower.kFollowerDisabled, 0));
         openLoopRampRate = SmartDashboard.getNumber(DashboardConstants.driveTrainOpenLoopRampRateKey, DriveTrainConstants.defaultOpenLoopRampRate);
         setOpenLoopRampRate(openLoopRampRate);
+        setIdleMode(DriveTrainConstants.defaultIdleMode);
     }
 
     /**
      * Sets up PID controller and leader and followers for PID control.
      */
-    public void configureForPidControl()
+    public void configureForPositionPidControl()
     {
         // set up leader and followers:
         pidLeader = null;
@@ -106,14 +115,14 @@ public class DriveTrain extends SubsystemBase
         
         // Set PID controller parameters on the leader:
         var pidController = pidLeader.getPIDController();
-        pidController.setP(SmartDashboard.getNumber(DashboardConstants.driveTrainInternalPidPKey, DriveTrainConstants.defaultPidP));
-        pidController.setI(SmartDashboard.getNumber(DashboardConstants.driveTrainInternalPidIKey, DriveTrainConstants.defaultInternalPidI));
-        pidController.setD(SmartDashboard.getNumber(DashboardConstants.driveTrainPidDKey, DriveTrainConstants.defaultInternalPidD));
-        pidController.setIZone(SmartDashboard.getNumber(DashboardConstants.driveTrainINternalPidIZKey, DriveTrainConstants.defaultInternalPidIZ));
-        pidController.setFF(SmartDashboard.getNumber(DashboardConstants.driveTrainPidFFKey, DriveTrainConstants.defaultInternalPidFF));
+        pidController.setP(SmartDashboard.getNumber(DriveToPositionPidKeys.kP, DriveToPositionPidDefaultValues.kP));
+        pidController.setI(SmartDashboard.getNumber(DriveToPositionPidKeys.kI, DriveToPositionPidDefaultValues.kI));
+        pidController.setD(SmartDashboard.getNumber(DriveToPositionPidKeys.kD, DriveToPositionPidDefaultValues.kD));
+        pidController.setIZone(SmartDashboard.getNumber(DriveToPositionPidKeys.kIZ, DriveToPositionPidDefaultValues.iZone));
+        pidController.setFF(SmartDashboard.getNumber(DriveToPositionPidKeys.kFF, DriveToPositionPidDefaultValues.ff));
         pidController.setOutputRange(
-            SmartDashboard.getNumber(DashboardConstants.driveTrainInternalPidMinOutputKey, DriveTrainConstants.defaultInternalPidMinOutput),
-            SmartDashboard.getNumber(DashboardConstants.driveTrainInternalPidMaxOutputKey, DriveTrainConstants.defaultInternalPidMaxOutput));
+            SmartDashboard.getNumber(DriveToPositionPidKeys.minOutput, DriveToPositionPidDefaultValues.minOutput),
+            SmartDashboard.getNumber(DriveToPositionPidKeys.maxOutput, DriveToPositionPidDefaultValues.maxOutput));
     }
 
     /**
@@ -126,7 +135,7 @@ public class DriveTrain extends SubsystemBase
     {
         targetPosition = position;
         pidLeader.getPIDController().setReference(position, ControlType.kPosition);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainPidTarget, position);
+        SmartDashboard.putNumber(DriveToPositionPidKeys.target, position);
     }
 
     /**
@@ -136,7 +145,7 @@ public class DriveTrain extends SubsystemBase
      */
     public boolean isAtTargetPosition()
     {
-        return Math.abs(pidLeader.getEncoder().getPosition() - targetPosition) < DriveTrainConstants.positionTolerance;
+        return Math.abs(pidLeader.getEncoder().getPosition() - targetPosition) < DriveToPositionPidDefaultValues.tolerance;
     }
         
     /**
@@ -261,15 +270,6 @@ public class DriveTrain extends SubsystemBase
             SmartDashboard.putNumber(DashboardConstants.driveTrainRightPositionKey, rightMotors.get(0).getEncoder().getPosition());
             // SmartDashboard.putNumber("DT Right Applied", rightMotors.get(0).getAppliedOutput());
         }
-
-        // See if the open loop ramp rate has been changed on the Smart Dashboard:
-        // double dashboardRampRate = SmartDashboard.getNumber(
-        //     DashboardConstants.driveTrainOpenLoopRampRateKey, DriveTrainConstants.defaultOpenLoopRampRate);
-        // if (dashboardRampRate != openLoopRampRate)
-        // {
-        //     openLoopRampRate = dashboardRampRate;
-        //     setOpenLoopRampRate(openLoopRampRate);
-        // }
     }
 
     /**
@@ -281,7 +281,7 @@ public class DriveTrain extends SubsystemBase
     {
         motor.restoreFactoryDefaults();
         motor.clearFaults();
-        motor.setIdleMode(DriveTrainConstants.idleMode);
+        motor.setIdleMode(DriveTrainConstants.defaultIdleMode);
     }
 
     /**
@@ -291,6 +291,17 @@ public class DriveTrain extends SubsystemBase
     {
         leftMotors.forEach((motor) -> motor.setOpenLoopRampRate(rampRate));
         rightMotors.forEach((motor) -> motor.setOpenLoopRampRate(rampRate));
+    }
+
+    /**
+     * Sets the idle mode on all motors.
+     * 
+     * @param idleMode
+     */
+    private void setIdleMode(IdleMode idleMode)
+    {
+        leftMotors.forEach((motor) -> motor.setIdleMode(idleMode));
+        rightMotors.forEach((motor) -> motor.setIdleMode(idleMode));
     }
 
     /**

@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.revrobotics.CANSparkMax.IdleMode;
 
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -33,25 +34,34 @@ public final class Constants
         public static final String driveTrainAutoLeaveCommunityPositionShortKey = "DT Auto Leave Comm Pos Shrt";
         public static final String driveTrainAutoLeaveCommunityPositionLongKey = "DT Auto Leave Comm Pos Lng";
         
-        public static final String driveToPositionPidPKey = "DTP PID P";
-        public static final String driveToPositionPidIKey = "DTP PID I";
-        public static final String driveToPositionPidDKey = "DTP PID D";
-        public static final String driveToPositionPidIZKey = "DTP PID IZ";
-        public static final String driveToPositionPidFFKey = "DTP PID FF";
-        public static final String driveToPositionPidMaxOutputKey = "DTP PID Max";
-        public static final String driveToPositionPidMinOutputKey = "DTP PID Min";
-        public static final String driveToPositionPidTarget = "DTP PID Target";
-        public static final String driveToPositionPidCurrent = "DTP PID Current";
+        public static final class DriveToPositionPidKeys
+        {
+            public static final String kP = "DTP PID P";
+            public static final String kI = "DTP PID I";
+            public static final String kD = "DTP PID D";
+            public static final String kIZ = "DTP PID IZ";
+            public static final String kFF = "DTP PID FF";
+            public static final String maxOutput = "DTP PID Max";
+            public static final String minOutput = "DTP PID Min";
+            public static final String target = "DTP PID Target";
+            public static final String current = "DTP PID Current";
+        }
+
+        public static final String driveOntoChargeStationSpeedFwdKey = "To CS Speed Fwd";
+        public static final String driveOntoChargeStationSpeedRevKey = "To CS Speed Rev";
         
-        public static final String levelPidPKey = "Lvl PID P";
-        public static final String levelPidIKey = "Lvl PID I";
-        public static final String levelPidDKey = "Lvl PID D";
-        public static final String levelPidIZKey = "Lvl PID IZ";
-        public static final String levelPidFFKey = "Lvl PID FF";
-        public static final String levelPidMaxOutputKey = "Lvl PID Max";
-        public static final String levelPidMinOutputKey = "Lvl PID Min";
-        public static final String levelPidTarget = "Lvl PID Target";
-        public static final String levelPidCurrent = "Lvl PID Current";
+        public static final class LevelChargeStationPidKeys
+        {
+            public static final String kP = "Lvl PID P";
+            public static final String kI = "Lvl PID I";
+            public static final String kD = "Lvl PID D";
+            public static final String kIZ = "Lvl PID IZ";
+            public static final String kFF = "Lvl PID FF";
+            public static final String maxOutput = "Lvl PID Max";
+            public static final String minOutput = "Lvl PID Min";
+            public static final String target = "Lvl PID Target";
+            public static final String current = "Lvl PID Current";
+        }
     }
 
 	public static final class DriveTrainConstants
@@ -103,33 +113,37 @@ public final class Constants
         public static final boolean isRightEncoderInverted = false;
 
         // If motors should coast or brake to a stop:
-        public static final IdleMode idleMode = IdleMode.kCoast;
+        public static final IdleMode defaultIdleMode = IdleMode.kCoast;
 
         public static final double defaultAutoLeaveCommunityPositionShort = 28;
         public static final double defaultAutoLeaveCommunityPositionLong = 28;
         public static final double defaultAutoChargeStationPosition = 28;
 
-        // Tolerance for determining if at target position:
-        public static final double positionTolerance = 10;
-
         // Default values for PID controller used for driving to a specific position:
-        public static final double defaultDriveToPositionPidP = 0.08;
-        public static final double defaultDriveToPositionPidI = 0.00001;
-        public static final double defaultDriveToPositionPidD = 1.0;
-        public static final double defaultDriveToPositionPidIZ = 10.0;
-        public static final double defaultDriveToPositionPidFF = 0.0;
-        public static final double defaultDriveToPositionPidMinOutput = -0.25;
-        public static final double defaultDriveToPositionPidMaxOutput = +0.25;
+        public static final class DriveToPositionPidDefaultValues
+        {
+            public static final double kP = 0.08;
+            public static final double kI = 0.00001;
+            public static final double kD = 1.0;
+            public static final double iZone = 10.0;
+            public static final double ff = 0.0;
+            public static final double minOutput = -0.25;
+            public static final double maxOutput = +0.25;
+            public static final double tolerance = 10.0;
+        }
 
         // Default values for PID controller used to level robot on Charge Station:
-        public static final double defaultLevelPidP = 0.08;
-        public static final double defaultLevelPidI = 0.00001;
-        public static final double defaultLevelPidD = 1.0;
-        public static final double defaultLevelPidIZ = 10.0;
-        public static final double defaultLevelPidFF = 0.0;
-        public static final double defaultLevelPidMinOutput = -0.25;
-        public static final double defaultLevelPidMaxOutput = +0.25;
-
+        public static final class LevelChargeStationPidDefaultValues
+        {
+            public static final double kP = 0.08;
+            public static final double kI = 0.00001;
+            public static final double kD = 1.0;
+            public static final double iZone = 10.0;
+            public static final double ff = 0.0;
+            public static final double minOutput = -0.25;
+            public static final double maxOutput = +0.25;
+            public static final double tolerance = 2.0;
+        }
 
         // Default values for Smart Dashboard:
         public static final double defaultOpenLoopRampRate = 0.0;
@@ -141,5 +155,11 @@ public final class Constants
 		public static final int gamepadPort = 1;
 		public static final int leftJoystickPort = 2;
 		public static final int rightJoystickPort = 3;
+	}
+    
+	public static final class PneumaticsConstants
+	{
+        public static final int moduleId = 0;
+		public static final PneumaticsModuleType moduleType = PneumaticsModuleType.CTREPCM;
 	}
 }
