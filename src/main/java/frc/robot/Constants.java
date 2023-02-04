@@ -83,6 +83,11 @@ public final class Constants
             }
         }
 
+        public static final int rightFrontPwmChannel = 0;
+        public static final int leftFrontPwmChannel = 1;
+        public static final int rightRearPwmChannel = 2;
+        public static final int leftRearPwmChannel = 3;
+
         // Motor controllers are SPARK MAX:
 		public static final int leftFrontMotorChannel = 14;
 		public static final int leftRearMotorChannel = 13;
