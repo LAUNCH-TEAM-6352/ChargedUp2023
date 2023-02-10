@@ -76,40 +76,41 @@ public class RobotContainer
         SmartDashboard.putString("Game Data", gameData);
 
         // Create OI devices:
-        // if (gameData.contains("-oi-"))
-        //
-        //     // Explicitly look for OI devices:
-        //     gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
-        //         ? new XboxController(OIConstants.gamepadPort)
-        //         : null;
-        //     leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
-        //         ? new Joystick(OIConstants.leftJoystickPort)
-        //         : null;
-        //     rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
-        //         ? new Joystick(OIConstants.rightJoystickPort)
-        //         : null;
-        // }
-        // else
-        // {
-            // In competition, don't tskr chsances and always create all OI devices:
+        if (gameData.contains("-oi-"))
+        {
+            // Explicitly look for OI devices:
+            gamepad = DriverStation.isJoystickConnected(OIConstants.gamepadPort)
+                ? new XboxController(OIConstants.gamepadPort)
+                : null;
+            leftStick = DriverStation.isJoystickConnected(OIConstants.leftJoystickPort)
+                ? new Joystick(OIConstants.leftJoystickPort)
+                : null;
+            rightStick = DriverStation.isJoystickConnected(OIConstants.rightJoystickPort)
+                ? new Joystick(OIConstants.rightJoystickPort)
+                : null;
+        }
+        else
+        {
+            // In competition, don't take chances and always create all OI devices:
             gamepad = new XboxController(OIConstants.gamepadPort);
-            leftStick = null;
-            rightStick = null;
-            // leftStick = new Joystick(OIConstants.leftJoystickPort);
-            // rightStick = new Joystick(OIConstants.rightJoystickPort);
-        // }
+            leftStick = new Joystick(OIConstants.leftJoystickPort);
+            rightStick = new Joystick(OIConstants.rightJoystickPort);
+        }
 
         SmartDashboard.putBoolean("Gamepad Detected", gamepad != null);
         SmartDashboard.putBoolean("Left Joystick Detected", leftStick != null);
         SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
 
         // Create pneumatics compressor:
-        compressor = Optional.empty();
-        // compressor = Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType));
+        compressor = gameData.isBlank() || gameData.contains("-p-")
+            ? Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType))
+            : Optional.empty();
 
         // Create subsystems:
 		// driveTrain = Optional.empty();
-		driveTrain = Optional.of(new DriveTrain());
+		driveTrain = gameData.isBlank() || gameData.contains("-dt-")
+            ? Optional.of(new DriveTrain())
+            : Optional.empty();
 
         // Configure default commands:
         configureDefaultCommands();
