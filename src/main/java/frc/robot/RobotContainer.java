@@ -62,7 +62,7 @@ public class RobotContainer
      */
     public RobotContainer()
     {
-            // Get the game data message fom the driver station.
+        // Get the game data message fom the driver station.
         // This message is primarily used during development to
         // construct only certain subsystems.
         // If the merssage is blank (or all whitespace),
@@ -73,6 +73,7 @@ public class RobotContainer
         //   -oi-   Look for OI devices
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
+        SmartDashboard.putString("Game Data", gameData);
 
         // Create OI devices:
         if (gameData.contains("-oi-"))
@@ -90,7 +91,7 @@ public class RobotContainer
         }
         else
         {
-            // In competition, don't tskr chsances and always create all OI devices:
+            // In competition, don't take chances and always create all OI devices:
             gamepad = new XboxController(OIConstants.gamepadPort);
             leftStick = new Joystick(OIConstants.leftJoystickPort);
             rightStick = new Joystick(OIConstants.rightJoystickPort);
@@ -101,10 +102,15 @@ public class RobotContainer
         SmartDashboard.putBoolean("Right Joystick Detected", rightStick != null);
 
         // Create pneumatics compressor:
-        compressor = gameData.isBlank() || gameData.contains("-p-") ? Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType)) : Optional.empty();
+        compressor = gameData.isBlank() || gameData.contains("-p-")
+            ? Optional.of(new Compressor(PneumaticsConstants.moduleId, PneumaticsConstants.moduleType))
+            : Optional.empty();
 
         // Create subsystems:
-		driveTrain = gameData.isBlank() || gameData.contains("-dt-") ? Optional.of(new DriveTrain()) : Optional.empty();
+		// driveTrain = Optional.empty();
+		driveTrain = gameData.isBlank() || gameData.contains("-dt-")
+            ? Optional.of(new DriveTrain())
+            : Optional.empty();
 
         // Configure default commands:
         configureDefaultCommands();
