@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.subsystems.DriveTrain;
 
 /**
@@ -26,8 +27,11 @@ import frc.robot.subsystems.DriveTrain;
 public class DriveOntoChargeStation extends CommandBase
 {
     private final DriveTrain driveTrain;
-	private String key = null;
+	private String speedKey = null;
+	private String angleKey = null;
 	private double speed;
+    private double stopAngle;
+    private boolean isClimbing;
 
     private DriveOntoChargeStation(DriveTrain driveTrain)
     {
@@ -37,10 +41,11 @@ public class DriveOntoChargeStation extends CommandBase
         addRequirements(driveTrain);
     }
 
-	public DriveOntoChargeStation(DriveTrain driveTrain, String key)
+	public DriveOntoChargeStation(DriveTrain driveTrain, String speedKey, String angleKey)
 	{
 		this(driveTrain);
-		this.key = key;
+		this.speedKey = speedKey;
+		this.angleKey = angleKey;
 	}
 
 	public DriveOntoChargeStation(DriveTrain driveTrain, double speed)
@@ -53,18 +58,25 @@ public class DriveOntoChargeStation extends CommandBase
     @Override
     public void initialize()
     {
-        if (key != null)
+        if (speedKey != null)
         {
-            speed = SmartDashboard.getNumber(key, 0.0);
+            speed = SmartDashboard.getNumber(speedKey, 0.0);
+            stopAngle = SmartDashboard.getNumber(angleKey, 0.0);
         }
-        //driveTrain.resetAngle();
+        driveTrain.resetAngle();
+        driveTrain.setBrake();
+        isClimbing = false;
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute()
     {
-        // Intentionally left blank as all the work is done in initialize().
+        driveTrain.setRawMotorOutputs(speed);
+        if (Math.abs(driveTrain.getAngle()) > DriveTrainConstants.startClimbingAngle)
+        {
+            isClimbing = true;
+        }
     }
 
     // Called once the command ends or is interrupted.
@@ -78,7 +90,7 @@ public class DriveOntoChargeStation extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return driveTrain.isAtTargetPosition();
+        return isClimbing && Math.abs(driveTrain.getAngle()) < stopAngle;        
     }
 }
 

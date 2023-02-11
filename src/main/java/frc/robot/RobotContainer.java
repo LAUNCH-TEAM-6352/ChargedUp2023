@@ -15,9 +15,11 @@ import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
 import frc.robot.commands.Autos;
+import frc.robot.commands.DriveOntoChargeStation;
 import frc.robot.commands.DriveToRelativePosition;
 import frc.robot.commands.DriveWithGamepad;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.LevelChargeStation;
 import frc.robot.subsystems.DriveTrain;
 
 import edu.wpi.first.wpilibj.Compressor;
@@ -29,6 +31,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
@@ -181,22 +184,33 @@ public class RobotContainer
         SmartDashboard.putNumber(LevelChargeStationPidKeys.kP, LevelChargeStationPidDefaultValues.kP);
         SmartDashboard.putNumber(LevelChargeStationPidKeys.kI, LevelChargeStationPidDefaultValues.kI);
         SmartDashboard.putNumber(LevelChargeStationPidKeys.kD, LevelChargeStationPidDefaultValues.kD);
-        SmartDashboard.putNumber(LevelChargeStationPidKeys.kIZ, LevelChargeStationPidDefaultValues.iZone);
-        SmartDashboard.putNumber(LevelChargeStationPidKeys.kFF, LevelChargeStationPidDefaultValues.ff);
         SmartDashboard.putNumber(LevelChargeStationPidKeys.minOutput, LevelChargeStationPidDefaultValues.minOutput);
         SmartDashboard.putNumber(LevelChargeStationPidKeys.maxOutput, LevelChargeStationPidDefaultValues.maxOutput);
 
         SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
         SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
+
+        SmartDashboard.putNumber(DashboardConstants.driveTrainClimbingSpeedForwardKey, DriveTrainConstants.defaultClimbingSpeedForward);
+        SmartDashboard.putNumber(DashboardConstants.driveTrainClimbingSpeedReverseKey, DriveTrainConstants.defaultClimbingSpeedReverse);
+        SmartDashboard.putNumber(DashboardConstants.driveTrainStopClimbingAngleKey, DriveTrainConstants.defaultStopClimbingAngle);
         
         // The following deal with driving to a specified position:
         SmartDashboard.putData("Drive to Target Pos",
             new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoTargetPositionKey).withTimeout(10));
-            SmartDashboard.putData("Drive to Leave Community Long Pos",
+        SmartDashboard.putData("Drive to Leave Community Long Pos",
             new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10));
-            SmartDashboard.putData("Drive to Leave Community Short Pos",
+        SmartDashboard.putData("Drive to Leave Community Short Pos",
             new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey).withTimeout(10));
         SmartDashboard.putData("Reset DT Pos", new InstantCommand(() -> driveTrain.resetPosition()));
+        SmartDashboard.putData("Reset DT Angle", new InstantCommand(() -> driveTrain.resetAngle()));
+        SmartDashboard.putData("Climb CS", new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey));
+        SmartDashboard.putData("Level CS", new LevelChargeStation(driveTrain));
+
+        SmartDashboard.putData("Climb & Level",
+                new SequentialCommandGroup(
+                    new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                    new LevelChargeStation(driveTrain)
+            ));
 
         // The following are to be used to quickly test the individual drive train motors:
         for (int i = 0; i < DriveTrainConstants.motorNames.length; i++)

@@ -33,7 +33,10 @@ public final class Constants
         public static final String driveTrainAutoTargetPositionKey = "DT Auto Target Pos";
         public static final String driveTrainAutoLeaveCommunityPositionShortKey = "DT Auto Leave Comm Pos Shrt";
         public static final String driveTrainAutoLeaveCommunityPositionLongKey = "DT Auto Leave Comm Pos Lng";
-        
+        public static final String driveTrainClimbingSpeedForwardKey = "DT Climb % Fwd";        
+        public static final String driveTrainClimbingSpeedReverseKey = "DT Climb % Rev"; 
+        public static final String driveTrainStopClimbingAngleKey = "DT Stop Climb Angle";
+
         public static final class DriveToPositionPidKeys
         {
             public static final String kP = "DTP PID P";
@@ -46,21 +49,14 @@ public final class Constants
             public static final String target = "DTP PID Target";
             public static final String current = "DTP PID Current";
         }
-
-        public static final String driveOntoChargeStationSpeedFwdKey = "To CS Speed Fwd";
-        public static final String driveOntoChargeStationSpeedRevKey = "To CS Speed Rev";
         
         public static final class LevelChargeStationPidKeys
         {
             public static final String kP = "Lvl PID P";
             public static final String kI = "Lvl PID I";
             public static final String kD = "Lvl PID D";
-            public static final String kIZ = "Lvl PID IZ";
-            public static final String kFF = "Lvl PID FF";
             public static final String maxOutput = "Lvl PID Max";
             public static final String minOutput = "Lvl PID Min";
-            public static final String target = "Lvl PID Target";
-            public static final String current = "Lvl PID Current";
         }
     }
 
@@ -121,6 +117,12 @@ public final class Constants
         public static final double defaultAutoLeaveCommunityPositionLong = 28;
         public static final double defaultAutoChargeStationPosition = 28;
 
+        // Values dealing with climbing onto the charge station:
+        public static final double defaultClimbingSpeedForward = -0.09;
+        public static final double defaultClimbingSpeedReverse = +0.09;
+        public static final double startClimbingAngle = 10.0;
+        public static final double defaultStopClimbingAngle = 10.0;
+
         // Default values for PID controller used for driving to a specific position:
         public static final class DriveToPositionPidDefaultValues
         {
@@ -137,13 +139,13 @@ public final class Constants
         // Default values for PID controller used to level robot on Charge Station:
         public static final class LevelChargeStationPidDefaultValues
         {
-            public static final double kP = 0.08;
-            public static final double kI = 0.00001;
-            public static final double kD = 1.0;
+            public static final double kP = 1.0;
+            public static final double kI = 0.0;
+            public static final double kD = 0.0;
             public static final double iZone = 10.0;
             public static final double ff = 0.0;
-            public static final double minOutput = -0.25;
-            public static final double maxOutput = +0.25;
+            public static final double minOutput = -0.08;
+            public static final double maxOutput = +0.08;
             public static final double tolerance = 2.0;
         }
 

@@ -80,7 +80,6 @@ public class DriveTrain extends SubsystemBase
 
         // Construct the IMU:
         adis16470Imu = new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
-        SmartDashboard.putData("Gyro", adis16470Imu);
     }
 
     /**
@@ -197,8 +196,8 @@ public class DriveTrain extends SubsystemBase
         setPercentage(leftMotors, leftOut);
         setPercentage(rightMotors, rightOut);
 
-        //SmartDashboard.putNumber(DashboardConstants.driveTrainLeftPercentOutputKey, leftOut);
-        //SmartDashboard.putNumber(DashboardConstants.driveTrainRightPercentOutputKey, rightOut);
+        SmartDashboard.putNumber(DashboardConstants.driveTrainLeftPercentOutputKey, leftOut);
+        SmartDashboard.putNumber(DashboardConstants.driveTrainRightPercentOutputKey, rightOut);
     }
 
     /**
@@ -281,6 +280,8 @@ public class DriveTrain extends SubsystemBase
             SmartDashboard.putNumber(DashboardConstants.driveTrainRightPositionKey, rightMotors.get(0).getEncoder().getPosition());
             // SmartDashboard.putNumber("DT Right Applied", rightMotors.get(0).getAppliedOutput());
         }
+
+        SmartDashboard.putNumber("DT Angle", getAngle());
     }
 
     /**
@@ -302,6 +303,16 @@ public class DriveTrain extends SubsystemBase
     {
         leftMotors.forEach((motor) -> motor.setOpenLoopRampRate(rampRate));
         rightMotors.forEach((motor) -> motor.setOpenLoopRampRate(rampRate));
+    }
+
+    public void setBrake()
+    {
+        setIdleMode(IdleMode.kBrake);
+    }
+
+    public void setCoast()
+    {
+        setIdleMode(IdleMode.kCoast);
     }
 
     /**
@@ -326,9 +337,15 @@ public class DriveTrain extends SubsystemBase
         motors.forEach((motor) -> motor.set(percentage));
     }
 
+    /**
+     * Returns the angle of the robot in degrees betwween -180 and +180.
+     * 
+     * @return the robot angle between -180 and +180 degrees,
+     */
     public double getAngle()
     {
-        return adis16470Imu.getAngle();
+        var angle = adis16470Imu.getAngle();
+        return angle > 180 ? 360.0 - angle : angle;
     }
 
     public void resetAngle()
