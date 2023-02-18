@@ -110,7 +110,6 @@ public class RobotContainer
             : Optional.empty();
 
         // Create subsystems:
-		// driveTrain = Optional.empty();
 		driveTrain = gameData.isBlank() || gameData.contains("-dt-")
             ? Optional.of(new DriveTrain())
             : Optional.empty();
@@ -164,7 +163,7 @@ public class RobotContainer
     }
     
     /**
-     * Adds the drive train related commands to the Smart Dashboard.
+     * Adds the drive train related data and commands to the Smart Dashboard.
      * 
      * @param driveTrain
      */
@@ -224,7 +223,11 @@ public class RobotContainer
         };
     }
 
-    
+    /**
+     * Configures the smart dashboard widget for choosing what to do in Autonomous.
+     * 
+     * @param chooser
+     */
     private void configureSmartDashboard(SendableChooser<Command> chooser)
     {
         chooser.setDefaultOption("Leave Community Short", Autos.leaveCommunityViaShortPath());
