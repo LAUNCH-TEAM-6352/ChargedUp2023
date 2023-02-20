@@ -113,15 +113,18 @@ public final class Constants
         // If motors should coast or brake to a stop:
         public static final IdleMode defaultIdleMode = IdleMode.kCoast;
 
+        // How long to delay (secs) in auto after traversing the charge station:
+        public static final double autoDriveDelay = 0.05;
+
         public static final double defaultAutoLeaveCommunityPositionShort = 28;
-        public static final double defaultAutoLeaveCommunityPositionLong = 28;
+        public static final double defaultAutoLeaveCommunityPositionLong = -75;
         public static final double defaultAutoChargeStationPosition = 28;
 
         // Values dealing with climbing onto the charge station:
-        public static final double defaultClimbingSpeedForward = -0.09;
-        public static final double defaultClimbingSpeedReverse = +0.09;
+        public static final double defaultClimbingSpeedForward = -0.26;
+        public static final double defaultClimbingSpeedReverse = +0.26;
         public static final double startClimbingAngle = 10.0;
-        public static final double defaultStopClimbingAngle = 10.0;
+        public static final double defaultStopClimbingAngle = 8.0;
 
         // Default values for PID controller used for driving to a specific position:
         public static final class DriveToPositionPidDefaultValues
@@ -131,8 +134,8 @@ public final class Constants
             public static final double kD = 1.0;
             public static final double iZone = 10.0;
             public static final double ff = 0.0;
-            public static final double minOutput = -0.25;
-            public static final double maxOutput = +0.25;
+            public static final double minOutput = -0.28;
+            public static final double maxOutput = +0.28;
             public static final double tolerance = 10.0;
         }
 
@@ -144,8 +147,8 @@ public final class Constants
             public static final double kD = 0.0;
             public static final double iZone = 10.0;
             public static final double ff = 0.0;
-            public static final double minOutput = -0.08;
-            public static final double maxOutput = +0.08;
+            public static final double minOutput = -0.075;
+            public static final double maxOutput = +0.075;
             public static final double tolerance = 2.0;
         }
 

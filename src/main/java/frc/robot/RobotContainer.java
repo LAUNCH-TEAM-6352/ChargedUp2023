@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
@@ -205,13 +206,27 @@ public class RobotContainer
         SmartDashboard.putData("Climb CS", new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey));
         SmartDashboard.putData("Level CS", new LevelChargeStation(driveTrain));
 
-        SmartDashboard.putData("Climb & Level",
-                new SequentialCommandGroup(
-                    new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey),
-                    new LevelChargeStation(driveTrain)
-            ));
+        SmartDashboard.putData("Climb Fwd & Level",
+            new SequentialCommandGroup(
+                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new LevelChargeStation(driveTrain)
+        ));
 
-        // The following are to be used to quickly test the individual drive train motors:
+        SmartDashboard.putData("Climb Rev & Level",
+            new SequentialCommandGroup(
+                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedReverseKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new LevelChargeStation(driveTrain)
+        ));
+
+        SmartDashboard.putData("Full Auto",
+            new SequentialCommandGroup(
+                new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10),
+                new WaitCommand(DriveTrainConstants.autoDriveDelay),
+                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedReverseKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new LevelChargeStation(driveTrain)
+        ));
+
+    // The following are to be used to quickly test the individual drive train motors:
         for (int i = 0; i < DriveTrainConstants.motorNames.length; i++)
         {
             var motorName = DriveTrainConstants.motorNames[i];
