@@ -22,20 +22,59 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
  */
 public final class Constants
 {
+    public static final class ArmConstants
+    {
+        public static final int leftPivotMotorChannel = 20;
+        public static final int rightPivotMotorChannel = 21;
+        public static final int extenderMotorChannel = 22;
+        
+        //Position switches
+        public static final int maxExtensionPositionChannel = 0;
+        public static final int minExtensionPositionChannel = 1;
+        public static final int deliveryExtensionPositionChannel = 2;
+        public static final int homePivotPositionChannel = 3;
+        public static final int deliveryPivotPositionChannel = 4;
+        public static final int maxPivotFrontPositionChannel = 5;
+        public static final int maxPivotBackPositionChannel = 6;
+    }
+
+    public static final class ClawConstants
+    {
+        public static final int pneumaticsOpenChannel = 0;
+        public static final int pneumaticsCloseChannel = 1;
+
+        public static final int pneumaticsRetractChannel = 0;
+    }
+
     public static final class DashboardConstants
 	{
-		public static final String driveTrainLeftPositionKey = "DT Left Pos";
-		public static final String driveTrainRightPositionKey = "DT Right Pos";
-		public static final String driveTrainOpenLoopRampRateKey = "DT OL Ramp Rate (secs)";
-		public static final String driveTrainClosedLoopRampRateKey = "DT CL Ramp Rate (secs)";
-        public static final String driveTrainLeftPercentOutputKey = "DT Left % Output";
-        public static final String driveTrainRightPercentOutputKey = "DT Right % Output";
-        public static final String driveTrainAutoTargetPositionKey = "DT Auto Target Pos";
-        public static final String driveTrainAutoLeaveCommunityPositionShortKey = "DT Auto Leave Comm Pos Shrt";
-        public static final String driveTrainAutoLeaveCommunityPositionLongKey = "DT Auto Leave Comm Pos Lng";
-        public static final String driveTrainClimbingSpeedForwardKey = "DT Climb % Fwd";        
-        public static final String driveTrainClimbingSpeedReverseKey = "DT Climb % Rev"; 
-        public static final String driveTrainStopClimbingAngleKey = "DT Stop Climb Angle";
+        public static final class DriveTrainKeys
+        {
+            //Drive Train Constants
+            public static final String leftPosition = "DT Left Pos";
+            public static final String rightPosition = "DT Right Pos";
+            public static final String openLoopRampRate = "DT OL Ramp Rate (secs)";
+            public static final String closedLoopRampRate = "DT CL Ramp Rate (secs)";
+            public static final String leftPercentOutput = "DT Left % Output";
+            public static final String rightPercentOutput = "DT Right % Output";
+            public static final String autoTargetPosition = "DT Auto Target Pos";
+            public static final String autoLeaveCommunityPositionShort = "DT Auto Leave Comm Pos Shrt";
+            public static final String autoLeaveCommunityPositionLong = "DT Auto Leave Comm Pos Lng";
+            public static final String climbingSpeedForward = "DT Climb % Fwd";        
+            public static final String climbingSpeedReverse = "DT Climb % Rev"; 
+            public static final String stopClimbingAngle = "DT Stop Climb Angle";
+                
+        }
+
+        public static final class ArmKeys
+        {
+            //Arm Constants
+            public static final String extensionLimit = "Arm Ext Limit";
+            public static final String deliveryExtensionPosition = "Arm Delivery Ext Pos";
+            public static final String maxPivotPosition = "Arm Max Pivot Pos";
+            public static final String homePivotPosition = "Arm Home Pivot Pos";
+            public static final String deliveryPivotPosition = "Arm Delivery Pivot Pos";
+        }
 
         public static final class DriveToPositionPidKeys
         {

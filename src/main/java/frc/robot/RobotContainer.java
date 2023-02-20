@@ -11,6 +11,7 @@ import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
+import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
 import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
@@ -170,8 +171,8 @@ public class RobotContainer
      */
     private void configureSmartDashboard(DriveTrain driveTrain)
     {
-        SmartDashboard.putNumber(DashboardConstants.driveTrainOpenLoopRampRateKey, DriveTrainConstants.defaultOpenLoopRampRate);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainClosedLoopRampRateKey, DriveTrainConstants.defaultClosedLoopRampRate);
+        SmartDashboard.putNumber(DriveTrainKeys.openLoopRampRate, DriveTrainConstants.defaultOpenLoopRampRate);
+        SmartDashboard.putNumber(DriveTrainKeys.closedLoopRampRate, DriveTrainConstants.defaultClosedLoopRampRate);
 
         SmartDashboard.putNumber(DriveToPositionPidKeys.kP, DriveToPositionPidDefaultValues.kP);
         SmartDashboard.putNumber(DriveToPositionPidKeys.kI, DriveToPositionPidDefaultValues.kI);
@@ -187,42 +188,42 @@ public class RobotContainer
         SmartDashboard.putNumber(LevelChargeStationPidKeys.minOutput, LevelChargeStationPidDefaultValues.minOutput);
         SmartDashboard.putNumber(LevelChargeStationPidKeys.maxOutput, LevelChargeStationPidDefaultValues.maxOutput);
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionShort, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainClimbingSpeedForwardKey, DriveTrainConstants.defaultClimbingSpeedForward);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainClimbingSpeedReverseKey, DriveTrainConstants.defaultClimbingSpeedReverse);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainStopClimbingAngleKey, DriveTrainConstants.defaultStopClimbingAngle);
+        SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedForward, DriveTrainConstants.defaultClimbingSpeedForward);
+        SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedReverse, DriveTrainConstants.defaultClimbingSpeedReverse);
+        SmartDashboard.putNumber(DriveTrainKeys.stopClimbingAngle, DriveTrainConstants.defaultStopClimbingAngle);
         
         // The following deal with driving to a specified position:
         SmartDashboard.putData("Drive to Target Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoTargetPositionKey).withTimeout(10));
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoTargetPosition).withTimeout(10));
         SmartDashboard.putData("Drive to Leave Community Long Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10));
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionLong).withTimeout(10));
         SmartDashboard.putData("Drive to Leave Community Short Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey).withTimeout(10));
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionShort).withTimeout(10));
         SmartDashboard.putData("Reset DT Pos", new InstantCommand(() -> driveTrain.resetPosition()));
         SmartDashboard.putData("Reset DT Angle", new InstantCommand(() -> driveTrain.resetAngle()));
-        SmartDashboard.putData("Climb CS", new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey));
+        SmartDashboard.putData("Climb CS", new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedForward, DriveTrainKeys.stopClimbingAngle));
         SmartDashboard.putData("Level CS", new LevelChargeStation(driveTrain));
 
         SmartDashboard.putData("Climb Fwd & Level",
             new SequentialCommandGroup(
-                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedForward, DriveTrainKeys.stopClimbingAngle),
                 new LevelChargeStation(driveTrain)
         ));
 
         SmartDashboard.putData("Climb Rev & Level",
             new SequentialCommandGroup(
-                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedReverseKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedReverse, DriveTrainKeys.stopClimbingAngle),
                 new LevelChargeStation(driveTrain)
         ));
 
         SmartDashboard.putData("Full Auto",
             new SequentialCommandGroup(
-                new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10),
+                new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionLong).withTimeout(10),
                 new WaitCommand(DriveTrainConstants.autoDriveDelay),
-                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedReverseKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedReverse, DriveTrainKeys.stopClimbingAngle),
                 new LevelChargeStation(driveTrain)
         ));
 
