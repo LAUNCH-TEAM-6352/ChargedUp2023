@@ -60,6 +60,9 @@ public final class Constants
         }
 
         public static final int extenderMotorChannel = 22;
+        public static final boolean isExtenderMotorInverted = false;
+        public static final double defaultExtendSpeed = 0.5;
+        public static final double defaultRetractSpeed = -0.5;
 
         //Position switches
         public static final int maxExtensionPositionChannel = 0;
@@ -73,10 +76,8 @@ public final class Constants
 
     public static final class ClawConstants
     {
-        public static final int pneumaticsOpenChannel = 0;
-        public static final int pneumaticsCloseChannel = 1;
-
-        public static final int pneumaticsRetractChannel = 0;
+        public static final int pneumaticsForwardChannel = 0;
+        public static final int pneumaticsReverseChannel = 1;
     }
 
     public static final class DashboardConstants
@@ -107,6 +108,9 @@ public final class Constants
             public static final String maxPivotPosition = "Arm Max Pivot Pos";
             public static final String homePivotPosition = "Arm Home Pivot Pos";
             public static final String deliveryPivotPosition = "Arm Delivery Pivot Pos";
+            public static final String currentPivotPosition = "Arm Pivot Pos";
+            public static final String armExtendSpeed = "Arm Ext Spd";
+            public static final String armRetractSpeed = "Arm Ret Spd";
         }
 
         public static final class DriveToPositionPidKeys

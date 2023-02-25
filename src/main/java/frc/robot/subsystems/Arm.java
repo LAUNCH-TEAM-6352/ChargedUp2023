@@ -22,16 +22,20 @@ public class Arm extends SubsystemBase
     private final TalonSRX rightPivotMotor = new TalonSRX(PivotConstants.rightMotorChannel);
     private final VictorSPX extenderMotor = new VictorSPX(ArmConstants.extenderMotorChannel);
 
-    private final TalonSRX encodedPivotMotor = leftPivotMotor;
-
     private final DigitalInput maxPivotFrontPosition = new DigitalInput(ArmConstants.maxPivotFrontPositionChannel);
     private final DigitalInput maxPivotBackPosition = new DigitalInput(ArmConstants.maxPivotBackPositionChannel);
     private final DigitalInput homePivotPosition = new DigitalInput(ArmConstants.homePivotPositionChannel);
     private final DigitalInput deliveryPivotPosition = new DigitalInput(ArmConstants.deliveryPivotPositionChannel);
 
-    private final DigitalInput maxExtensionPosition = new DigitalInput(ArmConstants.maxExtensionPositionChannel);
     private final DigitalInput minExtensionPosition = new DigitalInput(ArmConstants.minExtensionPositionChannel);
+    private final DigitalInput maxExtensionPosition = new DigitalInput(ArmConstants.maxExtensionPositionChannel);
     private final DigitalInput deliveryExtensionPosition = new DigitalInput(ArmConstants.deliveryExtensionPositionChannel);
+
+    private double targetPivotPosition;
+    private double lastPivotPosition;
+    private boolean isAtTargetPivotPosition;
+    private boolean isPivotPositioningStarted;
+
 
     /** Creates a new Arm. */
     public Arm()
@@ -39,6 +43,7 @@ public class Arm extends SubsystemBase
         leftPivotMotor.setInverted(PivotConstants.isLeftMotorInverted);
         rightPivotMotor.setInverted(PivotConstants.isRightMotorInverted);
 		rightPivotMotor.set(ControlMode.Follower, leftPivotMotor.getDeviceID());
+        extenderMotor.setInverted(ArmConstants.isExtenderMotorInverted);
 
 		for (TalonSRX motor : new TalonSRX[] { leftPivotMotor, rightPivotMotor})
 		{
@@ -64,10 +69,20 @@ public class Arm extends SubsystemBase
             motor.setNeutralMode(PivotConstants.neutralMode);
 		}
 
-
-        // Tell the motor controller with the attached encoder how to access the encoder:
-        //encodedPivotMotor.sensor
+        resetPivotPosition();
     }
+
+	/**
+	 * Sets the shooter motor speeds in velocity (RPM).
+	 */
+	public void setPivotPosition(double position)
+	{        
+        targetPivotPosition = position;
+        lastPivotPosition = 0;
+		leftPivotMotor.set(ControlMode.Position, position);
+        isAtTargetPivotPosition = false;
+        isPivotPositioningStarted = true;
+	}
 
     /**
      * Redsets the pivot position counter to 0.
@@ -77,48 +92,89 @@ public class Arm extends SubsystemBase
         leftPivotMotor.setSelectedSensorPosition(0);
     }
 
+    public double getPivotPosition()
+    {
+        return leftPivotMotor.getSelectedSensorPosition();
+    }
+
+    public boolean isAtTargetPivotPosition()
+    {
+        return isAtTargetPivotPosition;
+    }
+
+    public void setExtenderSpeed(double speed)
+    {
+        if ((isAtMaxExtensionLimit() && speed > 0) || (isAtMinExtensionLimit() && speed < 0))
+        {
+            speed = 0;
+        }
+        extenderMotor.set(ControlMode.PercentOutput, speed);
+    }
+
+    public void stopExtender()
+    {
+        setExtenderSpeed(0);
+    }
+
     @Override
     public void periodic()
     {
+        var leftPivotPosition = leftPivotMotor.getSelectedSensorPosition();
+
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean(ArmKeys.extensionLimit, !(isAtMaxExtensionLimit() || isAtMinExtensionLimit()));
         SmartDashboard.putBoolean(ArmKeys.deliveryExtensionPosition, isAtDeliveryExtensionPosition());
         SmartDashboard.putBoolean(ArmKeys.maxPivotPosition, !(isAtMaxPivotBackPosition() || isAtMaxPivotFrontPosition()));
         SmartDashboard.putBoolean(ArmKeys.homePivotPosition, isAtHomePivotPosition());
         SmartDashboard.putBoolean(ArmKeys.deliveryPivotPosition, isAtDeliveryPivotPosition());
+        SmartDashboard.putNumber(ArmKeys.currentPivotPosition, leftPivotPosition);
+
+        if (isPivotPositioningStarted)
+        {
+            if (Math.abs(leftPivotPosition - targetPivotPosition) < 10 && Math.abs(leftPivotPosition - lastPivotPosition) < 10)
+            {
+                isPivotPositioningStarted = false;
+                isAtTargetPivotPosition = true;
+            }
+            else
+            {
+                lastPivotPosition = leftPivotPosition;
+            }
+        }
     }
 
-    private boolean isAtMaxPivotFrontPosition()
+
+    public boolean isAtMaxPivotFrontPosition()
     {
         return maxPivotFrontPosition.get();
     }
 
-    private boolean isAtMaxPivotBackPosition()
+    public boolean isAtMaxPivotBackPosition()
     {
         return maxPivotBackPosition.get();
     }
 
-    private boolean isAtHomePivotPosition()
+    public boolean isAtHomePivotPosition()
     {
         return homePivotPosition.get();
     }
 
-    private boolean isAtDeliveryPivotPosition()
+    public boolean isAtDeliveryPivotPosition()
     {
         return deliveryPivotPosition.get();
     }
 
-    private boolean isAtMinExtensionLimit()
+    public boolean isAtMinExtensionLimit()
     {
         return minExtensionPosition.get();
     }
 
-    private boolean isAtMaxExtensionLimit()
+    public boolean isAtMaxExtensionLimit()
     {
         return maxExtensionPosition.get();
     }
 
-    private boolean isAtDeliveryExtensionPosition()
+    public boolean isAtDeliveryExtensionPosition()
     {
         return deliveryExtensionPosition.get();
     }

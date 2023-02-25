@@ -6,36 +6,40 @@ package frc.robot;
 
 import java.util.Optional;
 
-import frc.robot.Constants.DashboardConstants;
-import frc.robot.Constants.DriveTrainConstants;
-import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.PneumaticsConstants;
+import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
 import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
 import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
+import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveOntoChargeStation;
 import frc.robot.commands.DriveToRelativePosition;
 import frc.robot.commands.DriveWithGamepad;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.LevelChargeStation;
+import frc.robot.commands.RunArmExtenderWithGamepad;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
-
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -50,6 +54,8 @@ public class RobotContainer
 
     // Subsystems:
     private final Optional<DriveTrain> driveTrain;
+    private final Optional<Arm> arm;
+    private final Optional<Claw> claw;
 
     // OI devices:
 	private final XboxController gamepad;
@@ -76,6 +82,8 @@ public class RobotContainer
         // depending upon the substrings found in the message:
         //   -dt-   Drive train
         //   -oi-   Look for OI devices
+        //   -a-    Arm
+        //   -c-    Claw
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
@@ -114,6 +122,14 @@ public class RobotContainer
         // Create subsystems:
 		driveTrain = gameData.isBlank() || gameData.contains("-dt-")
             ? Optional.of(new DriveTrain())
+            : Optional.empty();		
+
+        arm = gameData.isBlank() || gameData.contains("-a-")
+            ? Optional.of(new Arm())
+            : Optional.empty();		
+
+        claw = gameData.isBlank() || gameData.contains("-c-")
+            ? Optional.of(new Claw())
             : Optional.empty();
 
         // Configure default commands:
@@ -142,6 +158,14 @@ public class RobotContainer
                 dt.setDefaultCommand(new DriveWithGamepad(dt, gamepad));
             }
         });
+
+        arm.ifPresent((a) -> 
+        {
+            if (gamepad != null)
+            {
+                a.setDefaultCommand(new RunArmExtenderWithGamepad(a, gamepad));
+            }
+        });
     }
 
     /**
@@ -155,13 +179,36 @@ public class RobotContainer
      */
     private void configureTriggerBindings()
     {
+        //Arm triggers:
+        arm.ifPresent(this::configureTriggerBindings);
+        
+        //Claw triggers:
+        claw.ifPresent(this::configureTriggerBindings);
+    }
+
+    private void configureTriggerBindings(Arm arm)
+    {
+    }  
+    private void configureTriggerBindings(Claw claw)
+    {
+        if (gamepad == null)
+        {
+            return;
+        }        
+
+        new JoystickButton(gamepad, Button.kLeftStick.value)
+            .onTrue(new InstantCommand(() -> claw.open(), claw));
+        new JoystickButton(gamepad, Button.kRightStick.value)
+            .onTrue(new InstantCommand(() -> claw.close(), claw));
     }
 
     private void configureSmartDashboard()
     {
         driveTrain.ifPresent(this::configureSmartDashboard);
+        arm.ifPresent(this::configureSmartDashboard);
+        claw.ifPresent(this::configureSmartDashboard);        
 
-        autonomousChooser.ifPresent(this::configureSmartDashboard);
+        autonomousChooser.ifPresent(this::configureSmartDashboard);        
     }
     
     /**
@@ -237,6 +284,18 @@ public class RobotContainer
                     () -> driveTrain.stop(motorName.channel),
                     driveTrain));
         };
+    }
+
+    private void configureSmartDashboard(Arm arm)
+    {
+        SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ArmConstants.defaultExtendSpeed);
+        SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ArmConstants.defaultRetractSpeed);
+    }    
+    
+    private void configureSmartDashboard(Claw claw)
+    {
+        SmartDashboard.putData("Open Claw", new InstantCommand(() -> claw.open()));
+        SmartDashboard.putData("Close Claw", new InstantCommand(() -> claw.close()));
     }
 
     /**
