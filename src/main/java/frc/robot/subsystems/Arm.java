@@ -4,20 +4,25 @@
 
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.DashboardConstants;
+import frc.robot.Constants.ArmConstants.PivotConstants;
 import frc.robot.Constants.DashboardConstants.ArmKeys;
 
 public class Arm extends SubsystemBase
 {
-    private final VictorSPX leftPivotMotor = new VictorSPX(ArmConstants.leftPivotMotorChannel);
-    private final VictorSPX rightPivotMotor = new VictorSPX(ArmConstants.rightPivotMotorChannel);
+    private final TalonSRX leftPivotMotor = new TalonSRX(PivotConstants.leftMotorChannel);
+    private final TalonSRX rightPivotMotor = new TalonSRX(PivotConstants.rightMotorChannel);
     private final VictorSPX extenderMotor = new VictorSPX(ArmConstants.extenderMotorChannel);
+
+    private final TalonSRX encodedPivotMotor = leftPivotMotor;
 
     private final DigitalInput maxPivotFrontPosition = new DigitalInput(ArmConstants.maxPivotFrontPositionChannel);
     private final DigitalInput maxPivotBackPosition = new DigitalInput(ArmConstants.maxPivotBackPositionChannel);
@@ -31,7 +36,61 @@ public class Arm extends SubsystemBase
     /** Creates a new Arm. */
     public Arm()
     {
-        
+        leftPivotMotor.setInverted(PivotConstants.isLeftMotorInverted);
+        rightPivotMotor.setInverted(PivotConstants.isRightMotorInverted);
+		rightPivotMotor.set(ControlMode.Follower, leftPivotMotor.getDeviceID());
+
+		for (TalonSRX motor : new TalonSRX[] { leftPivotMotor, rightPivotMotor})
+		{
+			motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
+			motor.configAllowableClosedloopError(PivotConstants.pidProfileSlot, PivotConstants.pidAllowableError,
+            PivotConstants.pidTimeoutMs);
+			motor.configClosedLoopPeakOutput(PivotConstants.pidProfileSlot, PivotConstants.pidPeakOutput,
+            PivotConstants.pidTimeoutMs);
+			motor.configClosedLoopPeriod(PivotConstants.pidProfileSlot, PivotConstants.pidLoopPeriodMs,
+                PivotConstants.pidTimeoutMs);
+			motor.config_kP(PivotConstants.pidProfileSlot, PivotConstants.pidP,
+                PivotConstants.pidTimeoutMs);
+			motor.config_kI(PivotConstants.pidProfileSlot, PivotConstants.pidI,
+                PivotConstants.pidTimeoutMs);
+			motor.config_kD(PivotConstants.pidProfileSlot, PivotConstants.pidD,
+                PivotConstants.pidTimeoutMs);
+			motor.config_kF(PivotConstants.pidProfileSlot, PivotConstants.pidFF,
+                PivotConstants.pidTimeoutMs);
+			motor.config_IntegralZone(PivotConstants.pidProfileSlot, PivotConstants.pidIZ,
+                PivotConstants.pidTimeoutMs);
+			motor.selectProfileSlot(PivotConstants.pidProfileSlot, PivotConstants.primaryClosedLoop);
+			motor.setSensorPhase(PivotConstants.isSensorPhaseInverted);
+            motor.setNeutralMode(PivotConstants.neutralMode);
+		}
+
+
+        // Tell the motor controller with the attached encoder how to access the encoder:
+        //encodedPivotMotor.sensor
+    }
+
+    /**
+     * Redsets the pivot position counter to 0.
+     */
+    public void resetPivotPosition()
+    {
+        leftPivotMotor.setSelectedSensorPosition(0);
+    }
+
+    @Override
+    public void periodic()
+    {
+        // This method will be called once per scheduler run
+        SmartDashboard.putBoolean(ArmKeys.extensionLimit, !(isAtMaxExtensionLimit() || isAtMinExtensionLimit()));
+        SmartDashboard.putBoolean(ArmKeys.deliveryExtensionPosition, isAtDeliveryExtensionPosition());
+        SmartDashboard.putBoolean(ArmKeys.maxPivotPosition, !(isAtMaxPivotBackPosition() || isAtMaxPivotFrontPosition()));
+        SmartDashboard.putBoolean(ArmKeys.homePivotPosition, isAtHomePivotPosition());
+        SmartDashboard.putBoolean(ArmKeys.deliveryPivotPosition, isAtDeliveryPivotPosition());
+    }
+
+    private boolean isAtMaxPivotFrontPosition()
+    {
+        return maxPivotFrontPosition.get();
     }
 
     private boolean isAtMaxPivotBackPosition()
@@ -49,11 +108,6 @@ public class Arm extends SubsystemBase
         return deliveryPivotPosition.get();
     }
 
-    private boolean isAtMaxPivotFrontPosition()
-    {
-        return maxPivotFrontPosition.get();
-    }
-
     private boolean isAtMinExtensionLimit()
     {
         return minExtensionPosition.get();
@@ -69,15 +123,4 @@ public class Arm extends SubsystemBase
         return deliveryExtensionPosition.get();
     }
 
-    @Override
-    public void periodic()
-    {
-        // This method will be called once per scheduler run
-        SmartDashboard.putBoolean(ArmKeys.extensionLimit, !(isAtMaxExtensionLimit() || isAtMinExtensionLimit()));
-        SmartDashboard.putBoolean(ArmKeys.deliveryExtensionPosition, isAtDeliveryExtensionPosition());
-        SmartDashboard.putBoolean(ArmKeys.maxPivotPosition, !(isAtMaxPivotBackPosition() || isAtMaxPivotFrontPosition()));
-        SmartDashboard.putBoolean(ArmKeys.homePivotPosition, isAtHomePivotPosition());
-        SmartDashboard.putBoolean(ArmKeys.deliveryPivotPosition, isAtDeliveryPivotPosition());
-
-    }
 }

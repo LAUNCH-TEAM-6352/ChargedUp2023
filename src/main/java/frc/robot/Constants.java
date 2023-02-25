@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -24,10 +25,42 @@ public final class Constants
 {
     public static final class ArmConstants
     {
-        public static final int leftPivotMotorChannel = 20;
-        public static final int rightPivotMotorChannel = 21;
+        public static final class PivotConstants
+        {
+            public static final int leftMotorChannel = 20;
+            public static final int rightMotorChannel = 21;
+            public static final boolean isLeftMotorInverted = false;
+            public static final boolean isRightMotorInverted = true;
+
+            // This is the max output of the 4:1 gearbox.
+            // This equates to about 3,500 RPM.
+            public static final double peakVelocityUnitsPer100ms = 23800.0;
+
+            // PID constants:
+            public static final int pidProfileSlot = 0;
+            public static final double pidP = 0.8;
+            public static final double pidI = 0.00001;
+            public static final double pidD = 0.03;
+            public static final int pidIZ = 3000;
+            public static final double pidFF = 1023.0 / peakVelocityUnitsPer100ms;
+            public static final double pidPeakOutput = 1;
+            public static final int pidLoopPeriodMs = 1;
+            public static final double pidMaxIntegralAccum = 0;
+            public static final int pidAllowableError = 0;
+            public static final int pidTimeoutMs = 30;
+
+            // Encoder constants:
+            public static final int countsPerRevolution = 1024;
+            public static final int ticksPerCount = 4;
+            public static final int primaryClosedLoop = 0;
+            public static final boolean isSensorPhaseInverted = false;
+
+            // Indicates if motors should coast or brake to a stop:
+            public static final NeutralMode neutralMode = NeutralMode.Coast;
+        }
+
         public static final int extenderMotorChannel = 22;
-        
+
         //Position switches
         public static final int maxExtensionPositionChannel = 0;
         public static final int minExtensionPositionChannel = 1;
