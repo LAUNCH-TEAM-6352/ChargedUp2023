@@ -282,7 +282,7 @@ public class DriveTrain extends SubsystemBase
             // SmartDashboard.putNumber("DT Right Applied", rightMotors.get(0).getAppliedOutput());
         }
 
-        SmartDashboard.putNumber("DT Angle", getAngle());
+        SmartDashboard.putNumber(DriveTrainKeys.angle, getAngle());
     }
 
     /**

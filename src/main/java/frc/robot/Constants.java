@@ -85,6 +85,7 @@ public final class Constants
         public static final class DriveTrainKeys
         {
             //Drive Train Constants
+            public static final String angle = "DT Angle";
             public static final String leftPosition = "DT Left Pos";
             public static final String rightPosition = "DT Right Pos";
             public static final String openLoopRampRate = "DT OL Ramp Rate (secs)";
