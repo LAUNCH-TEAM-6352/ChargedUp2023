@@ -306,12 +306,18 @@ public class DriveTrain extends SubsystemBase
         rightMotors.forEach((motor) -> motor.setOpenLoopRampRate(rampRate));
     }
 
-    public void setBrake()
+    /**
+     * Set motors to brake when idle.
+     */
+    public void setIdleBrake()
     {
         setIdleMode(IdleMode.kBrake);
     }
 
-    public void setCoast()
+    /**
+     * Set motors to coast when idle.
+     */
+    public void setIdleCoast()
     {
         setIdleMode(IdleMode.kCoast);
     }

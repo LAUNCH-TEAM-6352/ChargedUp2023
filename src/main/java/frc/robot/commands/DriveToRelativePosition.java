@@ -47,7 +47,7 @@ public class DriveToRelativePosition extends CommandBase
         }
         driveTrain.resetPosition();
         driveTrain.configureForPositionPidControl();
-        driveTrain.setBrake();
+        driveTrain.setIdleBrake();
         driveTrain.driveToPosition(position);
     }
 

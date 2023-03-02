@@ -64,7 +64,7 @@ public class DriveOntoChargeStation extends CommandBase
             stopAngle = SmartDashboard.getNumber(angleKey, 0.0);
         }
         driveTrain.resetAngle();
-        driveTrain.setBrake();
+        driveTrain.setIdleBrake();
         isClimbing = false;
     }
 
