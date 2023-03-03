@@ -15,7 +15,7 @@ public class RetractArm extends CommandBase
     private final String key;
     private double speed;
     
-    /** Creates a new ExtendArmToDeliveryPosition. */
+    /** Creates a new RetractArm. */
     public RetractArm(Arm arm, String key)
     {
         this.arm = arm;
