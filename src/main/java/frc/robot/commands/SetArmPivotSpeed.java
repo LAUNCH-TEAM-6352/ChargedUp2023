@@ -6,38 +6,42 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.ArmConstants.PivotConstants;
 import frc.robot.subsystems.Arm;
 
-public class AdjustArmPivotPosition extends CommandBase
+public class SetArmPivotSpeed extends CommandBase
 {
-    private Arm arm;
-    private final String key;
-    private double position;
+    private final Arm arm;
+    private final String speedKey;
+    private double speed;
 
-    /** Creates a new AdjustArmPivotPosition. */
-    public AdjustArmPivotPosition(Arm arm, String key)
+    /** Creates a new SetArmPivotPosition. */
+    public SetArmPivotSpeed(Arm arm, String speedKey)
     {
         this.arm = arm;
-        this.key = key;
+        this.speedKey = speedKey;
+        
+        addRequirements(arm);
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize()
     {
+        speed = SmartDashboard.getNumber(speedKey, 0);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute()
     {
+        arm.setPivotSpeed(speed);
     }
 
     // Called once the command ends or is interrupted.
     @Override
     public void end(boolean interrupted)
     {
+        arm.stopPivot();
     }
 
     // Returns true when the command should end.

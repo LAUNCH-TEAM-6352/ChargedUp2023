@@ -32,37 +32,46 @@ public final class Constants
             public static final boolean isLeftMotorInverted = false;
             public static final boolean isRightMotorInverted = true;
 
-            // This is the max output of the 4:1 gearbox.
-            // This equates to about 3,500 RPM.
-            public static final double peakVelocityUnitsPer100ms = 23800.0;
+            public static final int brakeSolenoidForwardChannel = 2;
+            public static final int brakeSolenoidReverseChannel = 3;
 
             // PID constants:
-            public static final int pidProfileSlot = 0;
-            public static final double pidP = 0.8;
-            public static final double pidI = 0.00001;
-            public static final double pidD = 0.03;
-            public static final int pidIZ = 3000;
-            public static final double pidFF = 1023.0 / peakVelocityUnitsPer100ms;
-            public static final double pidPeakOutput = 1;
-            public static final int pidLoopPeriodMs = 1;
-            public static final double pidMaxIntegralAccum = 0;
-            public static final int pidAllowableError = 0;
-            public static final int pidTimeoutMs = 30;
+            public static final double pidP = 0.15;
+            public static final double pidI = 0.0;
+            public static final double pidD = 1.0;
+            public static final int pidIZ = 0;
+            public static final double pidFF = 0;
+            public static final double pidMinOutput = -0.2;
+            public static final double pidMaxOutput = 0.2;
 
             // Encoder constants:
             public static final int countsPerRevolution = 1024;
             public static final int ticksPerCount = 4;
             public static final int primaryClosedLoop = 0;
-            public static final boolean isSensorPhaseInverted = false;
 
             // Indicates if motors should coast or brake to a stop:
-            public static final NeutralMode neutralMode = NeutralMode.Coast;
+            public static final IdleMode idleMode = IdleMode.kCoast;
+
+            // Position limits:
+
+            public static final float forwardPositionLimit = 11111111;
+            public static final float reversePositionLimit = -11111111;
+            public static final double frontDeliveryPosition = 111;
+            public static final double backPickupPosition = -111;
+            public static final double homePosition = 0;
+
+            public static final double defaultManualForwardSpeed = 0.08;
+            public static final double defaultManualReverseSpeed = -0.08;
+            public static final double defaulTolerance = 400;
         }
 
-        public static final int extenderMotorChannel = 22;
-        public static final boolean isExtenderMotorInverted = false;
-        public static final double defaultExtendSpeed = 0.5;
-        public static final double defaultRetractSpeed = -0.5;
+        public static final class ExtenderConstants
+        {
+            public static final int motorChannel = 22;
+            public static final boolean isMotorInverted = false;
+            public static final double defaultExtendSpeed = 0.5;
+            public static final double defaultRetractSpeed = -0.5;
+        }
 
         //Position switches
         public static final int maxExtensionPositionChannel = 0;
@@ -109,9 +118,13 @@ public final class Constants
             public static final String maxPivotPosition = "Arm Max Pivot Pos";
             public static final String homePivotPosition = "Arm Home Pivot Pos";
             public static final String deliveryPivotPosition = "Arm Delivery Pivot Pos";
-            public static final String currentPivotPosition = "Arm Pivot Pos";
+            public static final String currentPivotLeftPosition = "Arm Pivot LPos";
+            public static final String currentPivotRightPosition = "Arm Pivot RPos";
             public static final String armExtendSpeed = "Arm Ext Spd";
             public static final String armRetractSpeed = "Arm Ret Spd";
+            public static final String manualPivotForwardSpeed = "Arm Pivot Fwd Speed";
+            public static final String manualPivotReverseSpeed = "Arm Pivot Rev Speed";
+            public static final String pivotTolerance = "Arm Pivot Tolerance";
         }
 
         public static final class DriveToPositionPidKeys

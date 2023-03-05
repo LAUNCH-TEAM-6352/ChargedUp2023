@@ -6,7 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.subsystems.Arm;
 
 public class RetractArm extends CommandBase
@@ -26,7 +26,7 @@ public class RetractArm extends CommandBase
     @Override
     public void initialize()
     {    
-        speed = SmartDashboard.getNumber(key, ArmConstants.defaultRetractSpeed);
+        speed = SmartDashboard.getNumber(key, ExtenderConstants.defaultRetractSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

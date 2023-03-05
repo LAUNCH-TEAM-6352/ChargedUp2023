@@ -24,12 +24,13 @@ import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
 import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
 import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
 import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PneumaticsConstants;
+import frc.robot.Constants.ArmConstants.ExtenderConstants;
+import frc.robot.Constants.ArmConstants.PivotConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveOntoChargeStation;
 import frc.robot.commands.DriveToRelativePosition;
@@ -37,6 +38,7 @@ import frc.robot.commands.DriveWithGamepad;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.LevelChargeStation;
 import frc.robot.commands.RunArmExtenderWithGamepad;
+import frc.robot.commands.SetArmPivotSpeed;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
@@ -188,7 +190,18 @@ public class RobotContainer
 
     private void configureTriggerBindings(Arm arm)
     {
+        if (gamepad == null)
+        {
+            return;
+        }
+
+        var leftBumper = new JoystickButton(gamepad, Button.kLeftBumper.value);
+        var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
+
+        leftBumper.whileTrue(new SetArmPivotSpeed(arm, ArmKeys.manualPivotReverseSpeed));
+        rightBumper.whileTrue(new SetArmPivotSpeed(arm, ArmKeys.manualPivotForwardSpeed));
     }  
+
     private void configureTriggerBindings(Claw claw)
     {
         if (gamepad == null)
@@ -288,8 +301,11 @@ public class RobotContainer
 
     private void configureSmartDashboard(Arm arm)
     {
-        SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ArmConstants.defaultExtendSpeed);
-        SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ArmConstants.defaultRetractSpeed);
+        SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ExtenderConstants.defaultExtendSpeed);
+        SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ExtenderConstants.defaultRetractSpeed);
+        SmartDashboard.putNumber(ArmKeys.manualPivotForwardSpeed, PivotConstants.defaultManualForwardSpeed);
+        SmartDashboard.putNumber(ArmKeys.manualPivotReverseSpeed, PivotConstants.defaultManualReverseSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotTolerance, PivotConstants.defaulTolerance);
     }    
     
     private void configureSmartDashboard(Claw claw)
