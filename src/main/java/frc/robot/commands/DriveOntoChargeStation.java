@@ -28,7 +28,7 @@ public class DriveOntoChargeStation extends CommandBase
 {
     private final DriveTrain driveTrain;
 	private String speedKey = null;
-	private String angleKey = null;
+	private String stopAngleKey = null;
 	private double speed;
     private double stopAngle;
     private boolean isClimbing;
@@ -41,28 +41,19 @@ public class DriveOntoChargeStation extends CommandBase
         addRequirements(driveTrain);
     }
 
-	public DriveOntoChargeStation(DriveTrain driveTrain, String speedKey, String angleKey)
+	public DriveOntoChargeStation(DriveTrain driveTrain, String speedKey, String stopAngleKey)
 	{
 		this(driveTrain);
 		this.speedKey = speedKey;
-		this.angleKey = angleKey;
-	}
-
-	public DriveOntoChargeStation(DriveTrain driveTrain, double speed)
-	{
-		this(driveTrain);
-		this.speed = speed;
+		this.stopAngleKey = stopAngleKey;
 	}
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize()
     {
-        if (speedKey != null)
-        {
-            speed = SmartDashboard.getNumber(speedKey, 0.0);
-            stopAngle = SmartDashboard.getNumber(angleKey, 0.0);
-        }
+        speed = SmartDashboard.getNumber(speedKey, DriveTrainConstants.defaultClimbingSpeedReverse);
+        stopAngle = SmartDashboard.getNumber(stopAngleKey, DriveTrainConstants.defaultClimbingStopAngle);
         driveTrain.resetAngle();
         driveTrain.setIdleBrake();
         isClimbing = false;

@@ -4,7 +4,6 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.revrobotics.CANSparkMax.IdleMode;
 
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -29,41 +28,41 @@ public final class Constants
         {
             public static final int leftMotorChannel = 20;
             public static final int rightMotorChannel = 21;
-            public static final boolean isLeftMotorInverted = false;
-            public static final boolean isRightMotorInverted = true;
+            public static final boolean isLeftMotorInverted = true;
+            public static final boolean isRightMotorInverted = false;
 
             public static final int brakeSolenoidForwardChannel = 2;
             public static final int brakeSolenoidReverseChannel = 3;
 
-            // PID constants:
-            public static final double pidP = 0.15;
-            public static final double pidI = 0.0;
-            public static final double pidD = 1.0;
-            public static final int pidIZ = 0;
-            public static final double pidFF = 0;
-            public static final double pidMinOutput = -0.2;
-            public static final double pidMaxOutput = 0.2;
-
-            // Encoder constants:
-            public static final int countsPerRevolution = 1024;
-            public static final int ticksPerCount = 4;
-            public static final int primaryClosedLoop = 0;
-
             // Indicates if motors should coast or brake to a stop:
-            public static final IdleMode idleMode = IdleMode.kCoast;
+            public static final IdleMode idleMode = IdleMode.kBrake;
 
-            // Position limits:
+            // PID constants:
+            public static final class PIDConstants
+            {
+                public static final double kP = 0.15;
+                public static final double kI = 0.0;
+                public static final double kD = 1.0;
+                public static final int kIZ = 0;
+                public static final double kFF = 0;
+                public static final double defaultMinOutput = -0.05;
+                public static final double defaultMaxOutput = 0.05;
+                public static final double defaulTolerance = 0.1;
+            }
 
-            public static final float forwardPositionLimit = 11111111;
-            public static final float reversePositionLimit = -11111111;
-            public static final double frontDeliveryPosition = 111;
-            public static final double backPickupPosition = -111;
-            public static final double homePosition = 0;
-
-            public static final double defaultManualForwardSpeed = 0.08;
-            public static final double defaultManualReverseSpeed = -0.08;
-            public static final double defaulTolerance = 400;
-        }
+            // Manual operation constants:
+            public static final double defaultManFwdSpeed = 0.05;
+            public static final double defaultManRevSpeed = -0.05;
+ 
+            // Pre-defined positions:
+            // Note that position is expressed as the fractional number of motor shaft rotations.
+            // With the 70:1 gear reduction, 1 rotation equals approximately 5.14 degrees.
+            public static final float minPosition = -13.611111f;
+            public static final float homePosition = 0.0f;
+            public static final float maxPosition = 25.277778f;
+            public static final float backPickupPosition = -13.0f;
+            public static final float frontDeliveryPosition = 24.0f;
+       }
 
         public static final class ExtenderConstants
         {
@@ -71,6 +70,7 @@ public final class Constants
             public static final boolean isMotorInverted = false;
             public static final double defaultExtendSpeed = 0.5;
             public static final double defaultRetractSpeed = -0.5;
+            public static final double maxManualSpeed = 1.0;
         }
 
         //Position switches
@@ -106,24 +106,24 @@ public final class Constants
             public static final String autoLeaveCommunityPositionLong = "DT Auto Leave Comm Pos Lng";
             public static final String climbingSpeedForward = "DT Climb % Fwd";        
             public static final String climbingSpeedReverse = "DT Climb % Rev"; 
-            public static final String stopClimbingAngle = "DT Stop Climb Angle";
+            public static final String climbingStopAngle = "DT Climb Stop Angle";
                 
         }
 
         public static final class ArmKeys
         {
             //Arm Constants
+            public static final String armExtendSpeed = "Arm Ext %";
+            public static final String armRetractSpeed = "Arm Ret %";
             public static final String extensionLimit = "Arm Ext Limit";
-            public static final String deliveryExtensionPosition = "Arm Delivery Ext Pos";
-            public static final String maxPivotPosition = "Arm Max Pivot Pos";
-            public static final String homePivotPosition = "Arm Home Pivot Pos";
-            public static final String deliveryPivotPosition = "Arm Delivery Pivot Pos";
-            public static final String currentPivotLeftPosition = "Arm Pivot LPos";
-            public static final String currentPivotRightPosition = "Arm Pivot RPos";
-            public static final String armExtendSpeed = "Arm Ext Spd";
-            public static final String armRetractSpeed = "Arm Ret Spd";
-            public static final String manualPivotForwardSpeed = "Arm Pivot Fwd Speed";
-            public static final String manualPivotReverseSpeed = "Arm Pivot Rev Speed";
+            public static final String extensionDeliveryPosition = "Arm Delivery Ext Pos";
+            public static final String pivotTargetPosition = "Arm Pivot TPos";
+            public static final String pivotCurLeftPosition = "Arm Pivot LPos";
+            public static final String pivotCurRightPosition = "Arm Pivot RPos";
+            public static final String pivotManFwdSpeed = "Arm Pivot Man Fwd %";
+            public static final String pivotManRevSpeed = "Arm Pivot Man Rev %";
+            public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
+            public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
             public static final String pivotTolerance = "Arm Pivot Tolerance";
         }
 
@@ -214,7 +214,7 @@ public final class Constants
         public static final double defaultClimbingSpeedForward = -0.26;
         public static final double defaultClimbingSpeedReverse = +0.26;
         public static final double startClimbingAngle = 10.0;
-        public static final double defaultStopClimbingAngle = 8.0;
+        public static final double defaultClimbingStopAngle = 8.0;
 
         // Default values for PID controller used for driving to a specific position:
         public static final class DriveToPositionPidDefaultValues
@@ -246,6 +246,29 @@ public final class Constants
         public static final double defaultOpenLoopRampRate = 0.0;
         public static final double defaultClosedLoopRampRate = 2.0;
 	}
+
+    public static final class GamePieceFlagsConstants
+    {
+        public static final int servoChannel = 0;
+        public enum GamePieceFlag
+        {
+            CONE (0),
+            NONE (90),
+            CUBE (180);
+
+            private final int angle;
+
+            private GamePieceFlag(int angle)
+            {
+                this.angle = angle;
+            }
+
+            public int angle()
+            {
+                return angle;
+            }
+        }
+    }
 
 	public static final class OIConstants
 	{

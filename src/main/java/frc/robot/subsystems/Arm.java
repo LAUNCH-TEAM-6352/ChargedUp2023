@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
+import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
@@ -19,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
+import frc.robot.Constants.ArmConstants.PivotConstants.PIDConstants;
 import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.PneumaticsConstants;
 
@@ -51,53 +53,31 @@ public class Arm extends SubsystemBase
     /** Creates a new Arm. */
     public Arm()
     {
-        leftPivotMotor.setInverted(PivotConstants.isLeftMotorInverted);
-        rightPivotMotor.follow(leftPivotMotor, PivotConstants.isLeftMotorInverted != PivotConstants.isRightMotorInverted);
-
         extenderMotor.setInverted(ExtenderConstants.isMotorInverted);
-
-		// for (TalonSRX motor : new TalonSRX[] { leftPivotMotor, rightPivotMotor})
-		// {
-		// 	motor.configSelectedFeedbackSensor(FeedbackDevice.QuadEncoder);
-		// 	motor.configAllowableClosedloopError(PivotConstants.pidProfileSlot, PivotConstants.pidAllowableError,
-        //     PivotConstants.pidTimeoutMs);
-		// 	motor.configClosedLoopPeakOutput(PivotConstants.pidProfileSlot, PivotConstants.pidPeakOutput,
-        //     PivotConstants.pidTimeoutMs);
-		// 	motor.configClosedLoopPeriod(PivotConstants.pidProfileSlot, PivotConstants.pidLoopPeriodMs,
-        //         PivotConstants.pidTimeoutMs);
-		// 	motor.config_kP(PivotConstants.pidProfileSlot, PivotConstants.pidP,
-        //         PivotConstants.pidTimeoutMs);
-		// 	motor.config_kI(PivotConstants.pidProfileSlot, PivotConstants.pidI,
-        //         PivotConstants.pidTimeoutMs);
-		// 	motor.config_kD(PivotConstants.pidProfileSlot, PivotConstants.pidD,
-        //         PivotConstants.pidTimeoutMs);
-		// 	motor.config_kF(PivotConstants.pidProfileSlot, PivotConstants.pidFF,
-        //         PivotConstants.pidTimeoutMs);
-		// 	motor.config_IntegralZone(PivotConstants.pidProfileSlot, PivotConstants.pidIZ,
-        //         PivotConstants.pidTimeoutMs);
-		// 	motor.selectProfileSlot(PivotConstants.pidProfileSlot, PivotConstants.primaryClosedLoop);
-		// 	motor.setSensorPhase(PivotConstants.isSensorPhaseInverted);
-        //     motor.setNeutralMode(PivotConstants.neutralMode);
-		// }
-
-        // Set PID controller parameters on the pivot leader:
-        var pidController = leftPivotMotor.getPIDController();
-        pidController.setP(PivotConstants.pidP);
-        pidController.setI(PivotConstants.pidI);
-        pidController.setD(PivotConstants.pidD);
-        pidController.setIZone(PivotConstants.pidIZ);
-        pidController.setFF(PivotConstants.pidFF);
-        pidController.setOutputRange(PivotConstants.pidMinOutput, PivotConstants.pidMaxOutput);
         
         // Set configuration common to both pivot motors:
 		for (CANSparkMax motor : new CANSparkMax[] { leftPivotMotor, rightPivotMotor})
 		{
+            motor.restoreFactoryDefaults();
+            motor.clearFaults();
             motor.setIdleMode(PivotConstants.idleMode);
-            motor.setSoftLimit(SoftLimitDirection.kForward, PivotConstants.forwardPositionLimit);
-            motor.setSoftLimit(SoftLimitDirection.kReverse, PivotConstants.reversePositionLimit);
+            motor.setSoftLimit(SoftLimitDirection.kForward, PivotConstants.maxPosition);
+            motor.setSoftLimit(SoftLimitDirection.kReverse, PivotConstants.minPosition);
             motor.enableSoftLimit(SoftLimitDirection.kForward, true);
             motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
 		}
+
+        // COnfigure invertedness of the pivoit motors:
+        leftPivotMotor.setInverted(PivotConstants.isLeftMotorInverted);
+        rightPivotMotor.follow(leftPivotMotor, PivotConstants.isLeftMotorInverted != PivotConstants.isRightMotorInverted);
+
+        // Set PID controller parameters on the pivot leader:
+        var pidController = leftPivotMotor.getPIDController();
+        pidController.setP(PIDConstants.kP);
+        pidController.setI(PIDConstants.kI);
+        pidController.setD(PIDConstants.kD);
+        pidController.setIZone(PIDConstants.kIZ);
+        pidController.setFF(PIDConstants.kFF);
 
         resetPivotPosition();
     }
@@ -106,10 +86,21 @@ public class Arm extends SubsystemBase
 	 * Sets the shooter motor speeds in velocity (RPM).
 	 */
 	public void setPivotPosition(double position, double tolerance)
-	{        
+	{ 
+        if (position > PivotConstants.maxPosition)
+        {
+            position = PivotConstants.maxPosition;
+        }
+        else if (position < PivotConstants.minPosition)
+        {
+            position = PivotConstants.minPosition;
+        }
         targetPivotPosition = position;
         targetPivotTolerance = tolerance;
         lastPivotPosition = 0;
+        var minOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
+        var maxOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
+        leftPivotMotor.getPIDController().setOutputRange(minOutput, maxOutput);
         leftPivotMotor.getPIDController().setReference(position, ControlType.kPosition);
         releasePivotBrake();
         isAtTargetPivotPosition = false;
@@ -118,10 +109,18 @@ public class Arm extends SubsystemBase
 
     public void setPivotSpeed(double speed)
     {
+        if ((speed < 0 && isPivotAtRevLimit()) || (speed > 0 && isPivotAtFwdLimit()))
+        {
+            speed = 0;
+            setPivotBrake();
+        }
         isAtTargetPivotPosition = false;
         isPivotPositioningStarted = false;
         leftPivotMotor.set(speed);
-        releasePivotBrake();
+        if (speed != 0)
+        {
+            releasePivotBrake();
+        }
     }
 
     public void stopPivot()
@@ -159,6 +158,16 @@ public class Arm extends SubsystemBase
         return isAtTargetPivotPosition;
     }
 
+    public boolean isPivotAtFwdLimit()
+    {
+        return leftPivotMotor.getFault(FaultID.kSoftLimitFwd) || rightPivotMotor.getFault(FaultID.kSoftLimitFwd);
+    }
+
+    public boolean isPivotAtRevLimit()
+    {
+        return leftPivotMotor.getFault(FaultID.kSoftLimitRev) || rightPivotMotor.getFault(FaultID.kSoftLimitRev);
+    }
+
     public void setExtenderSpeed(double speed)
     {
         if ((isAtMaxExtensionLimit() && speed > 0) || (isAtMinExtensionLimit() && speed < 0))
@@ -181,12 +190,9 @@ public class Arm extends SubsystemBase
 
         // This method will be called once per scheduler run
         SmartDashboard.putBoolean(ArmKeys.extensionLimit, !(isAtMaxExtensionLimit() || isAtMinExtensionLimit()));
-        SmartDashboard.putBoolean(ArmKeys.deliveryExtensionPosition, isAtDeliveryExtensionPosition());
-        SmartDashboard.putBoolean(ArmKeys.maxPivotPosition, !(isAtMaxPivotBackPosition() || isAtMaxPivotFrontPosition()));
-        SmartDashboard.putBoolean(ArmKeys.homePivotPosition, isAtHomePivotPosition());
-        SmartDashboard.putBoolean(ArmKeys.deliveryPivotPosition, isAtDeliveryPivotPosition());
-        SmartDashboard.putNumber(ArmKeys.currentPivotLeftPosition, leftPivotPosition);
-        SmartDashboard.putNumber(ArmKeys.currentPivotRightPosition, rightPivotPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionDeliveryPosition, isAtDeliveryExtensionPosition());
+        SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
+        SmartDashboard.putNumber(ArmKeys.pivotCurRightPosition, rightPivotPosition);
 
         if (isPivotPositioningStarted)
         {

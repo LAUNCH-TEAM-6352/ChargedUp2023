@@ -14,7 +14,7 @@ import frc.robot.subsystems.DriveTrain;
 public class DriveToRelativePosition extends CommandBase
 {
     private final DriveTrain driveTrain;
-	private String key = null;
+	private String positionKey = null;
 	private double position;
 
     private DriveToRelativePosition(DriveTrain driveTrain)
@@ -25,10 +25,10 @@ public class DriveToRelativePosition extends CommandBase
         addRequirements(driveTrain);
     }
 
-	public DriveToRelativePosition(DriveTrain driveTrain, String key)
+	public DriveToRelativePosition(DriveTrain driveTrain, String positionKey)
 	{
 		this(driveTrain);
-		this.key = key;
+		this.positionKey = positionKey;
 	}
 
 	public DriveToRelativePosition(DriveTrain driveTrain, double position)
@@ -41,9 +41,9 @@ public class DriveToRelativePosition extends CommandBase
     @Override
     public void initialize()
     {
-        if (key != null)
+        if (positionKey != null)
         {
-            position = SmartDashboard.getNumber(key, 0.0);
+            position = SmartDashboard.getNumber(positionKey, 0.0);
         }
         driveTrain.resetPosition();
         driveTrain.configureForPositionPidControl();

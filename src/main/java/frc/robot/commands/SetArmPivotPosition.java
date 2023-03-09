@@ -30,7 +30,7 @@ public class SetArmPivotPosition extends CommandBase
     {
         arm.setPivotPosition(
             SmartDashboard.getNumber(positionKey, 0),
-            SmartDashboard.getNumber(toleranceKey, 10));
+            SmartDashboard.getNumber(toleranceKey, 1.0));
     }
 
     // Called every time the scheduler runs while the command is scheduled.
