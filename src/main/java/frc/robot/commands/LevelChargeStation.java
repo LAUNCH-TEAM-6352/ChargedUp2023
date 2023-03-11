@@ -53,7 +53,7 @@ public class LevelChargeStation extends PIDCommand
             driveTrain);
         
         this.driveTrain = driveTrain;
-        driveTrain.setBrake();
+        driveTrain.setIdleBrake();
         this.controller = getController();
         controller.setTolerance(LevelChargeStationPidDefaultValues.tolerance);
         SmartDashboard.putData("Level CS PID", controller);

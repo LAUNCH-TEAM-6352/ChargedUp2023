@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
+import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DashboardConstants;
 
@@ -89,7 +90,7 @@ public class DriveTrain extends SubsystemBase
     {
         leftMotors.forEach((motor) -> motor.follow(ExternalFollower.kFollowerDisabled, 0));
         rightMotors.forEach((motor) -> motor.follow(ExternalFollower.kFollowerDisabled, 0));
-        openLoopRampRate = SmartDashboard.getNumber(DashboardConstants.driveTrainOpenLoopRampRateKey, DriveTrainConstants.defaultOpenLoopRampRate);
+        openLoopRampRate = SmartDashboard.getNumber(DriveTrainKeys.openLoopRampRate, DriveTrainConstants.defaultOpenLoopRampRate);
         setOpenLoopRampRate(openLoopRampRate);
         setIdleMode(DriveTrainConstants.defaultIdleMode);
     }
@@ -121,7 +122,7 @@ public class DriveTrain extends SubsystemBase
 
         // Set closed loop ramp rate on the leader:
         pidLeader.setClosedLoopRampRate(
-            SmartDashboard.getNumber(DashboardConstants.driveTrainClosedLoopRampRateKey, DriveTrainConstants.defaultClosedLoopRampRate));
+            SmartDashboard.getNumber(DriveTrainKeys.closedLoopRampRate, DriveTrainConstants.defaultClosedLoopRampRate));
         
         // Set PID controller parameters on the leader:
         var pidController = pidLeader.getPIDController();
@@ -196,8 +197,8 @@ public class DriveTrain extends SubsystemBase
         setPercentage(leftMotors, leftOut);
         setPercentage(rightMotors, rightOut);
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainLeftPercentOutputKey, leftOut);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainRightPercentOutputKey, rightOut);
+        SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, leftOut);
+        SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, rightOut);
     }
 
     /**
@@ -212,8 +213,8 @@ public class DriveTrain extends SubsystemBase
         setPercentage(leftMotors, percentage);
         setPercentage(rightMotors, percentage);
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainLeftPercentOutputKey, percentage);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainRightPercentOutputKey, percentage);
+        SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, percentage);
+        SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, percentage);
     }
 
 	/**
@@ -224,8 +225,8 @@ public class DriveTrain extends SubsystemBase
         leftMotors.forEach((motor) -> motor.stopMotor());
         rightMotors.forEach((motor) -> motor.stopMotor());
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainLeftPercentOutputKey, 0);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainRightPercentOutputKey, 0);
+        SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, 0);
+        SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, 0);
 	}
 
     /**
@@ -271,17 +272,17 @@ public class DriveTrain extends SubsystemBase
     {
         if (!leftMotors.isEmpty())
         {
-            SmartDashboard.putNumber(DashboardConstants.driveTrainLeftPositionKey, leftMotors.get(0).getEncoder().getPosition());
+            SmartDashboard.putNumber(DriveTrainKeys.leftPosition, leftMotors.get(0).getEncoder().getPosition());
             // SmartDashboard.putNumber("DT Left Applied", leftMotors.get(0).getAppliedOutput());
         }
 
         if (!rightMotors.isEmpty())
         {
-            SmartDashboard.putNumber(DashboardConstants.driveTrainRightPositionKey, rightMotors.get(0).getEncoder().getPosition());
+            SmartDashboard.putNumber(DriveTrainKeys.rightPosition, rightMotors.get(0).getEncoder().getPosition());
             // SmartDashboard.putNumber("DT Right Applied", rightMotors.get(0).getAppliedOutput());
         }
 
-        SmartDashboard.putNumber("DT Angle", getAngle());
+        SmartDashboard.putNumber(DriveTrainKeys.angle, getAngle());
     }
 
     /**
@@ -305,12 +306,18 @@ public class DriveTrain extends SubsystemBase
         rightMotors.forEach((motor) -> motor.setOpenLoopRampRate(rampRate));
     }
 
-    public void setBrake()
+    /**
+     * Set motors to brake when idle.
+     */
+    public void setIdleBrake()
     {
         setIdleMode(IdleMode.kBrake);
     }
 
-    public void setCoast()
+    /**
+     * Set motors to coast when idle.
+     */
+    public void setIdleCoast()
     {
         setIdleMode(IdleMode.kCoast);
     }

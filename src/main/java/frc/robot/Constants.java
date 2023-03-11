@@ -22,20 +22,108 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
  */
 public final class Constants
 {
+    public static final class ArmConstants
+    {
+        public static final class PivotConstants
+        {
+            public static final int leftMotorChannel = 20;
+            public static final int rightMotorChannel = 21;
+            public static final boolean isLeftMotorInverted = true;
+            public static final boolean isRightMotorInverted = false;
+
+            public static final int brakeSolenoidForwardChannel = 2;
+            public static final int brakeSolenoidReverseChannel = 3;
+
+            // Indicates if motors should coast or brake to a stop:
+            public static final IdleMode idleMode = IdleMode.kBrake;
+
+            // PID constants:
+            public static final class PIDConstants
+            {
+                public static final double kP = 0.15;
+                public static final double kI = 0.0;
+                public static final double kD = 1.0;
+                public static final int kIZ = 0;
+                public static final double kFF = 0;
+                public static final double defaultMinOutput = -0.05;
+                public static final double defaultMaxOutput = 0.05;
+                public static final double defaulTolerance = 0.1;
+            }
+
+            // Manual operation constants:
+            public static final double defaultManFwdSpeed = 0.05;
+            public static final double defaultManRevSpeed = -0.05;
+ 
+            // Pre-defined positions:
+            // Note that position is expressed as the fractional number of motor shaft rotations.
+            // With the 70:1 gear reduction, 1 motor chaft rotation equals approximately 360/70 = 5.14 degrees.
+            public static final double minPosition = -13.611111;
+            public static final double homePosition = 0.0;
+            public static final double maxPosition = 25.277778;
+            public static final double backPickupPosition = -13.0;
+            public static final double frontDeliveryPosition = 24.0;
+       }
+
+        public static final class ExtenderConstants
+        {
+            public static final int motorChannel = 22;
+            public static final boolean isMotorInverted = false;
+            public static final double defaultExtendSpeed = 0.5;
+            public static final double defaultRetractSpeed = -0.5;
+            public static final double maxManualSpeed = 1.0;
+        }
+
+        //Position switches
+        public static final int extensionMinPositionChannel = 0;
+        public static final int extensionMidPositionChannel = 1;
+        public static final int extensionMaxPositionChannel = 2;
+    }
+
+    public static final class ClawConstants
+    {
+        public static final int pneumaticsForwardChannel = 0;
+        public static final int pneumaticsReverseChannel = 1;
+    }
+
     public static final class DashboardConstants
 	{
-		public static final String driveTrainLeftPositionKey = "DT Left Pos";
-		public static final String driveTrainRightPositionKey = "DT Right Pos";
-		public static final String driveTrainOpenLoopRampRateKey = "DT OL Ramp Rate (secs)";
-		public static final String driveTrainClosedLoopRampRateKey = "DT CL Ramp Rate (secs)";
-        public static final String driveTrainLeftPercentOutputKey = "DT Left % Output";
-        public static final String driveTrainRightPercentOutputKey = "DT Right % Output";
-        public static final String driveTrainAutoTargetPositionKey = "DT Auto Target Pos";
-        public static final String driveTrainAutoLeaveCommunityPositionShortKey = "DT Auto Leave Comm Pos Shrt";
-        public static final String driveTrainAutoLeaveCommunityPositionLongKey = "DT Auto Leave Comm Pos Lng";
-        public static final String driveTrainClimbingSpeedForwardKey = "DT Climb % Fwd";        
-        public static final String driveTrainClimbingSpeedReverseKey = "DT Climb % Rev"; 
-        public static final String driveTrainStopClimbingAngleKey = "DT Stop Climb Angle";
+        public static final class DriveTrainKeys
+        {
+            //Drive Train Constants
+            public static final String angle = "DT Angle";
+            public static final String leftPosition = "DT Left Pos";
+            public static final String rightPosition = "DT Right Pos";
+            public static final String openLoopRampRate = "DT OL Ramp Rate (secs)";
+            public static final String closedLoopRampRate = "DT CL Ramp Rate (secs)";
+            public static final String leftPercentOutput = "DT Left % Output";
+            public static final String rightPercentOutput = "DT Right % Output";
+            public static final String autoTargetPosition = "DT Auto Target Pos";
+            public static final String autoLeaveCommunityPositionShort = "DT Auto Leave Comm Pos Shrt";
+            public static final String autoLeaveCommunityPositionLong = "DT Auto Leave Comm Pos Lng";
+            public static final String climbingSpeedForward = "DT Climb % Fwd";        
+            public static final String climbingSpeedReverse = "DT Climb % Rev"; 
+            public static final String climbingStopAngle = "DT Climb Stop Angle";
+                
+        }
+
+        public static final class ArmKeys
+        {
+            //Arm Constants
+            public static final String armExtendSpeed = "Arm Ext %";
+            public static final String armRetractSpeed = "Arm Ret %";
+            public static final String extensionMinPosition = "Arm Ext Min Pos";
+            public static final String extensionMidPosition = "Arm Ext Mid Pos";
+            public static final String extensionMaxPosition = "Arm Ext Max Pos";
+            public static final String extenderCurSpeed = "Arm Ext Cur %";
+            public static final String pivotTargetPosition = "Arm Pivot TPos";
+            public static final String pivotCurLeftPosition = "Arm Pivot LPos";
+            public static final String pivotCurRightPosition = "Arm Pivot RPos";
+            public static final String pivotManFwdSpeed = "Arm Pivot Man Fwd %";
+            public static final String pivotManRevSpeed = "Arm Pivot Man Rev %";
+            public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
+            public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
+            public static final String pivotTolerance = "Arm Pivot Tolerance";
+        }
 
         public static final class DriveToPositionPidKeys
         {
@@ -124,7 +212,7 @@ public final class Constants
         public static final double defaultClimbingSpeedForward = -0.26;
         public static final double defaultClimbingSpeedReverse = +0.26;
         public static final double startClimbingAngle = 10.0;
-        public static final double defaultStopClimbingAngle = 8.0;
+        public static final double defaultClimbingStopAngle = 8.0;
 
         // Default values for PID controller used for driving to a specific position:
         public static final class DriveToPositionPidDefaultValues
@@ -156,6 +244,29 @@ public final class Constants
         public static final double defaultOpenLoopRampRate = 0.0;
         public static final double defaultClosedLoopRampRate = 2.0;
 	}
+
+    public static final class GamePieceFlagsConstants
+    {
+        public static final int servoChannel = 0;
+        public enum GamePieceFlag
+        {
+            CONE (0),
+            NONE (90),
+            CUBE (180);
+
+            private final int angle;
+
+            private GamePieceFlag(int angle)
+            {
+                this.angle = angle;
+            }
+
+            public int angle()
+            {
+                return angle;
+            }
+        }
+    }
 
 	public static final class OIConstants
 	{

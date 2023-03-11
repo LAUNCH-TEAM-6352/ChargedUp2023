@@ -6,35 +6,50 @@ package frc.robot;
 
 import java.util.Optional;
 
-import frc.robot.Constants.DashboardConstants;
-import frc.robot.Constants.DriveTrainConstants;
-import frc.robot.Constants.OIConstants;
-import frc.robot.Constants.PneumaticsConstants;
-import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
-import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
-import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
-import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
-import frc.robot.commands.Autos;
-import frc.robot.commands.DriveOntoChargeStation;
-import frc.robot.commands.DriveToRelativePosition;
-import frc.robot.commands.DriveWithGamepad;
-import frc.robot.commands.DriveWithJoysticks;
-import frc.robot.commands.LevelChargeStation;
-import frc.robot.subsystems.DriveTrain;
-
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.DashboardConstants.ArmKeys;
+import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
+import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
+import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
+import frc.robot.Constants.DriveTrainConstants;
+import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
+import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
+import frc.robot.Constants.GamePieceFlagsConstants.GamePieceFlag;
+import frc.robot.Constants.OIConstants;
+import frc.robot.Constants.PneumaticsConstants;
+import frc.robot.Constants.ArmConstants.ExtenderConstants;
+import frc.robot.Constants.ArmConstants.PivotConstants;
+import frc.robot.Constants.ArmConstants.PivotConstants.PIDConstants;
+import frc.robot.commands.Autos;
+import frc.robot.commands.DriveOntoChargeStation;
+import frc.robot.commands.DriveToRelativePosition;
+import frc.robot.commands.DriveWithGamepad;
+import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.ExtendArmToMaxPosition;
+import frc.robot.commands.ExtendArmToMidPosition;
+import frc.robot.commands.LevelChargeStation;
+import frc.robot.commands.RetractArm;
+import frc.robot.commands.RunArmExtenderWithGamepad;
+import frc.robot.commands.SetArmPivotPosition;
+import frc.robot.commands.SetArmPivotSpeed;
+import frc.robot.commands.StowArm;
+import frc.robot.subsystems.Arm;
+import frc.robot.subsystems.Claw;
+import frc.robot.subsystems.DriveTrain;
+import frc.robot.subsystems.GamePieceFlags;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -49,6 +64,9 @@ public class RobotContainer
 
     // Subsystems:
     private final Optional<DriveTrain> driveTrain;
+    private final Optional<Arm> arm;
+    private final Optional<Claw> claw;
+    private final Optional<GamePieceFlags> gamePieceFlags;
 
     // OI devices:
 	private final XboxController gamepad;
@@ -75,6 +93,9 @@ public class RobotContainer
         // depending upon the substrings found in the message:
         //   -dt-   Drive train
         //   -oi-   Look for OI devices
+        //   -a-    Arm
+        //   -c-    Claw
+        //   -gpf-  Gape piece flags
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
@@ -113,6 +134,18 @@ public class RobotContainer
         // Create subsystems:
 		driveTrain = gameData.isBlank() || gameData.contains("-dt-")
             ? Optional.of(new DriveTrain())
+            : Optional.empty();		
+
+        arm = gameData.isBlank() || gameData.contains("-a-")
+            ? Optional.of(new Arm(gamepad))
+            : Optional.empty();		
+
+        claw = gameData.isBlank() || gameData.contains("-c-")
+            ? Optional.of(new Claw())
+            : Optional.empty();
+
+        gamePieceFlags = gameData.isBlank() || gameData.contains("-gpf-")
+            ? Optional.of(new GamePieceFlags())
             : Optional.empty();
 
         // Configure default commands:
@@ -141,6 +174,14 @@ public class RobotContainer
                 dt.setDefaultCommand(new DriveWithGamepad(dt, gamepad));
             }
         });
+
+        arm.ifPresent((a) -> 
+        {
+            if (gamepad != null)
+            {
+                a.setDefaultCommand(new RunArmExtenderWithGamepad(a, gamepad));
+            }
+        });
     }
 
     /**
@@ -154,13 +195,68 @@ public class RobotContainer
      */
     private void configureTriggerBindings()
     {
+        //Arm triggers:
+        arm.ifPresent(this::configureTriggerBindings);
+        
+        //Claw triggers:
+        claw.ifPresent(this::configureTriggerBindings);
+
+        gamePieceFlags.ifPresent(this::configureTriggerBindings);
+    }
+
+    private void configureTriggerBindings(Arm arm)
+    {
+        if (gamepad == null)
+        {
+            return;
+        }
+
+        var leftBumper = new JoystickButton(gamepad, Button.kLeftBumper.value);
+        var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
+
+        leftBumper.whileTrue(
+            new SetArmPivotSpeed(arm, ArmKeys.pivotManRevSpeed)
+            .until(arm::isPivotAtRevLimit));
+        rightBumper.whileTrue(
+            new SetArmPivotSpeed(arm, ArmKeys.pivotManFwdSpeed)
+            .until(arm::isPivotAtFwdLimit));
+    }  
+
+    private void configureTriggerBindings(Claw claw)
+    {
+        if (gamepad == null)
+        {
+            return;
+        }        
+
+        new JoystickButton(gamepad, Button.kLeftStick.value)
+            .onTrue(new InstantCommand(() -> claw.open(), claw));
+        new JoystickButton(gamepad, Button.kRightStick.value)
+            .onTrue(new InstantCommand(() -> claw.close(), claw));
+    }
+
+    private void configureTriggerBindings(GamePieceFlags gamePieceFlags)
+    {
+        if (gamepad == null)
+        {
+            return;
+        }
+
+        new JoystickButton(gamepad, Button.kY.value)
+            .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CONE)));
+        new JoystickButton(gamepad, Button.kX.value)
+            .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CUBE)));
+        new JoystickButton(gamepad, Button.kB.value)
+            .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.NONE)));
     }
 
     private void configureSmartDashboard()
     {
         driveTrain.ifPresent(this::configureSmartDashboard);
+        arm.ifPresent(this::configureSmartDashboard);
+        claw.ifPresent(this::configureSmartDashboard);        
 
-        autonomousChooser.ifPresent(this::configureSmartDashboard);
+        autonomousChooser.ifPresent(this::configureSmartDashboard);        
     }
     
     /**
@@ -170,8 +266,8 @@ public class RobotContainer
      */
     private void configureSmartDashboard(DriveTrain driveTrain)
     {
-        SmartDashboard.putNumber(DashboardConstants.driveTrainOpenLoopRampRateKey, DriveTrainConstants.defaultOpenLoopRampRate);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainClosedLoopRampRateKey, DriveTrainConstants.defaultClosedLoopRampRate);
+        SmartDashboard.putNumber(DriveTrainKeys.openLoopRampRate, DriveTrainConstants.defaultOpenLoopRampRate);
+        SmartDashboard.putNumber(DriveTrainKeys.closedLoopRampRate, DriveTrainConstants.defaultClosedLoopRampRate);
 
         SmartDashboard.putNumber(DriveToPositionPidKeys.kP, DriveToPositionPidDefaultValues.kP);
         SmartDashboard.putNumber(DriveToPositionPidKeys.kI, DriveToPositionPidDefaultValues.kI);
@@ -187,42 +283,42 @@ public class RobotContainer
         SmartDashboard.putNumber(LevelChargeStationPidKeys.minOutput, LevelChargeStationPidDefaultValues.minOutput);
         SmartDashboard.putNumber(LevelChargeStationPidKeys.maxOutput, LevelChargeStationPidDefaultValues.maxOutput);
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionShort, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
 
-        SmartDashboard.putNumber(DashboardConstants.driveTrainClimbingSpeedForwardKey, DriveTrainConstants.defaultClimbingSpeedForward);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainClimbingSpeedReverseKey, DriveTrainConstants.defaultClimbingSpeedReverse);
-        SmartDashboard.putNumber(DashboardConstants.driveTrainStopClimbingAngleKey, DriveTrainConstants.defaultStopClimbingAngle);
+        SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedForward, DriveTrainConstants.defaultClimbingSpeedForward);
+        SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedReverse, DriveTrainConstants.defaultClimbingSpeedReverse);
+        SmartDashboard.putNumber(DriveTrainKeys.climbingStopAngle, DriveTrainConstants.defaultClimbingStopAngle);
         
         // The following deal with driving to a specified position:
         SmartDashboard.putData("Drive to Target Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoTargetPositionKey).withTimeout(10));
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoTargetPosition).withTimeout(10));
         SmartDashboard.putData("Drive to Leave Community Long Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10));
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionLong).withTimeout(10));
         SmartDashboard.putData("Drive to Leave Community Short Pos",
-            new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionShortKey).withTimeout(10));
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionShort).withTimeout(10));
         SmartDashboard.putData("Reset DT Pos", new InstantCommand(() -> driveTrain.resetPosition()));
         SmartDashboard.putData("Reset DT Angle", new InstantCommand(() -> driveTrain.resetAngle()));
-        SmartDashboard.putData("Climb CS", new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey));
+        SmartDashboard.putData("Climb CS", new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedForward, DriveTrainKeys.climbingStopAngle));
         SmartDashboard.putData("Level CS", new LevelChargeStation(driveTrain));
 
         SmartDashboard.putData("Climb Fwd & Level",
             new SequentialCommandGroup(
-                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedForwardKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedForward, DriveTrainKeys.climbingStopAngle),
                 new LevelChargeStation(driveTrain)
         ));
 
         SmartDashboard.putData("Climb Rev & Level",
             new SequentialCommandGroup(
-                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedReverseKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedReverse, DriveTrainKeys.climbingStopAngle),
                 new LevelChargeStation(driveTrain)
         ));
 
         SmartDashboard.putData("Full Auto",
             new SequentialCommandGroup(
-                new DriveToRelativePosition(driveTrain, DashboardConstants.driveTrainAutoLeaveCommunityPositionLongKey).withTimeout(10),
+                new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionLong).withTimeout(10),
                 new WaitCommand(DriveTrainConstants.autoDriveDelay),
-                new DriveOntoChargeStation(driveTrain, DashboardConstants.driveTrainClimbingSpeedReverseKey, DashboardConstants.driveTrainStopClimbingAngleKey),
+                new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedReverse, DriveTrainKeys.climbingStopAngle),
                 new LevelChargeStation(driveTrain)
         ));
 
@@ -236,6 +332,29 @@ public class RobotContainer
                     () -> driveTrain.stop(motorName.channel),
                     driveTrain));
         };
+    }
+
+    private void configureSmartDashboard(Arm arm)
+    {
+        SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ExtenderConstants.defaultExtendSpeed);
+        SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ExtenderConstants.defaultRetractSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotManFwdSpeed, PivotConstants.defaultManFwdSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotManRevSpeed, PivotConstants.defaultManRevSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
+        SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
+        SmartDashboard.putNumber(ArmKeys.pivotTolerance, PIDConstants.defaulTolerance);
+        SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
+        SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
+        SmartDashboard.putData(new RetractArm(arm, ArmKeys.armRetractSpeed));
+        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.armExtendSpeed));
+        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.armRetractSpeed, ArmKeys.armExtendSpeed));
+        SmartDashboard.putData(new StowArm(arm));
+    }    
+    
+    private void configureSmartDashboard(Claw claw)
+    {
+        SmartDashboard.putData("Open Claw", new InstantCommand(() -> claw.open()));
+        SmartDashboard.putData("Close Claw", new InstantCommand(() -> claw.close()));
     }
 
     /**
