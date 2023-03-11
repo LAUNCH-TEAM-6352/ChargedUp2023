@@ -25,7 +25,7 @@ public class Claw extends SubsystemBase
      */
     public void open()
     {
-        solenoid.set(Value.kForward);
+        solenoid.set(Value.kReverse);
     }
     
     /**
@@ -33,7 +33,7 @@ public class Claw extends SubsystemBase
      */
     public void close()
     {
-        solenoid.set(Value.kReverse);
+        solenoid.set(Value.kForward);
     }
 
     @Override

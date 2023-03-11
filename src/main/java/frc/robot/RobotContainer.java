@@ -43,6 +43,8 @@ import frc.robot.commands.ExtendArmToMidPosition;
 import frc.robot.commands.LevelChargeStation;
 import frc.robot.commands.RetractArm;
 import frc.robot.commands.RunArmExtenderWithGamepad;
+import frc.robot.commands.RunArmPivotWithGamepad;
+import frc.robot.commands.SetArmExtenderSpeed;
 import frc.robot.commands.SetArmPivotPosition;
 import frc.robot.commands.SetArmPivotSpeed;
 import frc.robot.commands.StowArm;
@@ -95,7 +97,8 @@ public class RobotContainer
         //   -oi-   Look for OI devices
         //   -a-    Arm
         //   -c-    Claw
-        //   -gpf-  Gape piece flags
+        //   -p-    Pneumatics
+        //   -gpf-  Game piece flags
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
@@ -179,7 +182,7 @@ public class RobotContainer
         {
             if (gamepad != null)
             {
-                a.setDefaultCommand(new RunArmExtenderWithGamepad(a, gamepad));
+                a.setDefaultCommand(new RunArmPivotWithGamepad(a, ArmKeys.pivotMaxManSpeed, gamepad));
             }
         });
     }
@@ -215,11 +218,11 @@ public class RobotContainer
         var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
 
         leftBumper.whileTrue(
-            new SetArmPivotSpeed(arm, ArmKeys.pivotManRevSpeed)
-            .until(arm::isPivotAtRevLimit));
+            new SetArmExtenderSpeed(arm, ArmKeys.armRetractSpeed)
+            .until(arm::isExtensionAtMinPosition));
         rightBumper.whileTrue(
-            new SetArmPivotSpeed(arm, ArmKeys.pivotManFwdSpeed)
-            .until(arm::isPivotAtFwdLimit));
+            new SetArmExtenderSpeed(arm, ArmKeys.armExtendSpeed)
+            .until(arm::isExtensionAtMaxPosition));
     }  
 
     private void configureTriggerBindings(Claw claw)
@@ -338,8 +341,7 @@ public class RobotContainer
     {
         SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ExtenderConstants.defaultExtendSpeed);
         SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ExtenderConstants.defaultRetractSpeed);
-        SmartDashboard.putNumber(ArmKeys.pivotManFwdSpeed, PivotConstants.defaultManFwdSpeed);
-        SmartDashboard.putNumber(ArmKeys.pivotManRevSpeed, PivotConstants.defaultManRevSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotMaxManSpeed, PivotConstants.defaultMaxManualSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
         SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
         SmartDashboard.putNumber(ArmKeys.pivotTolerance, PIDConstants.defaulTolerance);
@@ -349,6 +351,9 @@ public class RobotContainer
         SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.armExtendSpeed));
         SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.armRetractSpeed, ArmKeys.armExtendSpeed));
         SmartDashboard.putData(new StowArm(arm));
+        SmartDashboard.putData("Reset Pivot Pos", new InstantCommand(() -> arm.resetPivotPosition()));
+        SmartDashboard.putData("Set Pivot Brake", new InstantCommand(() -> arm.setPivotBrake()));
+        SmartDashboard.putData("Release Pivot Brake", new InstantCommand(() -> arm.releasePivotBrake()));
     }    
     
     private void configureSmartDashboard(Claw claw)

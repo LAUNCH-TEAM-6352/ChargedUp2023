@@ -31,8 +31,8 @@ public final class Constants
             public static final boolean isLeftMotorInverted = true;
             public static final boolean isRightMotorInverted = false;
 
-            public static final int brakeSolenoidForwardChannel = 2;
-            public static final int brakeSolenoidReverseChannel = 3;
+            public static final int brakeSolenoidForwardChannel = 0;
+            public static final int brakeSolenoidReverseChannel = 1;
 
             // Indicates if motors should coast or brake to a stop:
             public static final IdleMode idleMode = IdleMode.kBrake;
@@ -53,13 +53,14 @@ public final class Constants
             // Manual operation constants:
             public static final double defaultManFwdSpeed = 0.05;
             public static final double defaultManRevSpeed = -0.05;
+            public static final double defaultMaxManualSpeed = 0.3;
  
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
             // With the 70:1 gear reduction, 1 motor chaft rotation equals approximately 360/70 = 5.14 degrees.
-            public static final double minPosition = -13.611111;
+            public static final double minPosition = -19.0;
             public static final double homePosition = 0.0;
-            public static final double maxPosition = 25.277778;
+            public static final double maxPosition = 19.0;
             public static final double backPickupPosition = -13.0;
             public static final double frontDeliveryPosition = 24.0;
        }
@@ -68,9 +69,9 @@ public final class Constants
         {
             public static final int motorChannel = 22;
             public static final boolean isMotorInverted = false;
-            public static final double defaultExtendSpeed = 0.5;
-            public static final double defaultRetractSpeed = -0.5;
-            public static final double maxManualSpeed = 1.0;
+            public static final double defaultExtendSpeed = 0.3;
+            public static final double defaultRetractSpeed = -0.3;
+            public static final double maxManualSpeed = 0.5;
         }
 
         //Position switches
@@ -81,8 +82,8 @@ public final class Constants
 
     public static final class ClawConstants
     {
-        public static final int pneumaticsForwardChannel = 0;
-        public static final int pneumaticsReverseChannel = 1;
+        public static final int pneumaticsForwardChannel = 3;
+        public static final int pneumaticsReverseChannel = 2;
     }
 
     public static final class DashboardConstants
@@ -113,13 +114,15 @@ public final class Constants
             public static final String armRetractSpeed = "Arm Ret %";
             public static final String extensionMinPosition = "Arm Ext Min Pos";
             public static final String extensionMidPosition = "Arm Ext Mid Pos";
+            public static final String extensionBeyondMidPosition = "Arm Ext Beyond Mid Pos";
             public static final String extensionMaxPosition = "Arm Ext Max Pos";
-            public static final String extenderCurSpeed = "Arm Ext Cur %";
+            public static final String extenderLastSpeed = "Arm Ext Last %";
             public static final String pivotTargetPosition = "Arm Pivot TPos";
             public static final String pivotCurLeftPosition = "Arm Pivot LPos";
             public static final String pivotCurRightPosition = "Arm Pivot RPos";
             public static final String pivotManFwdSpeed = "Arm Pivot Man Fwd %";
             public static final String pivotManRevSpeed = "Arm Pivot Man Rev %";
+            public static final String pivotMaxManSpeed = "Arm Pivot Max Man %";
             public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
             public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
             public static final String pivotTolerance = "Arm Pivot Tolerance";

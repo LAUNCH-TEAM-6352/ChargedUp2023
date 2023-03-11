@@ -43,7 +43,7 @@ public class Arm extends Rumbler
     private boolean isExtensionAtMidPosition;
     private boolean isExtensionBeyondMidPosition;
     private boolean isExtensionAtMaxPosition;
-    private double curExtenderSpeed = 0;
+    private double lastExtenderRunningSpeed = 0;
     
     // The following used for changing pivot position:
     private double pivotTargetPosition;
@@ -117,7 +117,6 @@ public class Arm extends Rumbler
         if ((speed < 0 && isPivotAtRevLimit()) || (speed > 0 && isPivotAtFwdLimit()))
         {
             speed = 0;
-            setPivotBrake();
             rumbleOn();
         }
         else
@@ -125,9 +124,15 @@ public class Arm extends Rumbler
             rumbleOff();
         }
 
+        if (speed == 0)
+        {
+            setPivotBrake();
+        }
+
         isPivotAtTargetPosition = false;
         isPivotPositioningStarted = false;
         leftPivotMotor.set(speed);
+        
         if (speed != 0)
         {
             releasePivotBrake();
@@ -143,12 +148,12 @@ public class Arm extends Rumbler
 
     public void setPivotBrake()
     {
-        pivotBrakeSolenoid.set(Value.kReverse);
+        pivotBrakeSolenoid.set(Value.kForward);
     }
 
     public void releasePivotBrake()
     {
-        pivotBrakeSolenoid.set(Value.kForward);
+        pivotBrakeSolenoid.set(Value.kReverse);
     }
 
     /**
@@ -191,7 +196,12 @@ public class Arm extends Rumbler
         {
             rumbleOff();
         }
-        curExtenderSpeed = speed;
+
+        if (speed !=0 )
+        {
+            lastExtenderRunningSpeed = speed;
+        }
+
         extenderMotor.set(ControlMode.PercentOutput, speed);
     }
 
@@ -213,17 +223,18 @@ public class Arm extends Rumbler
         // extender has moved.
         if (isExtensionAtMidPosition && !extensionMidPositionSwitch.get())
         {
-            isExtensionBeyondMidPosition = curExtenderSpeed > 0.0;
+            isExtensionBeyondMidPosition = lastExtenderRunningSpeed > 0.0;
         }
 
-        isExtensionAtMinPosition = extensionMinPositionSwitch.get();
-        isExtensionAtMidPosition = extensionMidPositionSwitch.get();
+        isExtensionAtMinPosition = !extensionMinPositionSwitch.get();
+        isExtensionAtMidPosition = !extensionMidPositionSwitch.get();
         isExtensionAtMaxPosition = extensionMaxPositionSwitch.get();
 
         SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtMinPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionBeyondMidPosition, isExtensionBeyondMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition);
-        SmartDashboard.putNumber(ArmKeys.extenderCurSpeed, curExtenderSpeed);
+        SmartDashboard.putNumber(ArmKeys.extenderLastSpeed, lastExtenderRunningSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
         SmartDashboard.putNumber(ArmKeys.pivotCurRightPosition, rightPivotPosition);
 
