@@ -9,24 +9,24 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.subsystems.Arm;
 
-public class ExtendArmToDeliveryPosition extends CommandBase
+public class ExtendArmToMaxPosition extends CommandBase
 {
     private final Arm arm;
-    private final String key;
+    private final String speedKey;
     private double speed;
     
     /** Creates a new ExtendArmToDeliveryPosition. */
-    public ExtendArmToDeliveryPosition(Arm arm, String key)
+    public ExtendArmToMaxPosition(Arm arm, String speedKey)
     {
         this.arm = arm;
-        this.key = key;
+        this.speedKey = speedKey;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize()
     {    
-        speed = SmartDashboard.getNumber(key, ExtenderConstants.defaultExtendSpeed);
+        speed = SmartDashboard.getNumber(speedKey, ExtenderConstants.defaultExtendSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -47,6 +47,6 @@ public class ExtendArmToDeliveryPosition extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return arm.isAtDeliveryExtensionPosition();
+        return arm.isExtensionAtMaxPosition();
     }
 }

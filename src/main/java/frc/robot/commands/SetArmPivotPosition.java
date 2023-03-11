@@ -11,26 +11,47 @@ import frc.robot.subsystems.Arm;
 public class SetArmPivotPosition extends CommandBase
 {
     private final Arm arm;
-    private final String positionKey;
+    private double position;
+    private double tolerance;
+    private String positionKey;
     private final String toleranceKey;
 
     /** Creates a new SetArmPivotPosition. */
-    public SetArmPivotPosition(Arm arm, String positionKey, String toleranceKey)
+    private SetArmPivotPosition(Arm arm, String toleranceKey)
     {
         this.arm = arm;
-        this.positionKey = positionKey;
         this.toleranceKey = toleranceKey;
-        
+
         addRequirements(arm);
+    }
+
+    public SetArmPivotPosition(Arm arm, String positionKey, String toleranceKey)
+    {
+        this(arm, toleranceKey);
+        this.positionKey = positionKey;
+    }
+
+    public SetArmPivotPosition(Arm arm, double position, String toleranceKey)
+    {
+        this(arm, toleranceKey);
+        this.position = position;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize()
     {
-        arm.setPivotPosition(
-            SmartDashboard.getNumber(positionKey, 0),
-            SmartDashboard.getNumber(toleranceKey, 1.0));
+        if (positionKey != null)
+        {
+            position = SmartDashboard.getNumber(positionKey, 0);
+        }
+
+        if (toleranceKey != null)
+        {
+            tolerance = SmartDashboard.getNumber(toleranceKey, 1.0);
+        }
+
+        arm.setPivotPosition(position, tolerance);    
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -51,6 +72,6 @@ public class SetArmPivotPosition extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return arm.isAtTargetPivotPosition();
+        return arm.isPivotAtTargetPosition();
     }
 }

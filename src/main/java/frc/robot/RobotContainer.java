@@ -38,10 +38,14 @@ import frc.robot.commands.DriveOntoChargeStation;
 import frc.robot.commands.DriveToRelativePosition;
 import frc.robot.commands.DriveWithGamepad;
 import frc.robot.commands.DriveWithJoysticks;
+import frc.robot.commands.ExtendArmToMaxPosition;
+import frc.robot.commands.ExtendArmToMidPosition;
 import frc.robot.commands.LevelChargeStation;
+import frc.robot.commands.RetractArm;
 import frc.robot.commands.RunArmExtenderWithGamepad;
 import frc.robot.commands.SetArmPivotPosition;
 import frc.robot.commands.SetArmPivotSpeed;
+import frc.robot.commands.StowArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
 import frc.robot.subsystems.DriveTrain;
@@ -133,7 +137,7 @@ public class RobotContainer
             : Optional.empty();		
 
         arm = gameData.isBlank() || gameData.contains("-a-")
-            ? Optional.of(new Arm())
+            ? Optional.of(new Arm(gamepad))
             : Optional.empty();		
 
         claw = gameData.isBlank() || gameData.contains("-c-")
@@ -341,6 +345,10 @@ public class RobotContainer
         SmartDashboard.putNumber(ArmKeys.pivotTolerance, PIDConstants.defaulTolerance);
         SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
         SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
+        SmartDashboard.putData(new RetractArm(arm, ArmKeys.armRetractSpeed));
+        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.armExtendSpeed));
+        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.armRetractSpeed, ArmKeys.armExtendSpeed));
+        SmartDashboard.putData(new StowArm(arm));
     }    
     
     private void configureSmartDashboard(Claw claw)

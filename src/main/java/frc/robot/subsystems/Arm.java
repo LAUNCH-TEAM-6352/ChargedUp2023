@@ -14,9 +14,9 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
@@ -24,7 +24,7 @@ import frc.robot.Constants.ArmConstants.PivotConstants.PIDConstants;
 import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.PneumaticsConstants;
 
-public class Arm extends SubsystemBase
+public class Arm extends Rumbler
 {
     // private final TalonSRX leftPivotMotor = new TalonSRX(PivotConstants.leftMotorChannel);
     // private final TalonSRX rightPivotMotor = new TalonSRX(PivotConstants.rightMotorChannel);
@@ -34,25 +34,30 @@ public class Arm extends SubsystemBase
 
     private final DoubleSolenoid pivotBrakeSolenoid = new DoubleSolenoid(PneumaticsConstants.moduleType, PivotConstants.brakeSolenoidForwardChannel, PivotConstants.brakeSolenoidReverseChannel);
 
-    private final DigitalInput maxPivotFrontPosition = new DigitalInput(ArmConstants.maxPivotFrontPositionChannel);
-    private final DigitalInput maxPivotBackPosition = new DigitalInput(ArmConstants.maxPivotBackPositionChannel);
-    private final DigitalInput homePivotPosition = new DigitalInput(ArmConstants.homePivotPositionChannel);
-    private final DigitalInput deliveryPivotPosition = new DigitalInput(ArmConstants.deliveryPivotPositionChannel);
+    private final DigitalInput extensionMinPositionSwitch = new DigitalInput(ArmConstants.extensionMinPositionChannel);
+    private final DigitalInput extensionMidPositionSwitch = new DigitalInput(ArmConstants.extensionMidPositionChannel);
+    private final DigitalInput extensionMaxPositionSwitch = new DigitalInput(ArmConstants.extensionMaxPositionChannel);
 
-    private final DigitalInput minExtensionPosition = new DigitalInput(ArmConstants.minExtensionPositionChannel);
-    private final DigitalInput maxExtensionPosition = new DigitalInput(ArmConstants.maxExtensionPositionChannel);
-    private final DigitalInput deliveryExtensionPosition = new DigitalInput(ArmConstants.deliveryExtensionPositionChannel);
-
-    private double targetPivotPosition;
-    private double targetPivotTolerance;
+    // THe following used for keeping track of extension position:
+    private boolean isExtensionAtMinPosition;
+    private boolean isExtensionAtMidPosition;
+    private boolean isExtensionBeyondMidPosition;
+    private boolean isExtensionAtMaxPosition;
+    private double curExtenderSpeed = 0;
+    
+    // The following used for changing pivot position:
+    private double pivotTargetPosition;
+    private double pivotTargetTolerance;
     private double lastPivotPosition;
-    private boolean isAtTargetPivotPosition;
+    private boolean isPivotAtTargetPosition;
     private boolean isPivotPositioningStarted;
 
 
     /** Creates a new Arm. */
-    public Arm()
+    public Arm(XboxController gamepad)
     {
+        super(gamepad);
+
         extenderMotor.setInverted(ExtenderConstants.isMotorInverted);
         
         // Set configuration common to both pivot motors:
@@ -61,8 +66,8 @@ public class Arm extends SubsystemBase
             motor.restoreFactoryDefaults();
             motor.clearFaults();
             motor.setIdleMode(PivotConstants.idleMode);
-            motor.setSoftLimit(SoftLimitDirection.kForward, PivotConstants.maxPosition);
-            motor.setSoftLimit(SoftLimitDirection.kReverse, PivotConstants.minPosition);
+            motor.setSoftLimit(SoftLimitDirection.kForward, (float) PivotConstants.maxPosition);
+            motor.setSoftLimit(SoftLimitDirection.kReverse, (float) PivotConstants.minPosition);
             motor.enableSoftLimit(SoftLimitDirection.kForward, true);
             motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
 		}
@@ -95,15 +100,15 @@ public class Arm extends SubsystemBase
         {
             position = PivotConstants.minPosition;
         }
-        targetPivotPosition = position;
-        targetPivotTolerance = tolerance;
+        pivotTargetPosition = position;
+        pivotTargetTolerance = tolerance;
         lastPivotPosition = 0;
         var minOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
         var maxOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
         leftPivotMotor.getPIDController().setOutputRange(minOutput, maxOutput);
         leftPivotMotor.getPIDController().setReference(position, ControlType.kPosition);
         releasePivotBrake();
-        isAtTargetPivotPosition = false;
+        isPivotAtTargetPosition = false;
         isPivotPositioningStarted = true;
 	}
 
@@ -113,8 +118,14 @@ public class Arm extends SubsystemBase
         {
             speed = 0;
             setPivotBrake();
+            rumbleOn();
         }
-        isAtTargetPivotPosition = false;
+        else
+        {
+            rumbleOff();
+        }
+
+        isPivotAtTargetPosition = false;
         isPivotPositioningStarted = false;
         leftPivotMotor.set(speed);
         if (speed != 0)
@@ -127,6 +138,7 @@ public class Arm extends SubsystemBase
     {
         setPivotBrake();
         leftPivotMotor.set(0);
+        rumbleOff();
     }
 
     public void setPivotBrake()
@@ -153,9 +165,9 @@ public class Arm extends SubsystemBase
         return leftPivotMotor.getEncoder().getPosition();
     }
 
-    public boolean isAtTargetPivotPosition()
+    public boolean isPivotAtTargetPosition()
     {
-        return isAtTargetPivotPosition;
+        return isPivotAtTargetPosition;
     }
 
     public boolean isPivotAtFwdLimit()
@@ -170,16 +182,23 @@ public class Arm extends SubsystemBase
 
     public void setExtenderSpeed(double speed)
     {
-        if ((isAtMaxExtensionLimit() && speed > 0) || (isAtMinExtensionLimit() && speed < 0))
+        if ((isExtensionAtMaxPosition() && speed > 0) || (isExtensionAtMinPosition() && speed < 0))
         {
             speed = 0;
+            rumbleOn();
         }
+        else
+        {
+            rumbleOff();
+        }
+        curExtenderSpeed = speed;
         extenderMotor.set(ControlMode.PercentOutput, speed);
     }
 
     public void stopExtender()
     {
         setExtenderSpeed(0);
+        rumbleOff();
     }
 
     @Override
@@ -188,18 +207,32 @@ public class Arm extends SubsystemBase
         var leftPivotPosition = leftPivotMotor.getEncoder().getPosition();
         var rightPivotPosition = rightPivotMotor.getEncoder().getPosition();
 
-        // This method will be called once per scheduler run
-        SmartDashboard.putBoolean(ArmKeys.extensionLimit, !(isAtMaxExtensionLimit() || isAtMinExtensionLimit()));
-        SmartDashboard.putBoolean(ArmKeys.extensionDeliveryPosition, isAtDeliveryExtensionPosition());
+        // Determine if the arm is extended beyond the mid position.
+        // If we were at the mid position but are not anymore use the
+        // current extender speed to determine in what direction the
+        // extender has moved.
+        if (isExtensionAtMidPosition && !extensionMidPositionSwitch.get())
+        {
+            isExtensionBeyondMidPosition = curExtenderSpeed > 0.0;
+        }
+
+        isExtensionAtMinPosition = extensionMinPositionSwitch.get();
+        isExtensionAtMidPosition = extensionMidPositionSwitch.get();
+        isExtensionAtMaxPosition = extensionMaxPositionSwitch.get();
+
+        SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtMinPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition);
+        SmartDashboard.putNumber(ArmKeys.extenderCurSpeed, curExtenderSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
         SmartDashboard.putNumber(ArmKeys.pivotCurRightPosition, rightPivotPosition);
 
         if (isPivotPositioningStarted)
         {
-            if (Math.abs(leftPivotPosition - targetPivotPosition) < targetPivotTolerance && Math.abs(leftPivotPosition - lastPivotPosition) < targetPivotTolerance)
+            if (Math.abs(leftPivotPosition - pivotTargetPosition) < pivotTargetTolerance && Math.abs(leftPivotPosition - lastPivotPosition) < pivotTargetTolerance)
             {
                 isPivotPositioningStarted = false;
-                isAtTargetPivotPosition = true;
+                isPivotAtTargetPosition = true;
             }
             else
             {
@@ -208,40 +241,23 @@ public class Arm extends SubsystemBase
         }
     }
 
-
-    public boolean isAtMaxPivotFrontPosition()
+    public boolean isExtensionAtMinPosition()
     {
-        return maxPivotFrontPosition.get();
+        return isExtensionAtMinPosition;
     }
 
-    public boolean isAtMaxPivotBackPosition()
+    public boolean isExtensionAtMidPosition()
     {
-        return maxPivotBackPosition.get();
+        return isExtensionAtMidPosition;
     }
 
-    public boolean isAtHomePivotPosition()
+    public boolean isExtensionBeyondMidPosition()
     {
-        return homePivotPosition.get();
+        return isExtensionBeyondMidPosition;
     }
 
-    public boolean isAtDeliveryPivotPosition()
+    public boolean isExtensionAtMaxPosition()
     {
-        return deliveryPivotPosition.get();
+        return isExtensionAtMaxPosition;
     }
-
-    public boolean isAtMinExtensionLimit()
-    {
-        return minExtensionPosition.get();
-    }
-
-    public boolean isAtMaxExtensionLimit()
-    {
-        return maxExtensionPosition.get();
-    }
-
-    public boolean isAtDeliveryExtensionPosition()
-    {
-        return deliveryExtensionPosition.get();
-    }
-
 }

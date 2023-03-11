@@ -56,12 +56,12 @@ public final class Constants
  
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
-            // With the 70:1 gear reduction, 1 rotation equals approximately 5.14 degrees.
-            public static final float minPosition = -13.611111f;
-            public static final float homePosition = 0.0f;
-            public static final float maxPosition = 25.277778f;
-            public static final float backPickupPosition = -13.0f;
-            public static final float frontDeliveryPosition = 24.0f;
+            // With the 70:1 gear reduction, 1 motor chaft rotation equals approximately 360/70 = 5.14 degrees.
+            public static final double minPosition = -13.611111;
+            public static final double homePosition = 0.0;
+            public static final double maxPosition = 25.277778;
+            public static final double backPickupPosition = -13.0;
+            public static final double frontDeliveryPosition = 24.0;
        }
 
         public static final class ExtenderConstants
@@ -74,13 +74,9 @@ public final class Constants
         }
 
         //Position switches
-        public static final int maxExtensionPositionChannel = 0;
-        public static final int minExtensionPositionChannel = 1;
-        public static final int deliveryExtensionPositionChannel = 2;
-        public static final int homePivotPositionChannel = 3;
-        public static final int deliveryPivotPositionChannel = 4;
-        public static final int maxPivotFrontPositionChannel = 5;
-        public static final int maxPivotBackPositionChannel = 6;
+        public static final int extensionMinPositionChannel = 0;
+        public static final int extensionMidPositionChannel = 1;
+        public static final int extensionMaxPositionChannel = 2;
     }
 
     public static final class ClawConstants
@@ -115,8 +111,10 @@ public final class Constants
             //Arm Constants
             public static final String armExtendSpeed = "Arm Ext %";
             public static final String armRetractSpeed = "Arm Ret %";
-            public static final String extensionLimit = "Arm Ext Limit";
-            public static final String extensionDeliveryPosition = "Arm Delivery Ext Pos";
+            public static final String extensionMinPosition = "Arm Ext Min Pos";
+            public static final String extensionMidPosition = "Arm Ext Mid Pos";
+            public static final String extensionMaxPosition = "Arm Ext Max Pos";
+            public static final String extenderCurSpeed = "Arm Ext Cur %";
             public static final String pivotTargetPosition = "Arm Pivot TPos";
             public static final String pivotCurLeftPosition = "Arm Pivot LPos";
             public static final String pivotCurRightPosition = "Arm Pivot RPos";

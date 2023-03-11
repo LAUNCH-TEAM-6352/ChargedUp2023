@@ -9,24 +9,32 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.subsystems.Arm;
 
-public class RetractArm extends CommandBase
+public class ExtendArmToMidPosition extends CommandBase
 {
     private final Arm arm;
-    private final String speedKey;
+    private final String retractSpeedKey;
+    private final String extendSpeedKey;
     private double speed;
     
-    /** Creates a new RetractArm. */
-    public RetractArm(Arm arm, String speedKey)
+    /** Creates a new ExtendArmToDeliveryPosition. */
+    public ExtendArmToMidPosition(Arm arm, String retractSpeedKey, String extendSpeedKey)
     {
         this.arm = arm;
-        this.speedKey = speedKey;
+        this.retractSpeedKey = retractSpeedKey;
+        this.extendSpeedKey = extendSpeedKey;
     }
 
     // Called when the command is initially scheduled.
     @Override
     public void initialize()
-    {    
-        speed = SmartDashboard.getNumber(speedKey, ExtenderConstants.defaultRetractSpeed);
+    {
+        // Determine if we need to extend or retract the arm:
+        speed = 
+            arm.isExtensionAtMidPosition()
+                ? 0.0
+                : arm.isExtensionBeyondMidPosition()
+                    ? SmartDashboard.getNumber(retractSpeedKey, ExtenderConstants.defaultRetractSpeed)
+                    : SmartDashboard.getNumber(extendSpeedKey, ExtenderConstants.defaultExtendSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
@@ -47,6 +55,6 @@ public class RetractArm extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return arm.isExtensionAtMinPosition();
+        return arm.isExtensionAtMidPosition();
     }
 }
