@@ -53,7 +53,7 @@ public final class Constants
             // Manual operation constants:
             public static final double defaultManFwdSpeed = 0.05;
             public static final double defaultManRevSpeed = -0.05;
-            public static final double defaultMaxManualSpeed = 0.3;
+            public static final double defaultMaxManualSpeed = 0.5;
  
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
