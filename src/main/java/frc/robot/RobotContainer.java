@@ -253,6 +253,7 @@ public class RobotContainer
 
     private void configureSmartDashboard()
     {
+        compressor.ifPresent(this::configureSmartDashboard);
         driveTrain.ifPresent(this::configureSmartDashboard);
         arm.ifPresent(this::configureSmartDashboard);
         claw.ifPresent(this::configureSmartDashboard);        
@@ -358,6 +359,11 @@ public class RobotContainer
     {
         SmartDashboard.putData("Open Claw", new InstantCommand(() -> claw.open()));
         SmartDashboard.putData("Close Claw", new InstantCommand(() -> claw.close()));
+    }
+
+    private void configureSmartDashboard(Compressor compressor)
+    {
+        SmartDashboard.putData(compressor);
     }
 
     /**

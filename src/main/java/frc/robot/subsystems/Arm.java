@@ -70,6 +70,7 @@ public class Arm extends Rumbler
             motor.setSoftLimit(SoftLimitDirection.kReverse, (float) PivotConstants.minPosition);
             motor.enableSoftLimit(SoftLimitDirection.kForward, true);
             motor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+            motor.setSmartCurrentLimit(PivotConstants.maxMotorCurrent);
 		}
 
         // COnfigure invertedness of the pivoit motors:
@@ -197,6 +198,7 @@ public class Arm extends Rumbler
             rumbleOff();
         }
 
+        // Remember last non-zero speed for determining when go beyond mid position:
         if (speed !=0 )
         {
             lastExtenderRunningSpeed = speed;
@@ -219,13 +221,15 @@ public class Arm extends Rumbler
 
         // Determine if the arm is extended beyond the mid position.
         // If we were at the mid position but are not anymore use the
-        // current extender speed to determine in what direction the
-        // extender has moved.
+        // most ercent npon-zero extender speed to determine in what
+        // direction the extender has moved.
         if (isExtensionAtMidPosition && !extensionMidPositionSwitch.get())
         {
             isExtensionBeyondMidPosition = lastExtenderRunningSpeed > 0.0;
         }
 
+        // The min and mid positions are reported by mag switches that
+        // return false when the switch is engaged.
         isExtensionAtMinPosition = !extensionMinPositionSwitch.get();
         isExtensionAtMidPosition = !extensionMidPositionSwitch.get();
         isExtensionAtMaxPosition = extensionMaxPositionSwitch.get();

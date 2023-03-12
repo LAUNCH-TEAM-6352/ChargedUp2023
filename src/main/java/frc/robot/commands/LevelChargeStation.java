@@ -20,7 +20,6 @@ import frc.robot.subsystems.DriveTrain;
  */
 public class LevelChargeStation extends PIDCommand
 {
-    private final DriveTrain driveTrain;
     private final PIDController controller;
 
     /** Creates a new LevelChargeStation. */
@@ -52,7 +51,6 @@ public class LevelChargeStation extends PIDCommand
             },
             driveTrain);
         
-        this.driveTrain = driveTrain;
         driveTrain.setIdleBrake();
         this.controller = getController();
         controller.setTolerance(LevelChargeStationPidDefaultValues.tolerance);

@@ -37,6 +37,9 @@ public final class Constants
             // Indicates if motors should coast or brake to a stop:
             public static final IdleMode idleMode = IdleMode.kBrake;
 
+            // Max current the pivot motors can draw:
+            public static final int maxMotorCurrent = 40;
+
             // PID constants:
             public static final class PIDConstants
             {
