@@ -118,11 +118,11 @@ public class Arm extends Rumbler
         if ((speed < 0 && isPivotAtRevLimit()) || (speed > 0 && isPivotAtFwdLimit()))
         {
             speed = 0;
-            rumbleOn();
+            leftRumbleOn();
         }
         else
         {
-            rumbleOff();
+            leftRumbleOff();
         }
 
         if (speed == 0)
@@ -144,7 +144,7 @@ public class Arm extends Rumbler
     {
         setPivotBrake();
         leftPivotMotor.set(0);
-        rumbleOff();
+        leftRumbleOff();
     }
 
     public void setPivotBrake()
@@ -191,11 +191,11 @@ public class Arm extends Rumbler
         if ((isExtensionAtMaxPosition() && speed > 0) || (isExtensionAtMinPosition() && speed < 0))
         {
             speed = 0;
-            rumbleOn();
+            rightRumbleOn();
         }
         else
         {
-            rumbleOff();
+            rightRumbleOff();
         }
 
         // Remember last non-zero speed for determining when go beyond mid position:
@@ -210,7 +210,7 @@ public class Arm extends Rumbler
     public void stopExtender()
     {
         setExtenderSpeed(0);
-        rumbleOff();
+        rightRumbleOff();
     }
 
     @Override
