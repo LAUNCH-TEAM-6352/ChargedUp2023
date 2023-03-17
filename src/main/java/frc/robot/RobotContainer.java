@@ -216,11 +216,9 @@ public class RobotContainer
         var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
 
         leftBumper.whileTrue(
-            new SetArmExtenderSpeed(arm, ArmKeys.armRetractSpeed)
-            .until(arm::isExtensionAtMinPosition));
+            new SetArmExtenderSpeed(arm, ArmKeys.armRetractSpeed));
         rightBumper.whileTrue(
-            new SetArmExtenderSpeed(arm, ArmKeys.armExtendSpeed)
-            .until(arm::isExtensionAtMaxPosition));
+            new SetArmExtenderSpeed(arm, ArmKeys.armExtendSpeed));
     }  
 
     private void configureTriggerBindings(Claw claw)
@@ -247,8 +245,8 @@ public class RobotContainer
             .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CONE)));
         new JoystickButton(gamepad, Button.kX.value)
             .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CUBE)));
-        new JoystickButton(gamepad, Button.kB.value)
-            .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.NONE)));
+        // new JoystickButton(gamepad, Button.kB.value)
+        //     .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.NONE)));
     }
 
     private void configureSmartDashboard()

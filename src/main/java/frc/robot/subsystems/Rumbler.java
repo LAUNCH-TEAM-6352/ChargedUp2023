@@ -27,7 +27,7 @@ public class Rumbler extends SubsystemBase
 
     public void leftRumbleOff()
     {
-        gamepad.setRumble(RumbleType.kRightRumble, 0);
+        gamepad.setRumble(RumbleType.kLeftRumble, 0);
     }
 
     public void rightRumbleOn()
@@ -37,7 +37,7 @@ public class Rumbler extends SubsystemBase
 
     public void rightRumbleOff()
     {
-        gamepad.setRumble(RumbleType.kBothRumble, 0);
+        gamepad.setRumble(RumbleType.kRightRumble, 0);
     }
 
     public void bothRumbleOn()
@@ -47,6 +47,6 @@ public class Rumbler extends SubsystemBase
 
     public void bothRumbleOff()
     {
-        gamepad.setRumble(RumbleType.kLeftRumble, 0);
+        gamepad.setRumble(RumbleType.kBothRumble, 0);
     }
 }

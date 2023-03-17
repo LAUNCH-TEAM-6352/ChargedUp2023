@@ -48,8 +48,8 @@ public final class Constants
                 public static final double kD = 1.0;
                 public static final int kIZ = 0;
                 public static final double kFF = 0;
-                public static final double defaultMinOutput = -0.05;
-                public static final double defaultMaxOutput = 0.05;
+                public static final double defaultMinOutput = -0.3;
+                public static final double defaultMaxOutput = 0.3;
                 public static final double defaulTolerance = 0.1;
             }
 
@@ -61,9 +61,9 @@ public final class Constants
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
             // With the 70:1 gear reduction, 1 motor chaft rotation equals approximately 360/70 = 5.14 degrees.
-            public static final double minPosition = -19.0;
+            public static final double minPosition = -37.0;
             public static final double homePosition = 0.0;
-            public static final double maxPosition = 19.0;
+            public static final double maxPosition = 67.0;
             public static final double backPickupPosition = -13.0;
             public static final double frontDeliveryPosition = 24.0;
        }
@@ -72,9 +72,8 @@ public final class Constants
         {
             public static final int motorChannel = 22;
             public static final boolean isMotorInverted = false;
-            public static final double defaultExtendSpeed = 0.3;
-            public static final double defaultRetractSpeed = -0.3;
-            public static final double maxManualSpeed = 0.5;
+            public static final double defaultExtendSpeed = 0.6;
+            public static final double defaultRetractSpeed = -0.6;
         }
 
         //Position switches
@@ -181,10 +180,10 @@ public final class Constants
 		public static final int rightRearMotorChannel = 10;
 		public static final int rightTopMotorChannel = 12;
 
-        public static final int[] leftMotorChannels = {leftFrontMotorChannel};
-        public static final int[] rightMotorChannels = {rightFrontMotorChannel};
-        // public static final int[] leftMotorChannels = {leftFrontMotorChannel, leftRearMotorChannel, leftTopMotorChannel};
-        // public static final int[] rightMotorChannels = {rightFrontMotorChannel, rightRearMotorChannel, rightTopMotorChannel};
+        //public static final int[] leftMotorChannels = {leftFrontMotorChannel};
+        //public static final int[] rightMotorChannels = {rightFrontMotorChannel};
+        public static final int[] leftMotorChannels = {leftFrontMotorChannel, leftRearMotorChannel, leftTopMotorChannel};
+        public static final int[] rightMotorChannels = {rightFrontMotorChannel, rightRearMotorChannel, rightTopMotorChannel};
 
         public static final MotorName[] motorNames =
         {
