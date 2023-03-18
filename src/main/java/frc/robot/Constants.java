@@ -48,15 +48,13 @@ public final class Constants
                 public static final double kD = 1.0;
                 public static final int kIZ = 0;
                 public static final double kFF = 0;
-                public static final double defaultMinOutput = -0.3;
-                public static final double defaultMaxOutput = 0.3;
+                public static final double defaultMinOutput = -0.25;
+                public static final double defaultMaxOutput = 0.25;
                 public static final double defaulTolerance = 0.1;
             }
 
             // Manual operation constants:
-            public static final double defaultManFwdSpeed = 0.05;
-            public static final double defaultManRevSpeed = -0.05;
-            public static final double defaultMaxManualSpeed = 0.5;
+            public static final double defaultMaxManualSpeed = 0.3;
  
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
@@ -66,27 +64,32 @@ public final class Constants
             public static final double maxPosition = 67.0;
             public static final double backPickupPosition = -13.0;
             public static final double frontDeliveryPosition = 24.0;
+            public static final double topCubeDeliveryPosition = 40.0;
        }
 
         public static final class ExtenderConstants
         {
             public static final int motorChannel = 22;
             public static final boolean isMotorInverted = false;
-            public static final double defaultExtendSpeed = 0.6;
-            public static final double defaultRetractSpeed = -0.6;
+            public static final double defaultExtendSpeed = 0.60;
+            public static final double defaultRetractSpeed = -0.65;
         }
 
         //Position switches
         public static final int extensionMinPositionChannel = 0;
         public static final int extensionMidPositionChannel = 1;
-        public static final int extensionMaxPositionChannel = 2;
+        public static final int extensionMaxPositionInternalChannel = 2;
+        public static final int extensionMaxPositionChannel = 3;
     }
 
     public static final class ClawConstants
     {
         public static final int pneumaticsForwardChannel = 3;
         public static final int pneumaticsReverseChannel = 2;
-    }
+
+        public static final double autoDelayBeforeOpen = 0.4;
+        public static final double autoDelayAfterOpen = 0.4;
+        }
 
     public static final class DashboardConstants
 	{
@@ -112,8 +115,8 @@ public final class Constants
         public static final class ArmKeys
         {
             //Arm Constants
-            public static final String armExtendSpeed = "Arm Ext %";
-            public static final String armRetractSpeed = "Arm Ret %";
+            public static final String extendSpeed = "Arm Ext %";
+            public static final String retractSpeed = "Arm Ret %";
             public static final String extensionMinPosition = "Arm Ext Min Pos";
             public static final String extensionMidPosition = "Arm Ext Mid Pos";
             public static final String extensionBeyondMidPosition = "Arm Ext Beyond Mid Pos";
@@ -122,8 +125,6 @@ public final class Constants
             public static final String pivotTargetPosition = "Arm Pivot TPos";
             public static final String pivotCurLeftPosition = "Arm Pivot LPos";
             public static final String pivotCurRightPosition = "Arm Pivot RPos";
-            public static final String pivotManFwdSpeed = "Arm Pivot Man Fwd %";
-            public static final String pivotManRevSpeed = "Arm Pivot Man Rev %";
             public static final String pivotMaxManSpeed = "Arm Pivot Max Man %";
             public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
             public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
@@ -207,15 +208,14 @@ public final class Constants
         public static final IdleMode defaultIdleMode = IdleMode.kCoast;
 
         // How long to delay (secs) in auto after traversing the charge station:
-        public static final double autoDriveDelay = 0.05;
+        public static final double autoDriveDelay = 0.075;
 
         public static final double defaultAutoLeaveCommunityPositionShort = 28;
-        public static final double defaultAutoLeaveCommunityPositionLong = -75;
-        public static final double defaultAutoChargeStationPosition = 28;
+        public static final double defaultAutoLeaveCommunityPositionLong = 95;
 
         // Values dealing with climbing onto the charge station:
-        public static final double defaultClimbingSpeedForward = -0.26;
-        public static final double defaultClimbingSpeedReverse = +0.26;
+        public static final double defaultClimbingSpeedForward = -0.10;
+        public static final double defaultClimbingSpeedReverse = +0.15;
         public static final double startClimbingAngle = 10.0;
         public static final double defaultClimbingStopAngle = 8.0;
 
@@ -236,12 +236,12 @@ public final class Constants
         public static final class LevelChargeStationPidDefaultValues
         {
             public static final double kP = 1.0;
-            public static final double kI = 0.0;
+            public static final double kI = 0.001;
             public static final double kD = 0.0;
             public static final double iZone = 10.0;
             public static final double ff = 0.0;
-            public static final double minOutput = -0.075;
-            public static final double maxOutput = +0.075;
+            public static final double minOutput = -0.05;
+            public static final double maxOutput = +0.05;
             public static final double tolerance = 2.0;
         }
 

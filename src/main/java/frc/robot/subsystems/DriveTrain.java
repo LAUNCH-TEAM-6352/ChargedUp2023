@@ -78,6 +78,9 @@ public class DriveTrain extends SubsystemBase
             motors.put(Integer.valueOf(channel), motor);
         }
 
+        // Reset motor position encoders:
+        resetPosition();
+
         // Construct the IMU:
         adis16470Imu = new ADIS16470_IMU(ADIS16470_IMU.IMUAxis.kX, SPI.Port.kOnboardCS0, ADIS16470_IMU.CalibrationTime._4s);
     }

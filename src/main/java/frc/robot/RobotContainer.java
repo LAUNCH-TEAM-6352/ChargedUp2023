@@ -216,9 +216,14 @@ public class RobotContainer
         var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
 
         leftBumper.whileTrue(
-            new SetArmExtenderSpeed(arm, ArmKeys.armRetractSpeed));
+            new SetArmExtenderSpeed(arm, ArmKeys.retractSpeed));
         rightBumper.whileTrue(
-            new SetArmExtenderSpeed(arm, ArmKeys.armExtendSpeed));
+            new SetArmExtenderSpeed(arm, ArmKeys.extendSpeed));
+        
+        new JoystickButton(gamepad, Button.kStart.value)
+            .onTrue(new StowArm(arm));
+        new JoystickButton(gamepad, Button.kBack.value)
+            .onTrue(new ExtendArmToMidPosition(arm, ArmKeys.retractSpeed, ArmKeys.extendSpeed));
     }  
 
     private void configureTriggerBindings(Claw claw)
@@ -336,17 +341,17 @@ public class RobotContainer
 
     private void configureSmartDashboard(Arm arm)
     {
-        SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ExtenderConstants.defaultExtendSpeed);
-        SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ExtenderConstants.defaultRetractSpeed);
+        SmartDashboard.putNumber(ArmKeys.extendSpeed, ExtenderConstants.defaultExtendSpeed);
+        SmartDashboard.putNumber(ArmKeys.retractSpeed, ExtenderConstants.defaultRetractSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotMaxManSpeed, PivotConstants.defaultMaxManualSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
         SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
         SmartDashboard.putNumber(ArmKeys.pivotTolerance, PIDConstants.defaulTolerance);
         SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
         SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
-        SmartDashboard.putData(new RetractArm(arm, ArmKeys.armRetractSpeed));
-        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.armExtendSpeed));
-        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.armRetractSpeed, ArmKeys.armExtendSpeed));
+        SmartDashboard.putData(new RetractArm(arm, ArmKeys.retractSpeed));
+        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.extendSpeed));
+        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.retractSpeed, ArmKeys.extendSpeed));
         SmartDashboard.putData(new StowArm(arm));
         SmartDashboard.putData("Reset Pivot Pos", new InstantCommand(() -> arm.resetPivotPosition()));
         SmartDashboard.putData("Set Pivot Brake", new InstantCommand(() -> arm.setPivotBrake()));
@@ -371,12 +376,18 @@ public class RobotContainer
      */
     private void configureSmartDashboard(SendableChooser<Command> chooser)
     {
-        chooser.setDefaultOption("Leave Community Short", Autos.leaveCommunityViaShortPath());
+        chooser.setDefaultOption("Auto Nothing", Autos.doNothing());
 
-        chooser.addOption("Leave Community Long", Autos.leaveCommunityViaLongPath());
+        chooser.addOption("Leave Community Short", Autos.leaveCommunityViaShortPath(driveTrain.get()));
 
-        chooser.addOption("Auto Nothing", Autos.doNothing());
+        chooser.addOption("Leave Community Long", Autos.leaveCommunityViaLongPath(driveTrain.get()));
 
+        chooser.addOption("Leave Community Then Engage Charge Station", Autos.leaveCommunityThenEngageChargeStation(driveTrain.get()));
+
+        chooser.addOption("Place Top Cube", Autos.placeTopCube(arm.get(), claw.get()));
+
+        chooser.addOption("Place Top Cube Then Engage Charge Station", Autos.placeTopCubeThenEngageChargeStation(arm.get(), claw.get(), driveTrain.get()));
+        
         SmartDashboard.putData(chooser);
     }
 
