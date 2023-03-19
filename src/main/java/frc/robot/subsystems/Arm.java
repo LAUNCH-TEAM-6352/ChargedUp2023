@@ -218,22 +218,40 @@ public class Arm extends Rumbler
         var leftPivotPosition = leftPivotMotor.getEncoder().getPosition();
         var rightPivotPosition = rightPivotMotor.getEncoder().getPosition();
 
+        // Quere=y hardware limit switches just once:
+        var isExtensionAtMinPosition = isExtensionAtMinPosition();
+        var isExtensionAtMidPosition = isExtensionAtMidPosition();
+        var isExtensionAtMaxPosition = isExtensionAtMaxPosition();
+
         // Determine if the arm is extended beyond the mid position.
         // If we were at the mid position but are not anymore use the
         // most recent non-zero extender speed to determine in what
         // direction the extender has moved.
-        if (wasExtensionAtMidPosition && !isExtensionAtMidPosition())
+        if (wasExtensionAtMidPosition && !isExtensionAtMidPosition)
         {
             isExtensionBeyondMidPosition = lastExtenderRunningSpeed > 0.0;
         }
 
         // Remember if we were at the mid position:
-        wasExtensionAtMidPosition = isExtensionAtMidPosition();
+        wasExtensionAtMidPosition = isExtensionAtMidPosition;
 
-        SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtMinPosition());
-        SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition());
+        // If we know we the arm extender is at a hard stop, set the beyond
+        // mid position flag accordingly.
+        // This is in case we moved beyond the mid position so fast that
+        // the code didn't catch the transition.
+        if (isExtensionAtMinPosition)
+        {
+            isExtensionBeyondMidPosition = false;
+        }
+        else if (isExtensionAtMaxPosition)
+        {
+            isExtensionBeyondMidPosition = true;
+        }
+
+        SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtMinPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionBeyondMidPosition, isExtensionBeyondMidPosition);
-        SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition());
+        SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition);
         SmartDashboard.putNumber(ArmKeys.extenderLastSpeed, lastExtenderRunningSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
         SmartDashboard.putNumber(ArmKeys.pivotCurRightPosition, rightPivotPosition);

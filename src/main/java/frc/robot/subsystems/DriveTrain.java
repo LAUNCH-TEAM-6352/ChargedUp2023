@@ -193,8 +193,8 @@ public class DriveTrain extends SubsystemBase
         left = MathUtil.clamp(left, -1.0, +1.0);
         right = MathUtil.clamp(right, -1.0, +1.0);
 
-        double leftOut = Math.copySign(left * left * left, left);
-        double rightOut = Math.copySign(right * right * right, right);
+        double leftOut = Math.copySign(left * left * left * left, left);
+        double rightOut = Math.copySign(right * right * right * right, right);
         
         setPercentage(leftMotors, leftOut);
         setPercentage(rightMotors, rightOut);
@@ -258,6 +258,15 @@ public class DriveTrain extends SubsystemBase
         {
             motor.stopMotor();
         }
+    }
+
+    /*
+     * Resets the gyro angle and drive position.
+     */
+    public void resetAngleAndPosition()
+    {
+        resetAngle();
+        resetPosition();
     }
 
     /**

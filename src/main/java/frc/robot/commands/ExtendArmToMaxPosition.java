@@ -26,7 +26,7 @@ public class ExtendArmToMaxPosition extends CommandBase
     @Override
     public void initialize()
     {    
-        speed = SmartDashboard.getNumber(speedKey, ExtenderConstants.defaultExtendSpeed);
+        speed = SmartDashboard.getNumber(speedKey, ExtenderConstants.defaultNormalExtendSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

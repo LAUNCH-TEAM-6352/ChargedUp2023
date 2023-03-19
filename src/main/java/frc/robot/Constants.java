@@ -71,8 +71,12 @@ public final class Constants
         {
             public static final int motorChannel = 22;
             public static final boolean isMotorInverted = false;
-            public static final double defaultExtendSpeed = 0.60;
-            public static final double defaultRetractSpeed = -0.65;
+            public static final double defaultNormalExtendSpeed = 0.60;
+            public static final double defaultNormalRetractSpeed = -0.65;
+            public static final double defaultFastExtendSpeed = 1.00;
+            public static final double defaultFastRetractSpeed = -1.0;
+            public static final double autoFastExtendSeconds = 2.5;
+            public static final double autoFastRetractSecodns = 1.0;
         }
 
         //Position switches
@@ -115,8 +119,10 @@ public final class Constants
         public static final class ArmKeys
         {
             //Arm Constants
-            public static final String extendSpeed = "Arm Ext %";
-            public static final String retractSpeed = "Arm Ret %";
+            public static final String normalExtendSpeed = "Arm Ext %";
+            public static final String normalRetractSpeed = "Arm Ret %";
+            public static final String fastExtendSpeed = "Arm Ext Fast %";
+            public static final String fastRetractSpeed = "Arm Ret Fast %";
             public static final String extensionMinPosition = "Arm Ext Min Pos";
             public static final String extensionMidPosition = "Arm Ext Mid Pos";
             public static final String extensionBeyondMidPosition = "Arm Ext Beyond Mid Pos";
