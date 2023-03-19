@@ -289,7 +289,7 @@ public class RobotContainer
         SmartDashboard.putNumber(LevelChargeStationPidKeys.maxOutput, LevelChargeStationPidDefaultValues.maxOutput);
 
         SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionShort, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
-        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionOverChargeStation);
 
         SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedForward, DriveTrainConstants.defaultClimbingSpeedForward);
         SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedReverse, DriveTrainConstants.defaultClimbingSpeedReverse);

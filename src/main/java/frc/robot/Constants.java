@@ -61,7 +61,7 @@ public final class Constants
             // With the 70:1 gear reduction, 1 motor chaft rotation equals approximately 360/70 = 5.14 degrees.
             public static final double minPosition = -37.0;
             public static final double homePosition = 0.0;
-            public static final double maxPosition = 67.0;
+            public static final double maxPosition = 74.0;
             public static final double backPickupPosition = -13.0;
             public static final double frontDeliveryPosition = 24.0;
             public static final double topCubeDeliveryPosition = 40.0;
@@ -216,8 +216,9 @@ public final class Constants
         // How long to delay (secs) in auto after traversing the charge station:
         public static final double autoDriveDelay = 0.075;
 
-        public static final double defaultAutoLeaveCommunityPositionShort = 28;
-        public static final double defaultAutoLeaveCommunityPositionLong = 95;
+        public static final double defaultAutoLeaveCommunityPositionShort = 46;
+        public static final double defaultAutoLeaveCommunityPositionLong = 78;
+        public static final double defaultAutoLeaveCommunityPositionOverChargeStation = 95;
 
         // Values dealing with climbing onto the charge station:
         public static final double defaultClimbingSpeedForward = -0.10;
