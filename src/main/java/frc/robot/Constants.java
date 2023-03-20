@@ -117,6 +117,7 @@ public final class Constants
             public static final String autoTargetPosition = "DT Auto Target Pos";
             public static final String autoLeaveCommunityPositionShort = "DT Auto Leave Comm Pos Shrt";
             public static final String autoLeaveCommunityPositionLong = "DT Auto Leave Comm Pos Lng";
+            public static final String autoLeaveCommunityPositionViaChargeStation = "DT Auto Leave Comm Pos Via CS";
             public static final String climbingSpeedForward = "DT Climb % Fwd";        
             public static final String climbingSpeedReverse = "DT Climb % Rev"; 
             public static final String climbingStopAngle = "DT Climb Stop Angle";
@@ -225,7 +226,7 @@ public final class Constants
 
         public static final double defaultAutoLeaveCommunityPositionShort = 46;
         public static final double defaultAutoLeaveCommunityPositionLong = 78;
-        public static final double defaultAutoLeaveCommunityPositionOverChargeStation = 95;
+        public static final double defaultAutoLeaveCommunityPositionViaChargeStation = 95;
 
         // Values dealing with climbing onto the charge station:
         public static final double defaultClimbingSpeedForward = -0.10;

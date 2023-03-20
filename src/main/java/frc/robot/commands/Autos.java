@@ -31,50 +31,49 @@ public final class Autos
 
     /**
      * Autonomous command for leaving the community via the short route.
-     * 
-     * The first command is to make sure the drive train position information is
-     * reset as movement of the robot may have happened after it was turned on
-     * on the field.
-     */
+    */
     public static CommandBase leaveCommunityViaShortPath(DriveTrain driveTrain)
     {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> driveTrain.resetAngleAndPosition()),
+            new InstantCommand(() -> driveTrain.resetPosition()),
             new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionShort).withTimeout(10)
         );
     }
 
     /**
      * Autonomous command for leaving the community via the long route.
-     * 
-     * The first command is to make sure the drive train position information is
-     * reset as movement of the robot may have happened after it was turned on
-     * on the field.
      */
     public static CommandBase leaveCommunityViaLongPath(DriveTrain driveTrain)
     {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> driveTrain.resetAngleAndPosition()),
+            new InstantCommand(() -> driveTrain.resetPosition()),
             new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionLong).withTimeout(10)
         );
     }
 
     /**
-     * Autonomous command for driving over the charging station to leave the community
+     * Autonomous command for engaging the charge station by driving in reverse.
+    */
+    public static CommandBase engageChargeStation(DriveTrain driveTrain, String speedKey)
+    {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> driveTrain.resetAngle()),
+            new DriveOntoChargeStation(driveTrain, speedKey, DriveTrainKeys.climbingStopAngle),
+            new LevelChargeStation(driveTrain)
+        );
+    }
+
+    /**
+     * Autonomous command for driving over the charge station to leave the community
      * and then driving back and engaging the charge station.
-     * 
-     * The first command is to make sure the drive train position information is
-     * reset as movement of the robot may have happened after it was turned on
-     * on the field.
      */
     public static CommandBase leaveCommunityThenEngageChargeStation(DriveTrain driveTrain)
     {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> driveTrain.resetAngleAndPosition()),
-            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionLong).withTimeout(10),
+            new InstantCommand(() -> driveTrain.resetPosition()),
+            new DriveToRelativePosition(driveTrain, DriveTrainKeys.autoLeaveCommunityPositionViaChargeStation).withTimeout(10),
             new WaitCommand(DriveTrainConstants.autoDriveDelay),
-            new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedForward, DriveTrainKeys.climbingStopAngle),
-            new LevelChargeStation(driveTrain)
+            engageChargeStation(driveTrain, DriveTrainKeys.climbingSpeedForward)
         );
     }
 
@@ -88,47 +87,67 @@ public final class Autos
             new SetArmPivotPosition(arm, PivotConstants.topCubeDeliveryPosition, ArmKeys.pivotTolerance),
             new WaitCommand(ClawConstants.autoDelayBeforeOpen),
             new InstantCommand(() -> claw.open()),
-            new WaitCommand(ClawConstants.autoDelayAfterOpen),
-            new StowArm(arm)
+            new WaitCommand(ClawConstants.autoDelayAfterOpen)
+        );
+    }
+
+    public static CommandBase placeTopCubeThenLeaveCommunityViaShortPath(Arm arm, Claw claw, DriveTrain driveTrain)
+    {
+        return new SequentialCommandGroup(
+            placeTopCube(arm, claw),
+            new ParallelCommandGroup(
+                new StowArm(arm),
+                leaveCommunityViaShortPath(driveTrain)
+            ) 
+        );
+    }
+
+    public static CommandBase placeTopCubeThenLeaveCommunityViaLongPath(Arm arm, Claw claw, DriveTrain driveTrain)
+    {
+        return new SequentialCommandGroup(
+            placeTopCube(arm, claw),
+            new ParallelCommandGroup(
+                new StowArm(arm),
+                leaveCommunityViaLongPath(driveTrain)
+            ) 
         );
     }
 
     /**
      * Autonomous command for placing cube in the top mnode.
      */
-    public static CommandBase extendTest(Arm arm)
+    public static CommandBase placeTopCubeThenStowArm(Arm arm, Claw claw)
     {
         return new SequentialCommandGroup(
-            new SetArmExtenderSpeed(arm, ArmKeys.fastExtendSpeed).withTimeout(ExtenderConstants.autoFastExtendSeconds),
-            new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed)
+            placeTopCube(arm, claw),
+            new StowArm(arm)
         );
     }
 
     /**
      * Autonomous command for placing cube in the top mnode and then driving to
      * and engaging the charge station.
-     * 
-     * The first command is to make sure the drive train position information is
-     * reset as movement of the robot may have happened after it was turned on
-     * on the field.
      */
     public static CommandBase placeTopCubeThenEngageChargeStation(Arm arm, Claw claw, DriveTrain driveTrain)
     {
         return new SequentialCommandGroup(
-            new InstantCommand(() -> driveTrain.resetAngleAndPosition()),
-            new SetArmExtenderSpeed(arm, ArmKeys.fastExtendSpeed).withTimeout(ExtenderConstants.autoFastExtendSeconds),
-            new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed),
-            new SetArmPivotPosition(arm, PivotConstants.topCubeDeliveryPosition, ArmKeys.pivotTolerance),
-            new WaitCommand(ClawConstants.autoDelayBeforeOpen),
-            new InstantCommand(() -> claw.open()),
-            new WaitCommand(ClawConstants.autoDelayAfterOpen),
+            new InstantCommand(() -> driveTrain.resetPosition()),
+            placeTopCube(arm, claw),
             new ParallelCommandGroup(
                 new StowArm(arm),
-                new SequentialCommandGroup(
-                    new DriveOntoChargeStation(driveTrain, DriveTrainKeys.climbingSpeedReverse, DriveTrainKeys.climbingStopAngle),
-                    new LevelChargeStation(driveTrain)
-                )
+                engageChargeStation(driveTrain, DriveTrainKeys.climbingSpeedReverse)
             )
+        );
+    }
+
+    /**
+     * Autonomous command for testing fast arm extension.
+     */
+    public static CommandBase extendTest(Arm arm)
+    {
+        return new SequentialCommandGroup(
+            new SetArmExtenderSpeed(arm, ArmKeys.fastExtendSpeed).withTimeout(ExtenderConstants.autoFastExtendSeconds),
+            new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed)
         );
     }
 

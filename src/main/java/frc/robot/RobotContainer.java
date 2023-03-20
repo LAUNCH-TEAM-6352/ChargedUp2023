@@ -104,6 +104,7 @@ public class RobotContainer
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
 
+        // Start a camera server for a simple USB camera:
         if (gameData.contains("-cam-"))
         {
             var camera = CameraServer.startAutomaticCapture();
@@ -299,7 +300,8 @@ public class RobotContainer
         SmartDashboard.putNumber(LevelChargeStationPidKeys.maxOutput, LevelChargeStationPidDefaultValues.maxOutput);
 
         SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionShort, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
-        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionOverChargeStation);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionViaChargeStation, DriveTrainConstants.defaultAutoLeaveCommunityPositionViaChargeStation);
 
         SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedForward, DriveTrainConstants.defaultClimbingSpeedForward);
         SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedReverse, DriveTrainConstants.defaultClimbingSpeedReverse);
@@ -396,7 +398,15 @@ public class RobotContainer
 
         chooser.addOption("Leave Community Then Engage Charge Station", Autos.leaveCommunityThenEngageChargeStation(driveTrain.get()));
 
+        chooser.addOption("Engage Charge Station", Autos.engageChargeStation(driveTrain.get(), DriveTrainKeys.climbingSpeedReverse));
+
         chooser.addOption("Place Top Cube", Autos.placeTopCube(arm.get(), claw.get()));
+
+        chooser.addOption("Place Top Cube Then Stow Arm", Autos.placeTopCubeThenStowArm(arm.get(), claw.get()));
+
+        chooser.addOption("Place Top Cube Then Leave Community Short", Autos.placeTopCubeThenLeaveCommunityViaShortPath(arm.get(), claw.get(), driveTrain.get()));
+
+        chooser.addOption("Place Top Cube Then Stow Arm", Autos.placeTopCubeThenLeaveCommunityViaLongPath(arm.get(), claw.get(), driveTrain.get()));
 
         chooser.addOption("Place Top Cube Then Engage Charge Station", Autos.placeTopCubeThenEngageChargeStation(arm.get(), claw.get(), driveTrain.get()));
 
