@@ -86,6 +86,13 @@ public final class Constants
         public static final int extensionMaxPositionChannel = 3;
     }
 
+    public static final class CameraConstants
+    {
+        public static final int fps = 10;
+        public static final int width = 320;
+        public static final int height = 240;
+    }
+
     public static final class ClawConstants
     {
         public static final int pneumaticsForwardChannel = 3;
