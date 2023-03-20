@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.Optional;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -24,6 +25,7 @@ import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
 import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
 import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
+import frc.robot.Constants.CameraConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
@@ -97,9 +99,17 @@ public class RobotContainer
         //   -c-    Claw
         //   -p-    Pneumatics
         //   -gpf-  Game piece flags
+        //   -cam-  Camera
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
+
+        if (gameData.contains("-cam-"))
+        {
+            var camera = CameraServer.startAutomaticCapture();
+            camera.setFPS(CameraConstants.fps);
+            camera.setResolution(CameraConstants.width, CameraConstants.height);
+        }
 
         // Create OI devices:
         if (gameData.contains("-oi-"))
