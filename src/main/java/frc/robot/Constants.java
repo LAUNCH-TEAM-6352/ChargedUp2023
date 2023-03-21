@@ -58,7 +58,7 @@ public final class Constants
  
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
-            // With the 70:1 gear reduction, 1 motor chaft rotation equals approximately 360/70 = 5.14 degrees.
+            // With the 210:1 gear reduction, 1 motor shaft rotation equals approximately 360/210 = 1.714 degrees.
             public static final double minPosition = -37.6;
             public static final double homePosition = 0.0;
             public static final double maxPosition = 74.0;
@@ -224,6 +224,10 @@ public final class Constants
         // How long to delay (secs) in auto after traversing the charge station:
         public static final double autoDriveDelay = 0.075;
 
+        // The drive base has 10.4 : 1 gear boxes and the drive wheels are 6
+        // inches in diameter.
+        // Therefore, one revolution of the drive motor equals approximately
+        // 1.8125 (6 * pi / 10.4) inches of travel.
         public static final double defaultAutoLeaveCommunityPositionShort = 50;
         public static final double defaultAutoLeaveCommunityPositionLong = 85;
         public static final double defaultAutoLeaveCommunityPositionViaChargeStation = 95;
