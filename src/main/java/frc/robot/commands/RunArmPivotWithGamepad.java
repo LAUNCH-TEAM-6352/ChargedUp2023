@@ -4,22 +4,27 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
+import frc.robot.Constants.ArmConstants.PivotConstants;
 import frc.robot.subsystems.Arm;
 
-public class SetArmPivotSpeed extends CommandBase
+public class RunArmPivotWithGamepad extends CommandBase
 {
     private final Arm arm;
-    private final String speedKey;
-    private double speed;
+    private final String maxSpeedKey;
+    private final XboxController gamepad;
+    private double maxSpeed;
 
-    /** Creates a new SetArmPivotPosition. */
-    public SetArmPivotSpeed(Arm arm, String speedKey)
+    /** Creates a new RunArmExtenderWithGamepad. */
+    public RunArmPivotWithGamepad(Arm arm, String maxSpeedKey, XboxController gamepad)
     {
+        // Use addRequirements() here to declare subsystem dependencies.
         this.arm = arm;
-        this.speedKey = speedKey;
-        
+        this.maxSpeedKey = maxSpeedKey;
+        this.gamepad = gamepad;
+
         addRequirements(arm);
     }
 
@@ -27,14 +32,16 @@ public class SetArmPivotSpeed extends CommandBase
     @Override
     public void initialize()
     {
-        speed = SmartDashboard.getNumber(speedKey, 0);
+        maxSpeed = SmartDashboard.getNumber(maxSpeedKey, PivotConstants.defaultMaxManualSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.
     @Override
     public void execute()
     {
-        arm.setPivotSpeed(speed);
+        // Speed is variable but limited:
+        arm.setPivotSpeed(
+            (gamepad.getLeftTriggerAxis() * -1.0 + gamepad.getRightTriggerAxis()) * maxSpeed);
     }
 
     // Called once the command ends or is interrupted.

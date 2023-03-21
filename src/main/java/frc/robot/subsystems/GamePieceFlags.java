@@ -20,7 +20,7 @@ public class GamePieceFlags extends SubsystemBase
     /** Creates a new GamePieceFlags. */
     public GamePieceFlags()
     {
-        displayFlag(GamePieceFlag.NONE);
+        displayFlag(GamePieceFlag.CONE);
     }
 
     public void displayFlag(GamePieceFlag flag)

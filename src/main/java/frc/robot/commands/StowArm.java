@@ -20,7 +20,7 @@ public class StowArm extends ParallelCommandGroup
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-            new RetractArm(arm, ArmKeys.armRetractSpeed),
+            new RetractArm(arm, ArmKeys.normalRetractSpeed),
             new SetArmPivotPosition(arm, PivotConstants.homePosition, ArmKeys.pivotTolerance));
     }
 }

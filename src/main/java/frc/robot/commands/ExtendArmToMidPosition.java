@@ -33,8 +33,8 @@ public class ExtendArmToMidPosition extends CommandBase
             arm.isExtensionAtMidPosition()
                 ? 0.0
                 : arm.isExtensionBeyondMidPosition()
-                    ? SmartDashboard.getNumber(retractSpeedKey, ExtenderConstants.defaultRetractSpeed)
-                    : SmartDashboard.getNumber(extendSpeedKey, ExtenderConstants.defaultExtendSpeed);
+                    ? SmartDashboard.getNumber(retractSpeedKey, ExtenderConstants.defaultNormalRetractSpeed)
+                    : SmartDashboard.getNumber(extendSpeedKey, ExtenderConstants.defaultNormalExtendSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

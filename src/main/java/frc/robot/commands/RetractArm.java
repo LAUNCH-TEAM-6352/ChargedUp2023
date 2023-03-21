@@ -26,7 +26,7 @@ public class RetractArm extends CommandBase
     @Override
     public void initialize()
     {    
-        speed = SmartDashboard.getNumber(speedKey, ExtenderConstants.defaultRetractSpeed);
+        speed = SmartDashboard.getNumber(speedKey, ExtenderConstants.defaultNormalRetractSpeed);
     }
 
     // Called every time the scheduler runs while the command is scheduled.

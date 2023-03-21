@@ -6,6 +6,7 @@ package frc.robot;
 
 import java.util.Optional;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -24,6 +25,7 @@ import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
 import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
 import frc.robot.Constants.DashboardConstants.LevelChargeStationPidKeys;
+import frc.robot.Constants.CameraConstants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 import frc.robot.Constants.DriveTrainConstants.LevelChargeStationPidDefaultValues;
@@ -42,9 +44,9 @@ import frc.robot.commands.ExtendArmToMaxPosition;
 import frc.robot.commands.ExtendArmToMidPosition;
 import frc.robot.commands.LevelChargeStation;
 import frc.robot.commands.RetractArm;
-import frc.robot.commands.RunArmExtenderWithGamepad;
+import frc.robot.commands.RunArmPivotWithGamepad;
+import frc.robot.commands.SetArmExtenderSpeed;
 import frc.robot.commands.SetArmPivotPosition;
-import frc.robot.commands.SetArmPivotSpeed;
 import frc.robot.commands.StowArm;
 import frc.robot.subsystems.Arm;
 import frc.robot.subsystems.Claw;
@@ -95,10 +97,20 @@ public class RobotContainer
         //   -oi-   Look for OI devices
         //   -a-    Arm
         //   -c-    Claw
-        //   -gpf-  Gape piece flags
+        //   -p-    Pneumatics
+        //   -gpf-  Game piece flags
+        //   -cam-  Camera
         // 
         gameData = DriverStation.getGameSpecificMessage().toLowerCase();
         SmartDashboard.putString("Game Data", gameData);
+
+        // Start a camera server for a simple USB camera:
+        if (gameData.contains("-cam-") || gameData.isBlank())
+        {
+            var camera = CameraServer.startAutomaticCapture();
+            camera.setFPS(CameraConstants.fps);
+            camera.setResolution(CameraConstants.width, CameraConstants.height);
+        }
 
         // Create OI devices:
         if (gameData.contains("-oi-"))
@@ -179,7 +191,7 @@ public class RobotContainer
         {
             if (gamepad != null)
             {
-                a.setDefaultCommand(new RunArmExtenderWithGamepad(a, gamepad));
+                a.setDefaultCommand(new RunArmPivotWithGamepad(a, ArmKeys.pivotMaxManSpeed, gamepad));
             }
         });
     }
@@ -215,11 +227,14 @@ public class RobotContainer
         var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
 
         leftBumper.whileTrue(
-            new SetArmPivotSpeed(arm, ArmKeys.pivotManRevSpeed)
-            .until(arm::isPivotAtRevLimit));
+            new SetArmExtenderSpeed(arm, ArmKeys.normalRetractSpeed));
         rightBumper.whileTrue(
-            new SetArmPivotSpeed(arm, ArmKeys.pivotManFwdSpeed)
-            .until(arm::isPivotAtFwdLimit));
+            new SetArmExtenderSpeed(arm, ArmKeys.normalExtendSpeed));
+        
+        new JoystickButton(gamepad, Button.kStart.value)
+            .onTrue(new StowArm(arm));
+        new JoystickButton(gamepad, Button.kBack.value)
+            .onTrue(new ExtendArmToMidPosition(arm, ArmKeys.normalRetractSpeed, ArmKeys.normalExtendSpeed));
     }  
 
     private void configureTriggerBindings(Claw claw)
@@ -246,12 +261,13 @@ public class RobotContainer
             .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CONE)));
         new JoystickButton(gamepad, Button.kX.value)
             .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CUBE)));
-        new JoystickButton(gamepad, Button.kB.value)
-            .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.NONE)));
+        // new JoystickButton(gamepad, Button.kB.value)
+        //     .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.NONE)));
     }
 
     private void configureSmartDashboard()
     {
+        compressor.ifPresent(this::configureSmartDashboard);
         driveTrain.ifPresent(this::configureSmartDashboard);
         arm.ifPresent(this::configureSmartDashboard);
         claw.ifPresent(this::configureSmartDashboard);        
@@ -285,6 +301,7 @@ public class RobotContainer
 
         SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionShort, DriveTrainConstants.defaultAutoLeaveCommunityPositionShort);
         SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionLong, DriveTrainConstants.defaultAutoLeaveCommunityPositionLong);
+        SmartDashboard.putNumber(DriveTrainKeys.autoLeaveCommunityPositionViaChargeStation, DriveTrainConstants.defaultAutoLeaveCommunityPositionViaChargeStation);
 
         SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedForward, DriveTrainConstants.defaultClimbingSpeedForward);
         SmartDashboard.putNumber(DriveTrainKeys.climbingSpeedReverse, DriveTrainConstants.defaultClimbingSpeedReverse);
@@ -336,25 +353,34 @@ public class RobotContainer
 
     private void configureSmartDashboard(Arm arm)
     {
-        SmartDashboard.putNumber(ArmKeys.armExtendSpeed, ExtenderConstants.defaultExtendSpeed);
-        SmartDashboard.putNumber(ArmKeys.armRetractSpeed, ExtenderConstants.defaultRetractSpeed);
-        SmartDashboard.putNumber(ArmKeys.pivotManFwdSpeed, PivotConstants.defaultManFwdSpeed);
-        SmartDashboard.putNumber(ArmKeys.pivotManRevSpeed, PivotConstants.defaultManRevSpeed);
+        SmartDashboard.putNumber(ArmKeys.normalExtendSpeed, ExtenderConstants.defaultNormalExtendSpeed);
+        SmartDashboard.putNumber(ArmKeys.normalRetractSpeed, ExtenderConstants.defaultNormalRetractSpeed);
+        SmartDashboard.putNumber(ArmKeys.fastExtendSpeed, ExtenderConstants.defaultFastExtendSpeed);
+        SmartDashboard.putNumber(ArmKeys.fastRetractSpeed, ExtenderConstants.defaultFastRetractSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotMaxManSpeed, PivotConstants.defaultMaxManualSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
         SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
         SmartDashboard.putNumber(ArmKeys.pivotTolerance, PIDConstants.defaulTolerance);
         SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
         SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
-        SmartDashboard.putData(new RetractArm(arm, ArmKeys.armRetractSpeed));
-        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.armExtendSpeed));
-        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.armRetractSpeed, ArmKeys.armExtendSpeed));
+        SmartDashboard.putData(new RetractArm(arm, ArmKeys.normalRetractSpeed));
+        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed));
+        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.normalRetractSpeed, ArmKeys.normalExtendSpeed));
         SmartDashboard.putData(new StowArm(arm));
+        SmartDashboard.putData("Reset Pivot Pos", new InstantCommand(() -> arm.resetPivotPosition()));
+        SmartDashboard.putData("Set Pivot Brake", new InstantCommand(() -> arm.setPivotBrake()));
+        SmartDashboard.putData("Release Pivot Brake", new InstantCommand(() -> arm.releasePivotBrake()));
     }    
     
     private void configureSmartDashboard(Claw claw)
     {
         SmartDashboard.putData("Open Claw", new InstantCommand(() -> claw.open()));
         SmartDashboard.putData("Close Claw", new InstantCommand(() -> claw.close()));
+    }
+
+    private void configureSmartDashboard(Compressor compressor)
+    {
+        SmartDashboard.putData(compressor);
     }
 
     /**
@@ -364,12 +390,28 @@ public class RobotContainer
      */
     private void configureSmartDashboard(SendableChooser<Command> chooser)
     {
-        chooser.setDefaultOption("Leave Community Short", Autos.leaveCommunityViaShortPath());
+        chooser.setDefaultOption("Auto Nothing", Autos.doNothing());
 
-        chooser.addOption("Leave Community Long", Autos.leaveCommunityViaLongPath());
+        chooser.addOption("Leave Community Short", Autos.leaveCommunityViaShortPath(driveTrain.get()));
 
-        chooser.addOption("Auto Nothing", Autos.doNothing());
+        chooser.addOption("Leave Community Long", Autos.leaveCommunityViaLongPath(driveTrain.get()));
 
+        chooser.addOption("Leave Community Then Engage Charge Station", Autos.leaveCommunityThenEngageChargeStation(driveTrain.get()));
+
+        chooser.addOption("Engage Charge Station", Autos.engageChargeStation(driveTrain.get(), DriveTrainKeys.climbingSpeedReverse));
+
+        chooser.addOption("Place Top Cube", Autos.placeTopCube(arm.get(), claw.get()));
+
+        chooser.addOption("Place Top Cube Then Stow Arm", Autos.placeTopCubeThenStowArm(arm.get(), claw.get()));
+
+        chooser.addOption("Place Top Cube Then Leave Community Short", Autos.placeTopCubeThenLeaveCommunityViaShortPath(arm.get(), claw.get(), driveTrain.get()));
+
+        chooser.addOption("Place Top Cube Then Stow Arm", Autos.placeTopCubeThenLeaveCommunityViaLongPath(arm.get(), claw.get(), driveTrain.get()));
+
+        chooser.addOption("Place Top Cube Then Engage Charge Station", Autos.placeTopCubeThenEngageChargeStation(arm.get(), claw.get(), driveTrain.get()));
+
+        chooser.addOption("Extension Test", Autos.extendTest(arm.get()));
+        
         SmartDashboard.putData(chooser);
     }
 

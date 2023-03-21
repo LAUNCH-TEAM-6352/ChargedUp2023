@@ -14,26 +14,39 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class Rumbler extends SubsystemBase
 {
     private final XboxController gamepad;
-    private RumbleType rumbleType = RumbleType.kBothRumble;
 
     public Rumbler(XboxController gamepad)
     {
         this.gamepad = gamepad;
     }
 
-    public Rumbler(XboxController gamepad, RumbleType rumbleType)
+    public void leftRumbleOn()
     {
-        this(gamepad);
-        this.rumbleType = rumbleType;
+        gamepad.setRumble(RumbleType.kLeftRumble, 1);
     }
 
-    public void rumbleOn()
+    public void leftRumbleOff()
     {
-        gamepad.setRumble(rumbleType, 1);
+        gamepad.setRumble(RumbleType.kLeftRumble, 0);
     }
 
-    public void rumbleOff()
+    public void rightRumbleOn()
     {
-        gamepad.setRumble(rumbleType, 0);
+        gamepad.setRumble(RumbleType.kRightRumble, 1);
+    }
+
+    public void rightRumbleOff()
+    {
+        gamepad.setRumble(RumbleType.kRightRumble, 0);
+    }
+
+    public void bothRumbleOn()
+    {
+        gamepad.setRumble(RumbleType.kBothRumble, 1);
+    }
+
+    public void bothRumbleOff()
+    {
+        gamepad.setRumble(RumbleType.kBothRumble, 0);
     }
 }
