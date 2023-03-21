@@ -20,7 +20,7 @@ public class SetArmExtenderSpeed extends CommandBase
         this.arm = arm;
         this.speedKey = speedKey;
         
-        addRequirements(arm);
+        //addRequirements(arm);
     }
 
     // Called when the command is initially scheduled.

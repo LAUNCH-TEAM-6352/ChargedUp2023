@@ -105,7 +105,7 @@ public class RobotContainer
         SmartDashboard.putString("Game Data", gameData);
 
         // Start a camera server for a simple USB camera:
-        if (gameData.contains("-cam-"))
+        if (gameData.contains("-cam-") || gameData.isBlank())
         {
             var camera = CameraServer.startAutomaticCapture();
             camera.setFPS(CameraConstants.fps);
