@@ -23,7 +23,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-
+import frc.robot.Constants;
 import frc.robot.Constants.DriveTrainConstants;
 import frc.robot.Constants.DashboardConstants.DriveToPositionPidKeys;
 import frc.robot.Constants.DashboardConstants.DriveTrainKeys;
@@ -199,8 +199,11 @@ public class DriveTrain extends SubsystemBase
         setPercentage(leftMotors, leftOut);
         setPercentage(rightMotors, rightOut);
 
-        SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, leftOut);
-        SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, rightOut);
+        if (Constants.DEBUG)
+        {
+            SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, leftOut);
+            SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, rightOut);    
+        }
     }
 
     /**
@@ -215,8 +218,11 @@ public class DriveTrain extends SubsystemBase
         setPercentage(leftMotors, percentage);
         setPercentage(rightMotors, percentage);
 
-        SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, percentage);
-        SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, percentage);
+        if (Constants.DEBUG)
+        {
+            SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, percentage);
+            SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, percentage);
+        }
     }
 
 	/**
@@ -227,8 +233,11 @@ public class DriveTrain extends SubsystemBase
         leftMotors.forEach((motor) -> motor.stopMotor());
         rightMotors.forEach((motor) -> motor.stopMotor());
 
-        SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, 0);
-        SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, 0);
+        if (Constants.DEBUG)
+        {
+            SmartDashboard.putNumber(DriveTrainKeys.leftPercentOutput, 0);
+            SmartDashboard.putNumber(DriveTrainKeys.rightPercentOutput, 0);
+        }
 	}
 
     /**
@@ -281,17 +290,8 @@ public class DriveTrain extends SubsystemBase
     @Override
     public void periodic()
     {
-        if (!leftMotors.isEmpty())
-        {
-            SmartDashboard.putNumber(DriveTrainKeys.leftPosition, leftMotors.get(0).getEncoder().getPosition());
-            // SmartDashboard.putNumber("DT Left Applied", leftMotors.get(0).getAppliedOutput());
-        }
-
-        if (!rightMotors.isEmpty())
-        {
-            SmartDashboard.putNumber(DriveTrainKeys.rightPosition, rightMotors.get(0).getEncoder().getPosition());
-            // SmartDashboard.putNumber("DT Right Applied", rightMotors.get(0).getAppliedOutput());
-        }
+        SmartDashboard.putNumber(DriveTrainKeys.leftPosition, leftMotors.get(0).getEncoder().getPosition());
+        SmartDashboard.putNumber(DriveTrainKeys.rightPosition, rightMotors.get(0).getEncoder().getPosition());
 
         SmartDashboard.putNumber(DriveTrainKeys.angle, getAngle());
     }

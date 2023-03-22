@@ -22,6 +22,10 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
  */
 public final class Constants
 {
+    // Indicates if we are debugging.
+    // Mainly controls how much shtuff gets sent to the Smart Dashboard.
+    public static final boolean DEBUG = false;
+    
     public static final class ArmConstants
     {
         public static final class PivotConstants

@@ -339,7 +339,7 @@ public class RobotContainer
                 new LevelChargeStation(driveTrain)
         ));
 
-    // The following are to be used to quickly test the individual drive train motors:
+        // The following are to be used to quickly test the individual drive train motors:
         for (int i = 0; i < DriveTrainConstants.motorNames.length; i++)
         {
             var motorName = DriveTrainConstants.motorNames[i];
@@ -412,7 +412,7 @@ public class RobotContainer
 
         chooser.addOption("Extension Test", Autos.extendTest(arm.get()));
         
-        SmartDashboard.putData(chooser);
+        SmartDashboard.putData("Autonomous", chooser);
     }
 
     /**

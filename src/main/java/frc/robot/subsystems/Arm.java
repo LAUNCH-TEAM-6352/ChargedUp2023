@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
@@ -215,10 +216,10 @@ public class Arm extends Rumbler
     @Override
     public void periodic()
     {
+        // Get the current pivot position:
         var leftPivotPosition = leftPivotMotor.getEncoder().getPosition();
-        var rightPivotPosition = rightPivotMotor.getEncoder().getPosition();
 
-        // Quere=y hardware limit switches just once:
+        // Query hardware limit switches just once:
         var isExtensionAtMinPosition = isExtensionAtMinPosition();
         var isExtensionAtMidPosition = isExtensionAtMidPosition();
         var isExtensionAtMaxPosition = isExtensionAtMaxPosition();
@@ -235,7 +236,7 @@ public class Arm extends Rumbler
         // Remember if we were at the mid position:
         wasExtensionAtMidPosition = isExtensionAtMidPosition;
 
-        // If we know we the arm extender is at a hard stop, set the beyond
+        // If we know the arm extender is at a hard stop, set the beyond
         // mid position flag accordingly.
         // This is in case we moved beyond the mid position so fast that
         // the code didn't catch the transition.
@@ -252,10 +253,16 @@ public class Arm extends Rumbler
         SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionBeyondMidPosition, isExtensionBeyondMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition);
-        SmartDashboard.putNumber(ArmKeys.extenderLastSpeed, lastExtenderRunningSpeed);
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
-        SmartDashboard.putNumber(ArmKeys.pivotCurRightPosition, rightPivotPosition);
+        if (Constants.DEBUG)
+        {
+            SmartDashboard.putNumber(ArmKeys.extenderLastSpeed, lastExtenderRunningSpeed);
+        }
 
+        // If we are currently pivoting to a specific position, see if we are
+        // at the desired position. If so, indicate that we have reached the
+        // desired position and are no longer pivoting to said position.
+        // Otherwise, remember the current pivot position to check next time.
         if (isPivotPositioningStarted)
         {
             if (Math.abs(leftPivotPosition - pivotTargetPosition) < pivotTargetTolerance && Math.abs(leftPivotPosition - lastPivotPosition) < pivotTargetTolerance)
