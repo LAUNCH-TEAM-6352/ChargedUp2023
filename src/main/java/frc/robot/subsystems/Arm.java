@@ -262,7 +262,7 @@ public class Arm extends Rumbler
         // If we are currently pivoting to a specific position, see if we are
         // at the desired position. If so, indicate that we have reached the
         // desired position and are no longer pivoting to said position.
-        // Otherwise, remember the current pivot position to check next time.
+        // Otherwise, remember the current pivot position to use for the next check.
         if (isPivotPositioningStarted)
         {
             if (Math.abs(leftPivotPosition - pivotTargetPosition) < pivotTargetTolerance && Math.abs(leftPivotPosition - lastPivotPosition) < pivotTargetTolerance)
