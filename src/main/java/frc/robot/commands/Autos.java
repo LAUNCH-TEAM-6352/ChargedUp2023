@@ -83,6 +83,7 @@ public final class Autos
     public static CommandBase placeTopCube(Arm arm, Claw claw)
     {
         return new SequentialCommandGroup(
+            new SetArmExtenderSpeed(arm, ArmKeys.fastExtendSpeed).withTimeout(ExtenderConstants.autoFastExtendSeconds),
             new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed),
             new SetArmPivotPosition(arm, PivotConstants.topCubeDeliveryPosition, ArmKeys.pivotTolerance),
             new WaitCommand(ClawConstants.autoDelayBeforeOpen),
