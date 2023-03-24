@@ -406,6 +406,8 @@ public class RobotContainer
 
         chooser.addOption("Place Top Cube Then Leave Community Short", Autos.placeTopCubeThenLeaveCommunityViaShortPath(arm.get(), claw.get(), driveTrain.get()));
 
+        chooser.addOption("Place Top Cube Then Leave Community Long", Autos.placeTopCubeThenLeaveCommunityViaLongPath(arm.get(), claw.get(), driveTrain.get()));
+
         chooser.addOption("Place Top Cube Then Stow Arm", Autos.placeTopCubeThenLeaveCommunityViaLongPath(arm.get(), claw.get(), driveTrain.get()));
 
         chooser.addOption("Place Top Cube Then Engage Charge Station", Autos.placeTopCubeThenEngageChargeStation(arm.get(), claw.get(), driveTrain.get()));

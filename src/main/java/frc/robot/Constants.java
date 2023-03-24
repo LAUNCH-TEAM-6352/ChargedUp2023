@@ -232,13 +232,13 @@ public final class Constants
         // inches in diameter.
         // Therefore, one revolution of the drive motor equals approximately
         // 1.8125 (6 * pi / 10.4) inches of travel.
-        public static final double defaultAutoLeaveCommunityPositionShort = 50;
-        public static final double defaultAutoLeaveCommunityPositionLong = 85;
+        public static final double defaultAutoLeaveCommunityPositionShort = 60;
+        public static final double defaultAutoLeaveCommunityPositionLong = 110;
         public static final double defaultAutoLeaveCommunityPositionViaChargeStation = 95;
 
         // Values dealing with climbing onto the charge station:
-        public static final double defaultClimbingSpeedForward = -0.10;
-        public static final double defaultClimbingSpeedReverse = +0.15;
+        public static final double defaultClimbingSpeedForward = -0.155;
+        public static final double defaultClimbingSpeedReverse = +0.155;
         public static final double startClimbingAngle = 10.0;
         public static final double defaultClimbingStopAngle = 8.0;
 
@@ -259,12 +259,12 @@ public final class Constants
         public static final class LevelChargeStationPidDefaultValues
         {
             public static final double kP = 1.0;
-            public static final double kI = 0.001;
+            public static final double kI = 0.00;
             public static final double kD = 0.0;
             public static final double iZone = 10.0;
             public static final double ff = 0.0;
-            public static final double minOutput = -0.05;
-            public static final double maxOutput = +0.05;
+            public static final double minOutput = -0.045;
+            public static final double maxOutput = +0.045;
             public static final double tolerance = 2.0;
         }
 
