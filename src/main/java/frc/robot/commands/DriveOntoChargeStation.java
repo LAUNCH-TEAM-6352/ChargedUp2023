@@ -32,6 +32,7 @@ public class DriveOntoChargeStation extends CommandBase
 	private double speed;
     private double stopAngle;
     private boolean isClimbing;
+    private double lastClimbingAngleAbs;
 
     private DriveOntoChargeStation(DriveTrain driveTrain)
     {
@@ -64,9 +65,11 @@ public class DriveOntoChargeStation extends CommandBase
     public void execute()
     {
         driveTrain.setRawMotorOutputs(speed);
-        if (Math.abs(driveTrain.getAngle()) > DriveTrainConstants.startClimbingAngle)
+        var angleAbs = Math.abs(driveTrain.getAngle());
+        if (angleAbs > DriveTrainConstants.startClimbingAngle)
         {
             isClimbing = true;
+            lastClimbingAngleAbs = angleAbs;
         }
     }
 
@@ -77,11 +80,32 @@ public class DriveOntoChargeStation extends CommandBase
         driveTrain.stop();
     }
 
-    // Returns true when the command should end.
+    /**
+     * Returns true when the command should end.
+     * @return
+     */
     @Override
     public boolean isFinished()
     {
-        return isClimbing && Math.abs(driveTrain.getAngle()) < stopAngle;        
+        if (DriveTrainConstants.useNewClimbingAlgorithm)
+        {
+            // Wait for the robot angle to start decreasing.
+            if (isClimbing)
+            {
+                var angleAbs = Math.abs(driveTrain.getAngle());
+                if (angleAbs < lastClimbingAngleAbs)
+                {
+                    return true;
+                }
+                lastClimbingAngleAbs = angleAbs;
+            }
+
+            return false;
+        }
+        else
+        {
+            return isClimbing && Math.abs(driveTrain.getAngle()) < stopAngle;        
+        }
     }
 }
 

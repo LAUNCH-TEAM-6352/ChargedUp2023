@@ -174,6 +174,8 @@ public final class Constants
 
 	public static final class DriveTrainConstants
 	{
+        public static final boolean useNewClimbingAlgorithm = true;
+
         /**
          * Used to give names to motors.
          */
