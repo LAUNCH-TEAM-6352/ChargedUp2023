@@ -66,7 +66,6 @@ public final class Constants
             public static final double minPosition = -37.6;
             public static final double homePosition = 0.0;
             public static final double maxPosition = 74.0;
-            public static final double backPickupPosition = -13.0;
             public static final double maxFrontPositionWhenBeyondMidExtension = 47.0;
             public static final double topCubeDeliveryPosition = 40.0;
        }
