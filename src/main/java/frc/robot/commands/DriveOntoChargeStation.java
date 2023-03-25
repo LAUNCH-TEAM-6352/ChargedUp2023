@@ -32,7 +32,7 @@ public class DriveOntoChargeStation extends CommandBase
 	private double speed;
     private double stopAngle;
     private boolean isClimbing;
-    private double lastClimbingAngleAbs;
+    private double maxClimbingAngleAbs;
 
     private DriveOntoChargeStation(DriveTrain driveTrain)
     {
@@ -69,7 +69,7 @@ public class DriveOntoChargeStation extends CommandBase
         if (angleAbs > DriveTrainConstants.startClimbingAngle)
         {
             isClimbing = true;
-            lastClimbingAngleAbs = angleAbs;
+            maxClimbingAngleAbs = angleAbs;
         }
     }
 
@@ -93,13 +93,17 @@ public class DriveOntoChargeStation extends CommandBase
             if (isClimbing)
             {
                 var angleAbs = Math.abs(driveTrain.getAngle());
-                if (angleAbs < lastClimbingAngleAbs)
+                if (angleAbs > maxClimbingAngleAbs)
                 {
-                    return true;
+                    maxClimbingAngleAbs = angleAbs;
+                    return false;
                 }
-                lastClimbingAngleAbs = angleAbs;
+                else
+                {
+                    return angleAbs < maxClimbingAngleAbs - 1.0;
+                }
             }
-
+            
             return false;
         }
         else

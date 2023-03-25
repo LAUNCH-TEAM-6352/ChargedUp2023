@@ -89,10 +89,10 @@ public class Arm extends Rumbler
     }
 
 	/**
-	 * Sets the shooter motor speeds in velocity (RPM).
+	 * Sets the pivot to a particular position.
 	 */
 	public void setPivotPosition(double position, double tolerance)
-	{ 
+	{
         if (position > PivotConstants.maxPosition)
         {
             position = PivotConstants.maxPosition;
@@ -101,6 +101,12 @@ public class Arm extends Rumbler
         {
             position = PivotConstants.minPosition;
         }
+        else if (position > PivotConstants.maxFrontPositionWhenBeyondMidExtension &&
+                 isExtensionAtOrBeyondMidPosition())
+        {
+            position = PivotConstants.maxFrontPositionWhenBeyondMidExtension;
+        }
+
         pivotTargetPosition = position;
         pivotTargetTolerance = tolerance;
         lastPivotPosition = 0;
@@ -115,7 +121,12 @@ public class Arm extends Rumbler
 
     public void setPivotSpeed(double speed)
     {
-        if ((speed < 0 && isPivotAtRevLimit()) || (speed > 0 && isPivotAtFwdLimit()))
+        if ((speed < 0 && isPivotAtRevLimit()) ||
+            (speed > 0 &&
+                (isPivotAtFwdLimit() ||
+                 (isPivotAtOrBeyondMidExtensionLimit() && isExtensionAtOrBeyondMidPosition())
+                )
+            ))
         {
             speed = 0;
             leftRumbleOn();
@@ -186,9 +197,24 @@ public class Arm extends Rumbler
         return leftPivotMotor.getFault(FaultID.kSoftLimitRev) || rightPivotMotor.getFault(FaultID.kSoftLimitRev);
     }
 
+    public boolean isPivotAtOrBeyondMidExtensionLimit()
+    {
+        return leftPivotMotor.getEncoder().getPosition() >= PivotConstants.maxFrontPositionWhenBeyondMidExtension;
+    }
+
+    public boolean isPivotMaxedForExtension()
+    {
+        return isPivotAtOrBeyondMidExtensionLimit() && isExtensionAtOrBeyondMidPosition();
+    }
+
     public void setExtenderSpeed(double speed)
     {
-        if ((isExtensionAtMaxPosition() && speed > 0) || (isExtensionAtMinPosition() && speed < 0))
+        if ((speed < 0 && isExtensionAtMinPosition()) ||
+            (speed > 0 &&
+             (isExtensionAtMaxPosition() ||
+              (isExtensionAtOrBeyondMidPosition() && isPivotAtOrBeyondMidExtensionLimit())
+             )
+            ))
         {
             speed = 0;
             rightRumbleOn();
@@ -249,10 +275,16 @@ public class Arm extends Rumbler
             isExtensionBeyondMidPosition = true;
         }
 
+        // Compute if the mivot is maxed out due to arm extension:
+        var isPivotMaxedForExtension =
+                leftPivotPosition >= PivotConstants.maxFrontPositionWhenBeyondMidExtension &&
+                (isExtensionAtMidPosition || isExtensionBeyondMidPosition);
+
         SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtMinPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionBeyondMidPosition, isExtensionBeyondMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition);
+        SmartDashboard.putBoolean(ArmKeys.pivotMaxedForExtension, !isPivotMaxedForExtension);
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
         if (Constants.DEBUG)
         {
@@ -292,6 +324,11 @@ public class Arm extends Rumbler
     public boolean isExtensionBeyondMidPosition()
     {
         return isExtensionBeyondMidPosition;
+    }
+
+    public boolean isExtensionAtOrBeyondMidPosition()
+    {
+        return isExtensionAtMidPosition() || isExtensionBeyondMidPosition();
     }
 
     public boolean isExtensionAtMaxPosition()

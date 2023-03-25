@@ -67,7 +67,7 @@ public final class Constants
             public static final double homePosition = 0.0;
             public static final double maxPosition = 74.0;
             public static final double backPickupPosition = -13.0;
-            public static final double frontDeliveryPosition = 24.0;
+            public static final double maxFrontPositionWhenBeyondMidExtension = 47.0;
             public static final double topCubeDeliveryPosition = 40.0;
        }
 
@@ -147,6 +147,7 @@ public final class Constants
             public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
             public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
             public static final String pivotTolerance = "Arm Pivot Tolerance";
+            public static final String pivotMaxedForExtension = "Arm Pivot Maxed For Ext";
         }
 
         public static final class DriveToPositionPidKeys
