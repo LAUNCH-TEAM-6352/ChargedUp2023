@@ -31,7 +31,7 @@ public class Arm extends Rumbler
     // private final TalonSRX rightPivotMotor = new TalonSRX(PivotConstants.rightMotorChannel);
     private final CANSparkMax leftPivotMotor = new CANSparkMax(PivotConstants.leftMotorChannel, MotorType.kBrushless);
     private final CANSparkMax rightPivotMotor = new CANSparkMax(PivotConstants.rightMotorChannel, MotorType.kBrushless);
-    private final VictorSPX extenderMotor = new VictorSPX(ExtenderConstants.motorChannel);
+    private final CANSparkMax extenderMotor = new CANSparkMax(ExtenderConstants.motorChannel, MotorType.kBrushless);
 
     private final DoubleSolenoid pivotBrakeSolenoid = new DoubleSolenoid(PneumaticsConstants.moduleType, PivotConstants.brakeSolenoidForwardChannel, PivotConstants.brakeSolenoidReverseChannel);
 
@@ -58,7 +58,12 @@ public class Arm extends Rumbler
     {
         super(gamepad);
 
+        // Set configurtation for extender motor:
+        extenderMotor.restoreFactoryDefaults();
         extenderMotor.setInverted(ExtenderConstants.isMotorInverted);
+        extenderMotor.clearFaults();
+        extenderMotor.setIdleMode(ExtenderConstants.idleMode);
+        extenderMotor.setSmartCurrentLimit(ExtenderConstants.maxMotorCurrent);
         
         // Set configuration common to both pivot motors:
 		for (CANSparkMax motor : new CANSparkMax[] { leftPivotMotor, rightPivotMotor})
@@ -230,7 +235,7 @@ public class Arm extends Rumbler
             lastExtenderRunningSpeed = speed;
         }
 
-        extenderMotor.set(ControlMode.PercentOutput, speed);
+        extenderMotor.set(speed);
     }
 
     public void stopExtender()
