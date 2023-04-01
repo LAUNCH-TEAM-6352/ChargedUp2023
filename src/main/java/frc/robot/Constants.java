@@ -76,9 +76,9 @@ public final class Constants
         public static final class ExtenderConstants
         {
             public static final int motorChannel = 22;
-            public static final boolean isMotorInverted = false;
-            public static final double defaultNormalExtendSpeed = 0.60;
-            public static final double defaultNormalRetractSpeed = -0.65;
+            public static final boolean isMotorInverted = true;
+            public static final double defaultNormalExtendSpeed = 0.75;
+            public static final double defaultNormalRetractSpeed = -0.75;
             public static final double defaultFastExtendSpeed = 1.00;
             public static final double defaultFastRetractSpeed = -1.0;
             public static final double autoFastExtendSeconds = 2.5;
@@ -114,7 +114,6 @@ public final class Constants
         //Position switches
         public static final int extensionMinPositionChannel = 0;
         public static final int extensionMidPositionChannel = 1;
-        public static final int extensionMaxPositionInternalChannel = 2;
         public static final int extensionMaxPositionChannel = 3;
     }
 

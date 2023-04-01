@@ -237,9 +237,9 @@ public class RobotContainer
             return;
         }     
 
-        new JoystickButton(gamepad, Button.kLeftBumper.value)
+        new JoystickButton(gamepad, Button.kA.value)
             .onTrue(new InstantCommand(() -> claw.open(), claw));
-        new JoystickButton(gamepad, Button.kRightBumper.value)
+        new JoystickButton(gamepad, Button.kB.value)
             .onTrue(new InstantCommand(() -> claw.close(), claw));
     }
 

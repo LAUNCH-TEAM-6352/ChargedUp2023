@@ -35,7 +35,6 @@ public class Arm extends Rumbler
     private final DigitalInput extensionMinPositionSwitch = new DigitalInput(ArmConstants.extensionMinPositionChannel);
     private final DigitalInput extensionMidPositionSwitch = new DigitalInput(ArmConstants.extensionMidPositionChannel);
     private final DigitalInput extensionMaxPositionSwitch = new DigitalInput(ArmConstants.extensionMaxPositionChannel);
-    private final DigitalInput extensionMaxPositionInternalSwitch = new DigitalInput(ArmConstants.extensionMaxPositionInternalChannel);
 
     // THe following used for keeping track of extension position:
     private boolean isExtensionBeyondMidPosition;
@@ -82,7 +81,7 @@ public class Arm extends Rumbler
 
         resetExtenderPosition();
 
-        // Set configuration common to both pivot motors:
+                // Set configuration common to both pivot motors:
 		for (CANSparkMax motor : new CANSparkMax[] { leftPivotMotor, rightPivotMotor})
 		{
             motor.restoreFactoryDefaults();
@@ -388,6 +387,6 @@ public class Arm extends Rumbler
 
     public boolean isExtensionAtHardMaxPosition()
     {
-        return !extensionMaxPositionSwitch.get() || extensionMaxPositionInternalSwitch.get();
+        return !extensionMaxPositionSwitch.get();
     }
 }

@@ -163,13 +163,14 @@ public class DriveTrain extends SubsystemBase
         
     /**
      * Team Caution style drive using input from two joysticks, left and right.
+     * Use only 75% of the right stick values.
      * 
      * @param leftStick
      * @param rightStick
      */
     public void driveCaution(Joystick leftStick, Joystick rightStick)
     {
-        setTunedOutputs(leftStick.getY() - rightStick.getX(), leftStick.getY() + rightStick.getX());
+        setTunedOutputs(leftStick.getY() - rightStick.getX() * 0.75, leftStick.getY() + rightStick.getX() * 0.75);
     }
 
     /**
@@ -183,7 +184,7 @@ public class DriveTrain extends SubsystemBase
     }
 
     /**
-     * Squares inputs for more sensitivity.
+     * Raises inputs to fourth power for more sensitivity.
      * 
      * @param left
      * @param right
