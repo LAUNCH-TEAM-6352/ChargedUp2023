@@ -369,6 +369,7 @@ public class RobotContainer
         SmartDashboard.putData("Reset Pivot Pos", new InstantCommand(() -> arm.resetPivotPosition()));
         SmartDashboard.putData("Set Pivot Brake", new InstantCommand(() -> arm.setPivotBrake()));
         SmartDashboard.putData("Release Pivot Brake", new InstantCommand(() -> arm.releasePivotBrake()));
+        SmartDashboard.putData("Reset Ext Pos", new InstantCommand(() -> arm.resetExtenderPosition()));
     }    
     
     private void configureSmartDashboard(Claw claw)

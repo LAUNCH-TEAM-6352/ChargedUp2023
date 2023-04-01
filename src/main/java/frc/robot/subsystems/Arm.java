@@ -60,7 +60,7 @@ public class Arm extends Rumbler
     {
         super(gamepad);
 
-        // Set onfigurtation for extender motor:
+        // Set configurtation for extender motor:
         extenderMotor.restoreFactoryDefaults();
         extenderMotor.setInverted(ExtenderConstants.isMotorInverted);
         extenderMotor.clearFaults();
