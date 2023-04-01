@@ -4,8 +4,6 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.motorcontrol.ControlMode;
-import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.FaultID;
@@ -21,7 +19,6 @@ import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
-import frc.robot.Constants.ArmConstants.PivotConstants.PIDConstants;
 import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.Constants.PneumaticsConstants;
 
@@ -31,7 +28,7 @@ public class Arm extends Rumbler
     // private final TalonSRX rightPivotMotor = new TalonSRX(PivotConstants.rightMotorChannel);
     private final CANSparkMax leftPivotMotor = new CANSparkMax(PivotConstants.leftMotorChannel, MotorType.kBrushless);
     private final CANSparkMax rightPivotMotor = new CANSparkMax(PivotConstants.rightMotorChannel, MotorType.kBrushless);
-    private final VictorSPX extenderMotor = new VictorSPX(ExtenderConstants.motorChannel);
+    private final CANSparkMax extenderMotor = new CANSparkMax(ExtenderConstants.motorChannel, MotorType.kBrushless);
 
     private final DoubleSolenoid pivotBrakeSolenoid = new DoubleSolenoid(PneumaticsConstants.moduleType, PivotConstants.brakeSolenoidForwardChannel, PivotConstants.brakeSolenoidReverseChannel);
 
@@ -41,9 +38,14 @@ public class Arm extends Rumbler
     private final DigitalInput extensionMaxPositionInternalSwitch = new DigitalInput(ArmConstants.extensionMaxPositionInternalChannel);
 
     // THe following used for keeping track of extension position:
-    private boolean wasExtensionAtMidPosition;
     private boolean isExtensionBeyondMidPosition;
-    private double lastExtenderRunningSpeed = 0;
+    
+    // The following used for changing extender position:
+    private double extenderTargetPosition;
+    private double extenderTargetTolerance;
+    private double lastExtenderPosition;
+    private boolean isExtenderAtTargetPosition;
+    private boolean isExtenderPositioningStarted;
     
     // The following used for changing pivot position:
     private double pivotTargetPosition;
@@ -58,8 +60,28 @@ public class Arm extends Rumbler
     {
         super(gamepad);
 
+        // Set onfigurtation for extender motor:
+        extenderMotor.restoreFactoryDefaults();
         extenderMotor.setInverted(ExtenderConstants.isMotorInverted);
-        
+        extenderMotor.clearFaults();
+        extenderMotor.setIdleMode(ExtenderConstants.idleMode);
+        extenderMotor.setSoftLimit(SoftLimitDirection.kForward, (float) ExtenderConstants.maxPosition);
+        extenderMotor.setSoftLimit(SoftLimitDirection.kReverse, (float) ExtenderConstants.minPosition);
+        extenderMotor.enableSoftLimit(SoftLimitDirection.kForward, true);
+        extenderMotor.enableSoftLimit(SoftLimitDirection.kReverse, true);
+        extenderMotor.setSmartCurrentLimit(ExtenderConstants.maxMotorCurrent);
+
+        // Set PID controller parameters on the extender motor:
+        var pidController = extenderMotor.getPIDController();
+        pidController = extenderMotor.getPIDController();
+        pidController.setP(ExtenderConstants.PIDConstants.kP);
+        pidController.setI(ExtenderConstants.PIDConstants.kI);
+        pidController.setD(ExtenderConstants.PIDConstants.kD);
+        pidController.setIZone(ExtenderConstants.PIDConstants.kIZ);
+        pidController.setFF(ExtenderConstants.PIDConstants.kFF);
+
+        resetExtenderPosition();
+
         // Set configuration common to both pivot motors:
 		for (CANSparkMax motor : new CANSparkMax[] { leftPivotMotor, rightPivotMotor})
 		{
@@ -73,19 +95,90 @@ public class Arm extends Rumbler
             motor.setSmartCurrentLimit(PivotConstants.maxMotorCurrent);
 		}
 
-        // COnfigure invertedness of the pivoit motors:
+        // Configure invertedness of the pivot motors:
         leftPivotMotor.setInverted(PivotConstants.isLeftMotorInverted);
         rightPivotMotor.follow(leftPivotMotor, PivotConstants.isLeftMotorInverted != PivotConstants.isRightMotorInverted);
 
         // Set PID controller parameters on the pivot leader:
-        var pidController = leftPivotMotor.getPIDController();
-        pidController.setP(PIDConstants.kP);
-        pidController.setI(PIDConstants.kI);
-        pidController.setD(PIDConstants.kD);
-        pidController.setIZone(PIDConstants.kIZ);
-        pidController.setFF(PIDConstants.kFF);
+        pidController = leftPivotMotor.getPIDController();
+        pidController.setP(PivotConstants.PIDConstants.kP);
+        pidController.setI(PivotConstants.PIDConstants.kI);
+        pidController.setD(PivotConstants.PIDConstants.kD);
+        pidController.setIZone(PivotConstants.PIDConstants.kIZ);
+        pidController.setFF(PivotConstants.PIDConstants.kFF);
 
         resetPivotPosition();
+    }
+
+	/**
+	 * Sets the extender to a particular position.
+	 */
+	public void setExtenderPosition(double position, double tolerance)
+	{
+        if (position > ExtenderConstants.maxPosition)
+        {
+            position = ExtenderConstants.maxPosition;
+        }
+        else if (position < ExtenderConstants.minPosition)
+        {
+            position = ExtenderConstants.minPosition;
+        }
+        // else if (position > PivotConstants.maxFrontPositionWhenBeyondMidExtension &&
+        //          isExtensionAtOrBeyondMidPosition())
+        // {
+        //     position = PivotConstants.maxFrontPositionWhenBeyondMidExtension;
+        // }
+
+        extenderTargetPosition = position;
+        extenderTargetTolerance = tolerance;
+        lastExtenderPosition = 0;
+        var minOutput = SmartDashboard.getNumber(ArmKeys.extenderPidMinOutput, ExtenderConstants.PIDConstants.defaultMinOutput);
+        var maxOutput = SmartDashboard.getNumber(ArmKeys.extenderPidMaxOutput, ExtenderConstants.PIDConstants.defaultMaxOutput);
+        extenderMotor.getPIDController().setOutputRange(minOutput, maxOutput);
+        extenderMotor.getPIDController().setReference(position, ControlType.kPosition);
+        isExtenderAtTargetPosition = false;
+        isExtenderPositioningStarted = true;
+	}
+
+    public void setExtenderSpeed(double speed)
+    {
+        if ((speed < 0 && isExtensionAtHardMinPosition()) ||
+            (speed > 0 && (isExtensionAtHardMaxPosition() || isPivotMaxedForExtension())))
+    
+        {
+            speed = 0;
+            rightRumbleOn();
+        }
+        else
+        {
+            rightRumbleOff();
+        }
+
+        extenderMotor.set(speed);
+    }
+
+    /**
+     * Redsets the extender position counter to 0.
+     */
+    public void resetExtenderPosition()
+    {
+        extenderMotor.getEncoder().setPosition(0);
+    }
+
+    public double getExtenderPosition()
+    {
+        return extenderMotor.getEncoder().getPosition();
+    }
+
+    public boolean isExtenderAtTargetPosition()
+    {
+        return isExtenderAtTargetPosition;
+    }
+
+    public void stopExtender()
+    {
+        setExtenderSpeed(0);
+        rightRumbleOff();
     }
 
 	/**
@@ -110,8 +203,8 @@ public class Arm extends Rumbler
         pivotTargetPosition = position;
         pivotTargetTolerance = tolerance;
         lastPivotPosition = 0;
-        var minOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
-        var maxOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
+        var minOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMinOutput, PivotConstants.PIDConstants.defaultMinOutput);
+        var maxOutput = SmartDashboard.getNumber(ArmKeys.pivotPidMaxOutput, PivotConstants.PIDConstants.defaultMaxOutput);
         leftPivotMotor.getPIDController().setOutputRange(minOutput, maxOutput);
         leftPivotMotor.getPIDController().setReference(position, ControlType.kPosition);
         releasePivotBrake();
@@ -122,11 +215,7 @@ public class Arm extends Rumbler
     public void setPivotSpeed(double speed)
     {
         if ((speed < 0 && isPivotAtRevLimit()) ||
-            (speed > 0 &&
-                (isPivotAtFwdLimit() ||
-                 (isPivotAtOrBeyondMidExtensionLimit() && isExtensionAtOrBeyondMidPosition())
-                )
-            ))
+            (speed > 0 && (isPivotAtFwdLimit() || isPivotMaxedForExtension())))
         {
             speed = 0;
             leftRumbleOn();
@@ -182,6 +271,14 @@ public class Arm extends Rumbler
         return leftPivotMotor.getEncoder().getPosition();
     }
 
+    /**
+     * Returns the angle (in radians) of the arm relative to the front of the robot
+     */
+    public double getPivotAngle()
+    {
+        return Math.min(PivotConstants.frontHorizontalPosition, getPivotPosition()) * PivotConstants.radiansPerMotorShaftRotation;
+    }
+
     public boolean isPivotAtTargetPosition()
     {
         return isPivotAtTargetPosition;
@@ -204,91 +301,49 @@ public class Arm extends Rumbler
 
     public boolean isPivotMaxedForExtension()
     {
-        return isPivotAtOrBeyondMidExtensionLimit() && isExtensionAtOrBeyondMidPosition();
-    }
-
-    public void setExtenderSpeed(double speed)
-    {
-        if ((speed < 0 && isExtensionAtMinPosition()) ||
-            (speed > 0 &&
-             (isExtensionAtMaxPosition() ||
-              (isExtensionAtOrBeyondMidPosition() && isPivotAtOrBeyondMidExtensionLimit())
-             )
-            ))
-        {
-            speed = 0;
-            rightRumbleOn();
-        }
-        else
-        {
-            rightRumbleOff();
-        }
-
-        // Remember last non-zero speed for determining when go beyond mid position:
-        if (speed !=0 )
-        {
-            lastExtenderRunningSpeed = speed;
-        }
-
-        extenderMotor.set(ControlMode.PercentOutput, speed);
-    }
-
-    public void stopExtender()
-    {
-        setExtenderSpeed(0);
-        rightRumbleOff();
+        return Constants.DEBUG
+            ? false
+            : ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition() <= Math.cos(getPivotAngle());
     }
 
     @Override
     public void periodic()
     {
+        // Get the current extender position:
+        var extenderPosition = extenderMotor.getEncoder().getPosition();
+
         // Get the current pivot position:
         var leftPivotPosition = leftPivotMotor.getEncoder().getPosition();
 
         // Query hardware limit switches just once:
-        var isExtensionAtMinPosition = isExtensionAtMinPosition();
-        var isExtensionAtMidPosition = isExtensionAtMidPosition();
-        var isExtensionAtMaxPosition = isExtensionAtMaxPosition();
+        var isExtensionAtHardMinPosition = isExtensionAtHardMinPosition();
+        var isExtensionAtHardMidPosition = isExtensionAtHardMidPosition();
+        var isExtensionAtHardMaxPosition = isExtensionAtHardMaxPosition();
 
-        // Determine if the arm is extended beyond the mid position.
-        // If we were at the mid position but are not anymore use the
-        // most recent non-zero extender speed to determine in what
-        // direction the extender has moved.
-        if (wasExtensionAtMidPosition && !isExtensionAtMidPosition)
-        {
-            isExtensionBeyondMidPosition = lastExtenderRunningSpeed > 0.0;
-        }
 
-        // Remember if we were at the mid position:
-        wasExtensionAtMidPosition = isExtensionAtMidPosition;
-
-        // If we know the arm extender is at a hard stop, set the beyond
-        // mid position flag accordingly.
-        // This is in case we moved beyond the mid position so fast that
-        // the code didn't catch the transition.
-        if (isExtensionAtMinPosition)
-        {
-            isExtensionBeyondMidPosition = false;
-        }
-        else if (isExtensionAtMaxPosition)
-        {
-            isExtensionBeyondMidPosition = true;
-        }
-
-        // Compute if the mivot is maxed out due to arm extension:
-        var isPivotMaxedForExtension =
-                leftPivotPosition >= PivotConstants.maxFrontPositionWhenBeyondMidExtension &&
-                (isExtensionAtMidPosition || isExtensionBeyondMidPosition);
-
-        SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtMinPosition);
-        SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtMidPosition);
+        SmartDashboard.putNumber(ArmKeys.extenderPosition, extenderPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtHardMinPosition);
+        SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtHardMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionBeyondMidPosition, isExtensionBeyondMidPosition);
-        SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtMaxPosition);
-        SmartDashboard.putBoolean(ArmKeys.pivotMaxedForExtension, !isPivotMaxedForExtension);
+        SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtHardMaxPosition);
+        SmartDashboard.putBoolean(ArmKeys.pivotMaxedForExtension, !isPivotMaxedForExtension());
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
-        if (Constants.DEBUG)
+
+        // If we are currently extending to a specific position, see if we are
+        // at the desired position. If so, indicate that we have reached the
+        // desired position and are no longer extending to said position.
+        // Otherwise, remember the current extender position to use for the next check.
+        if (isExtenderPositioningStarted)
         {
-            SmartDashboard.putNumber(ArmKeys.extenderLastSpeed, lastExtenderRunningSpeed);
+            if (Math.abs(extenderPosition - extenderTargetPosition) < extenderTargetTolerance && Math.abs(extenderPosition - lastExtenderPosition) < extenderTargetTolerance)
+            {
+                isExtenderPositioningStarted = false;
+                isExtenderAtTargetPosition = true;
+            }
+            else
+            {
+                lastExtenderPosition = extenderPosition;
+            }
         }
 
         // If we are currently pivoting to a specific position, see if we are
@@ -309,13 +364,13 @@ public class Arm extends Rumbler
         }
     }
 
-    public boolean isExtensionAtMinPosition()
+    public boolean isExtensionAtHardMinPosition()
     {
         // The mag limit switch returns false when the switch is engaged.
         return !extensionMinPositionSwitch.get();
     }
 
-    public boolean isExtensionAtMidPosition()
+    public boolean isExtensionAtHardMidPosition()
     {
         // The mag limit switch returns false when the switch is engaged.
         return !extensionMidPositionSwitch.get();
@@ -323,15 +378,15 @@ public class Arm extends Rumbler
 
     public boolean isExtensionBeyondMidPosition()
     {
-        return isExtensionBeyondMidPosition;
+        return getExtenderPosition() > ExtenderConstants.midPosition;
     }
 
     public boolean isExtensionAtOrBeyondMidPosition()
     {
-        return isExtensionAtMidPosition() || isExtensionBeyondMidPosition();
+        return getExtenderPosition() >= ExtenderConstants.midPosition;
     }
 
-    public boolean isExtensionAtMaxPosition()
+    public boolean isExtensionAtHardMaxPosition()
     {
         return !extensionMaxPositionSwitch.get() || extensionMaxPositionInternalSwitch.get();
     }

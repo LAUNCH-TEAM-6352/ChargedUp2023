@@ -48,7 +48,7 @@ public class ExtendArmToMaxPosition extends CommandBase
     public boolean isFinished()
     {
         return
-            arm.isExtensionAtMaxPosition() ||
+            arm.isExtensionAtHardMaxPosition() ||
             (arm.isPivotAtOrBeyondMidExtensionLimit() && arm.isExtensionAtOrBeyondMidPosition());
     }
 }

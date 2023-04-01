@@ -47,6 +47,6 @@ public class RetractArm extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return arm.isExtensionAtMinPosition();
+        return arm.isExtensionAtHardMinPosition();
     }
 }

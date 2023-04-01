@@ -24,7 +24,7 @@ public final class Constants
 {
     // Indicates if we are debugging.
     // Mainly controls how much shtuff gets sent to the Smart Dashboard.
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     
     public static final class ArmConstants
     {
@@ -66,8 +66,11 @@ public final class Constants
             public static final double minPosition = -37.6;
             public static final double homePosition = 0.0;
             public static final double maxPosition = 74.0;
+            public static final double frontHorizontalPosition = 70.0;
             public static final double maxFrontPositionWhenBeyondMidExtension = 47.0;
             public static final double topCubeDeliveryPosition = 40.0;
+            public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
+            public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
        }
 
         public static final class ExtenderConstants
@@ -79,7 +82,33 @@ public final class Constants
             public static final double defaultFastExtendSpeed = 1.00;
             public static final double defaultFastRetractSpeed = -1.0;
             public static final double autoFastExtendSeconds = 2.5;
-            public static final double autoFastRetractSecodns = 1.0;
+            public static final double autoFastRetractSeconds = 1.0;
+            public static final double defaultMaxManualSpeed = 1.0;
+            public static final int maxMotorCurrent = 40;
+
+            // Indicates if motor should coast or brake to a stop:
+            public static final IdleMode idleMode = IdleMode.kBrake;            
+
+            // Pre-defined positions:
+            // Note that position is expressed as the fractional number of motor shaft rotations.
+            // One inch of extension equals approximately x.xxx motor shaft rotations.
+            public static final double minPosition = 0;
+            public static final double midPosition = 99999;
+            public static final double maxPosition = 999999999;
+            public static final double maxPositionAtFrontHorizontalPivot = 999999;
+
+            // Values for PID controller used for extending arm to a specific position:
+            public static final class PIDConstants
+            {
+                public static final double kP = 0.08;
+                public static final double kI = 0.00001;
+                public static final double kD = 1.0;
+                public static final double kIZ = 10.0;
+                public static final double kFF = 0.0;
+                public static final double defaultMinOutput = -1.0;
+                public static final double defaultMaxOutput = +1.0;
+                public static final double defaultTolerance = 10.0;
+            }
         }
 
         //Position switches
@@ -138,7 +167,12 @@ public final class Constants
             public static final String extensionMidPosition = "Arm Ext Mid Pos";
             public static final String extensionBeyondMidPosition = "Arm Ext Beyond Mid Pos";
             public static final String extensionMaxPosition = "Arm Ext Max Pos";
-            public static final String extenderLastSpeed = "Arm Ext Last %";
+            public static final String extenderMaxManSpeed = "Arm Ext Max Man %";
+            public static final String extenderPidMaxOutput = "Arm Ext PID Max %";
+            public static final String extenderPidMinOutput = "Arm Ext PID Min %";            
+            public static final String extenderTargetPosition = "Arm Ext TPos";
+            public static final String extenderPosition = "Arm Ext Pos";
+            public static final String extenderTolerance = "Arm Ext Tolerance";
             public static final String pivotTargetPosition = "Arm Pivot TPos";
             public static final String pivotCurLeftPosition = "Arm Pivot LPos";
             public static final String pivotCurRightPosition = "Arm Pivot RPos";

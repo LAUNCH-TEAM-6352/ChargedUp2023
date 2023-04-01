@@ -30,7 +30,7 @@ public class ExtendArmToMidPosition extends CommandBase
     {
         // Determine if we need to extend or retract the arm:
         speed = 
-            arm.isExtensionAtMidPosition()
+            arm.isExtensionAtHardMidPosition()
                 ? 0.0
                 : arm.isExtensionBeyondMidPosition()
                     ? SmartDashboard.getNumber(retractSpeedKey, ExtenderConstants.defaultNormalRetractSpeed)
@@ -55,6 +55,6 @@ public class ExtendArmToMidPosition extends CommandBase
     @Override
     public boolean isFinished()
     {
-        return arm.isExtensionAtMidPosition();
+        return arm.isExtensionAtHardMidPosition();
     }
 }

@@ -142,6 +142,22 @@ public final class Autos
     }
 
     /**
+     * Autonomous command for placing cube in the top mnode and then driving to
+     * and engaging the charge station.
+     */
+    public static CommandBase placeTopCubeThenLeaveCommunityOverChargeStationThenEngageChargeStation(Arm arm, Claw claw, DriveTrain driveTrain)
+    {
+        return new SequentialCommandGroup(
+            new InstantCommand(() -> driveTrain.resetPosition()),
+            placeTopCube(arm, claw),
+            new ParallelCommandGroup(
+                new StowArm(arm),
+                leaveCommunityThenEngageChargeStation(driveTrain)
+            )
+        );
+    }
+
+    /**
      * Autonomous command for testing fast arm extension.
      */
     public static CommandBase extendTest(Arm arm)

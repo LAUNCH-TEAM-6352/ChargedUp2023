@@ -34,7 +34,6 @@ import frc.robot.Constants.OIConstants;
 import frc.robot.Constants.PneumaticsConstants;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
-import frc.robot.Constants.ArmConstants.PivotConstants.PIDConstants;
 import frc.robot.commands.Autos;
 import frc.robot.commands.DriveOntoChargeStation;
 import frc.robot.commands.DriveToRelativePosition;
@@ -45,6 +44,8 @@ import frc.robot.commands.ExtendArmToMidPosition;
 import frc.robot.commands.LevelChargeStation;
 import frc.robot.commands.RetractArm;
 import frc.robot.commands.RunArmPivotWithGamepad;
+import frc.robot.commands.RunArmWithGamepad;
+import frc.robot.commands.SetArmExtenderPosition;
 import frc.robot.commands.SetArmExtenderSpeed;
 import frc.robot.commands.SetArmPivotPosition;
 import frc.robot.commands.StowArm;
@@ -191,7 +192,7 @@ public class RobotContainer
         {
             if (gamepad != null)
             {
-                a.setDefaultCommand(new RunArmPivotWithGamepad(a, ArmKeys.pivotMaxManSpeed, gamepad));
+                a.setDefaultCommand(new RunArmWithGamepad(a, ArmKeys.extenderMaxManSpeed, ArmKeys.pivotMaxManSpeed, gamepad));
             }
         });
     }
@@ -222,14 +223,6 @@ public class RobotContainer
         {
             return;
         }
-
-        var leftBumper = new JoystickButton(gamepad, Button.kLeftBumper.value);
-        var rightBumper = new JoystickButton(gamepad, Button.kRightBumper.value);
-
-        leftBumper.whileTrue(
-            new SetArmExtenderSpeed(arm, ArmKeys.normalRetractSpeed));
-        rightBumper.whileTrue(
-            new SetArmExtenderSpeed(arm, ArmKeys.normalExtendSpeed));
         
         new JoystickButton(gamepad, Button.kStart.value)
             .onTrue(new StowArm(arm));
@@ -242,11 +235,11 @@ public class RobotContainer
         if (gamepad == null)
         {
             return;
-        }        
+        }     
 
-        new JoystickButton(gamepad, Button.kLeftStick.value)
+        new JoystickButton(gamepad, Button.kLeftBumper.value)
             .onTrue(new InstantCommand(() -> claw.open(), claw));
-        new JoystickButton(gamepad, Button.kRightStick.value)
+        new JoystickButton(gamepad, Button.kRightBumper.value)
             .onTrue(new InstantCommand(() -> claw.close(), claw));
     }
 
@@ -357,11 +350,17 @@ public class RobotContainer
         SmartDashboard.putNumber(ArmKeys.normalRetractSpeed, ExtenderConstants.defaultNormalRetractSpeed);
         SmartDashboard.putNumber(ArmKeys.fastExtendSpeed, ExtenderConstants.defaultFastExtendSpeed);
         SmartDashboard.putNumber(ArmKeys.fastRetractSpeed, ExtenderConstants.defaultFastRetractSpeed);
-        SmartDashboard.putNumber(ArmKeys.pivotMaxManSpeed, PivotConstants.defaultMaxManualSpeed);
-        SmartDashboard.putNumber(ArmKeys.pivotPidMaxOutput, PIDConstants.defaultMaxOutput);
-        SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PIDConstants.defaultMinOutput);
-        SmartDashboard.putNumber(ArmKeys.pivotTolerance, PIDConstants.defaulTolerance);
+        SmartDashboard.putNumber(ArmKeys.extenderMaxManSpeed, ExtenderConstants.defaultMaxManualSpeed);
+        SmartDashboard.putNumber(ArmKeys.extenderPidMaxOutput, ExtenderConstants.PIDConstants.defaultMaxOutput);
+        SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PivotConstants.PIDConstants.defaultMinOutput);
+        SmartDashboard.putNumber(ArmKeys.pivotTolerance, PivotConstants.PIDConstants.defaulTolerance);
         SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
+        SmartDashboard.putNumber(ArmKeys.pivotMaxManSpeed, PivotConstants.defaultMaxManualSpeed);
+        SmartDashboard.putNumber(ArmKeys.pivotPidMaxOutput, PivotConstants.PIDConstants.defaultMaxOutput);
+        SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PivotConstants.PIDConstants.defaultMinOutput);
+        SmartDashboard.putNumber(ArmKeys.pivotTolerance, PivotConstants.PIDConstants.defaulTolerance);
+        SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
+        SmartDashboard.putData(new SetArmExtenderPosition(arm, ArmKeys.extenderTargetPosition, ArmKeys.extenderTolerance));
         SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
         SmartDashboard.putData(new RetractArm(arm, ArmKeys.normalRetractSpeed));
         SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed));
