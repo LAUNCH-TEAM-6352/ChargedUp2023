@@ -87,7 +87,6 @@ public final class Constants
         //Position switches
         public static final int extensionMinPositionChannel = 0;
         public static final int extensionMidPositionChannel = 1;
-        public static final int extensionMaxPositionInternalChannel = 2;
         public static final int extensionMaxPositionChannel = 3;
     }
 
