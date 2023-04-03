@@ -45,10 +45,10 @@ public class RunArmWithGamepad extends CommandBase
     public void execute()
     {
         // Pivot speed is variable but limited:
-        arm.setPivotSpeed(gamepad.getLeftY() * maxPivotSpeed);
+        arm.setPivotSpeed((gamepad.getLeftTriggerAxis() * -1.0 + gamepad.getRightTriggerAxis()) * maxPivotSpeed);
 
         // Extender speed is variable but limited:
-        arm.setExtenderSpeed(gamepad.getRightY() * maxExtenderSpeed);
+        arm.setExtenderSpeed(gamepad.getLeftY() * maxExtenderSpeed);
     }
 
     // Called once the command ends or is interrupted.

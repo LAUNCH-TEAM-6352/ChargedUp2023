@@ -66,8 +66,8 @@ public final class Constants
             public static final double minPosition = -37.6;
             public static final double homePosition = 0.0;
             public static final double maxPosition = 74.0;
+            public static final double verticalPosition = 70.0;
             public static final double frontHorizontalPosition = 70.0;
-            public static final double maxFrontPositionWhenBeyondMidExtension = 47.0;
             public static final double topCubeDeliveryPosition = 40.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
@@ -91,7 +91,7 @@ public final class Constants
 
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
-            // One inch of extension equals approximately x.xxx motor shaft rotations.
+            // One inch of extension equals approximately 12 motor shaft rotations.
             public static final double minPosition = 0;
             public static final double midPosition = 99999;
             public static final double maxPosition = 999999999;
@@ -129,8 +129,8 @@ public final class Constants
         public static final int pneumaticsForwardChannel = 3;
         public static final int pneumaticsReverseChannel = 2;
 
-        public static final double autoDelayBeforeOpen = 0.4;
-        public static final double autoDelayAfterOpen = 0.4;
+        public static final double autoDelayBeforeOpen = 0.3;
+        public static final double autoDelayAfterOpen = 0.3;
         }
 
     public static final class DashboardConstants
@@ -179,7 +179,7 @@ public final class Constants
             public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
             public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
             public static final String pivotTolerance = "Arm Pivot Tolerance";
-            public static final String pivotMaxedForExtension = "Arm Pivot Maxed For Ext";
+            public static final String legalExtenderAndPivotPositions = "Legal Ext & Piovot Pos";
         }
 
         public static final class DriveToPositionPidKeys

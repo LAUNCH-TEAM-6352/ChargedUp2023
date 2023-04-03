@@ -39,14 +39,10 @@ import frc.robot.commands.DriveOntoChargeStation;
 import frc.robot.commands.DriveToRelativePosition;
 import frc.robot.commands.DriveWithGamepad;
 import frc.robot.commands.DriveWithJoysticks;
-import frc.robot.commands.ExtendArmToMaxPosition;
-import frc.robot.commands.ExtendArmToMidPosition;
 import frc.robot.commands.LevelChargeStation;
 import frc.robot.commands.RetractArm;
-import frc.robot.commands.RunArmPivotWithGamepad;
 import frc.robot.commands.RunArmWithGamepad;
 import frc.robot.commands.SetArmExtenderPosition;
-import frc.robot.commands.SetArmExtenderSpeed;
 import frc.robot.commands.SetArmPivotPosition;
 import frc.robot.commands.StowArm;
 import frc.robot.subsystems.Arm;
@@ -227,7 +223,7 @@ public class RobotContainer
         new JoystickButton(gamepad, Button.kStart.value)
             .onTrue(new StowArm(arm));
         new JoystickButton(gamepad, Button.kBack.value)
-            .onTrue(new ExtendArmToMidPosition(arm, ArmKeys.normalRetractSpeed, ArmKeys.normalExtendSpeed));
+            .onTrue(new SetArmExtenderPosition(arm, ExtenderConstants.midPosition, ArmKeys.extenderTolerance));
     }  
 
     private void configureTriggerBindings(Claw claw)
@@ -363,8 +359,6 @@ public class RobotContainer
         SmartDashboard.putData(new SetArmExtenderPosition(arm, ArmKeys.extenderTargetPosition, ArmKeys.extenderTolerance));
         SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
         SmartDashboard.putData(new RetractArm(arm, ArmKeys.normalRetractSpeed));
-        SmartDashboard.putData(new ExtendArmToMaxPosition(arm, ArmKeys.normalExtendSpeed));
-        SmartDashboard.putData(new ExtendArmToMidPosition(arm, ArmKeys.normalRetractSpeed, ArmKeys.normalExtendSpeed));
         SmartDashboard.putData(new StowArm(arm));
         SmartDashboard.putData("Reset Pivot Pos", new InstantCommand(() -> arm.resetPivotPosition()));
         SmartDashboard.putData("Set Pivot Brake", new InstantCommand(() -> arm.setPivotBrake()));

@@ -122,11 +122,10 @@ public class Arm extends Rumbler
         {
             position = ExtenderConstants.minPosition;
         }
-        // else if (position > PivotConstants.maxFrontPositionWhenBeyondMidExtension &&
-        //          isExtensionAtOrBeyondMidPosition())
-        // {
-        //     position = PivotConstants.maxFrontPositionWhenBeyondMidExtension;
-        // }
+        else if (!areExtenderAndPivotPositionsLegal(position, getPivotPosition()))
+        {
+            position = 0.0;
+        }
 
         extenderTargetPosition = position;
         extenderTargetTolerance = tolerance;
@@ -142,7 +141,8 @@ public class Arm extends Rumbler
     public void setExtenderSpeed(double speed)
     {
         if ((speed < 0 && isExtensionAtHardMinPosition()) ||
-            (speed > 0 && (isExtensionAtHardMaxPosition() || isPivotMaxedForExtension())))
+            (speed > 0 && (isExtensionAtHardMaxPosition() ||
+             !areExtenderAndPivotPositionsLegal())))
     
         {
             speed = 0;
@@ -193,10 +193,9 @@ public class Arm extends Rumbler
         {
             position = PivotConstants.minPosition;
         }
-        else if (position > PivotConstants.maxFrontPositionWhenBeyondMidExtension &&
-                 isExtensionAtOrBeyondMidPosition())
+        else if (!areExtenderAndPivotPositionsLegal(getExtenderPosition(), position))
         {
-            position = PivotConstants.maxFrontPositionWhenBeyondMidExtension;
+            position = 0.0;
         }
 
         pivotTargetPosition = position;
@@ -214,7 +213,8 @@ public class Arm extends Rumbler
     public void setPivotSpeed(double speed)
     {
         if ((speed < 0 && isPivotAtRevLimit()) ||
-            (speed > 0 && (isPivotAtFwdLimit() || isPivotMaxedForExtension())))
+            (speed > 0 && (isPivotAtFwdLimit() || 
+             !areExtenderAndPivotPositionsLegal())))
         {
             speed = 0;
             leftRumbleOn();
@@ -271,11 +271,39 @@ public class Arm extends Rumbler
     }
 
     /**
-     * Returns the angle (in radians) of the arm relative to the front of the robot
+     * Returns the angle (in radians) of the arm relative to
+     * the front of the robot for the current pivot position.
      */
-    public double getPivotAngle()
+    public double getPivotAngleInRadians()
     {
-        return Math.min(PivotConstants.frontHorizontalPosition, getPivotPosition()) * PivotConstants.radiansPerMotorShaftRotation;
+        return getPivotAngleInRadians(getPivotPosition());
+    }
+
+    /**
+     * Returns the angle (in radians) of the arm relative to
+     * the front of the robot for the specified pivot position.
+     */
+    public double getPivotAngleInRadians(double pivotPosition)
+    {
+        return Math.min(PivotConstants.frontHorizontalPosition, pivotPosition) * PivotConstants.radiansPerMotorShaftRotation;
+    }
+
+    /**
+     * Returns the angle (in degreres) of the arm relative to
+     * the front of the robot for the current pivot position.
+     */
+    public double getPivotAngleInDegrees()
+    {
+        return getPivotAngleInDegrees(getPivotPosition());
+    }
+
+    /**
+     * Returns the angle (in degreres) of the arm relative to
+     * the front of the robot for the specified pivot position.
+     */
+    public double getPivotAngleInDegrees(double pivotPosition)
+    {
+        return Math.min(PivotConstants.frontHorizontalPosition, pivotPosition) * PivotConstants.degreesPerMotorShaftRotation;
     }
 
     public boolean isPivotAtTargetPosition()
@@ -293,16 +321,40 @@ public class Arm extends Rumbler
         return leftPivotMotor.getFault(FaultID.kSoftLimitRev) || rightPivotMotor.getFault(FaultID.kSoftLimitRev);
     }
 
-    public boolean isPivotAtOrBeyondMidExtensionLimit()
+    /**
+     * Determines if current arm extender and pivot positions are legal.
+     */
+    public boolean areExtenderAndPivotPositionsLegal()
     {
-        return leftPivotMotor.getEncoder().getPosition() >= PivotConstants.maxFrontPositionWhenBeyondMidExtension;
+        return areExtenderAndPivotPositionsLegal(getExtenderPosition(), getPivotPosition());
     }
 
-    public boolean isPivotMaxedForExtension()
+    public boolean areExtenderAndPivotPositionsLegal(double extenderPosition, double pivotPosition)
     {
         return Constants.DEBUG
             ? false
-            : ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition() <= Math.cos(getPivotAngle());
+            : ExtenderConstants.maxPositionAtFrontHorizontalPivot / extenderPosition >= Math.cos(getPivotAngleInRadians(pivotPosition));
+    }
+
+    /**
+     * Computes and returns the largest legal extender
+     * position for the current pivot position.
+     */
+    public double getLargestLegalExtenderPosition()
+    {
+        return ExtenderConstants.maxPositionAtFrontHorizontalPivot /
+            Math.cos(getPivotAngleInRadians());
+    }
+
+    /**
+     * Computes and returns the largest legal pivot
+     * position for the current extender position.
+     */
+    public double getLargestLegalPivotPosition()
+    {
+        var a = Math.acos(ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition());
+        // TODO: Finish.
+        return 0.0;
     }
 
     @Override
@@ -325,7 +377,7 @@ public class Arm extends Rumbler
         SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtHardMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionBeyondMidPosition, isExtensionBeyondMidPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtHardMaxPosition);
-        SmartDashboard.putBoolean(ArmKeys.pivotMaxedForExtension, !isPivotMaxedForExtension());
+        SmartDashboard.putBoolean(ArmKeys.legalExtenderAndPivotPositions, areExtenderAndPivotPositionsLegal());
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
 
         // If we are currently extending to a specific position, see if we are
