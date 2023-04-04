@@ -45,10 +45,10 @@ public class RunArmWithGamepad extends CommandBase
     public void execute()
     {
         // Pivot speed is variable but limited:
-        arm.setPivotSpeed((gamepad.getLeftTriggerAxis() * -1.0 + gamepad.getRightTriggerAxis()) * maxPivotSpeed);
+        arm.setPivotSpeed((-gamepad.getLeftTriggerAxis() + gamepad.getRightTriggerAxis()) * maxPivotSpeed);
 
         // Extender speed is variable but limited:
-        arm.setExtenderSpeed(gamepad.getLeftY() * maxExtenderSpeed);
+        arm.setExtenderSpeed(-filter(gamepad.getLeftY(), 0.3) * maxExtenderSpeed);
     }
 
     // Called once the command ends or is interrupted.
@@ -64,5 +64,23 @@ public class RunArmWithGamepad extends CommandBase
     public boolean isFinished()
     {
         return false;
+    }
+
+    /**
+     * Filters the absolute value of the provided value to
+     * ignore values less than the provided minimum value
+     * by returning 0;
+     */
+    private double filter(double value, double min)
+    {
+        var sign = Math.signum(value);
+        value = Math.abs(value);
+
+        if (value < min)
+        {
+            value = 0;
+        }
+
+        return value * sign;
     }
 }

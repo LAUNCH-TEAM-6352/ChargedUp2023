@@ -65,9 +65,9 @@ public final class Constants
             // With the 210:1 gear reduction, 1 motor shaft rotation equals approximately 360/210 = 1.714 degrees.
             public static final double minPosition = -37.6;
             public static final double homePosition = 0.0;
+            public static final double verticalPosition = 12.643;
             public static final double maxPosition = 74.0;
-            public static final double verticalPosition = 70.0;
-            public static final double frontHorizontalPosition = 70.0;
+            public static final double frontHorizontalPosition = 64.668;
             public static final double topCubeDeliveryPosition = 40.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
@@ -93,21 +93,21 @@ public final class Constants
             // Note that position is expressed as the fractional number of motor shaft rotations.
             // One inch of extension equals approximately 12 motor shaft rotations.
             public static final double minPosition = 0;
-            public static final double midPosition = 99999;
-            public static final double maxPosition = 999999999;
-            public static final double maxPositionAtFrontHorizontalPivot = 999999;
+            public static final double midPosition = 85.408;
+            public static final double maxPosition = 267.0;
+            public static final double maxPositionAtFrontHorizontalPivot = 219;
 
             // Values for PID controller used for extending arm to a specific position:
             public static final class PIDConstants
             {
                 public static final double kP = 0.08;
-                public static final double kI = 0.00001;
-                public static final double kD = 1.0;
-                public static final double kIZ = 10.0;
+                public static final double kI = 0.0;
+                public static final double kD = 0.0;
+                public static final double kIZ = 0.0;
                 public static final double kFF = 0.0;
                 public static final double defaultMinOutput = -1.0;
                 public static final double defaultMaxOutput = +1.0;
-                public static final double defaultTolerance = 10.0;
+                public static final double defaultTolerance = 2.0;
             }
         }
 
@@ -175,11 +175,12 @@ public final class Constants
             public static final String pivotTargetPosition = "Arm Pivot TPos";
             public static final String pivotCurLeftPosition = "Arm Pivot LPos";
             public static final String pivotCurRightPosition = "Arm Pivot RPos";
+            public static final String pivotCurAngleDegrees = "Arm Pivot Degrees";
             public static final String pivotMaxManSpeed = "Arm Pivot Max Man %";
             public static final String pivotPidMaxOutput = "Arm Pivot PID Max %";
             public static final String pivotPidMinOutput = "Arm Pivot PID Min %";            
             public static final String pivotTolerance = "Arm Pivot Tolerance";
-            public static final String legalExtenderAndPivotPositions = "Legal Ext & Piovot Pos";
+            public static final String legalExtenderAndPivotPositions = "Legal Ext & Pivot Pos";
         }
 
         public static final class DriveToPositionPidKeys

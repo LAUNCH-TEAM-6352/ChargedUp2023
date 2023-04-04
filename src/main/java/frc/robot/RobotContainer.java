@@ -405,6 +405,8 @@ public class RobotContainer
         chooser.addOption("Place Top Cube Then Stow Arm", Autos.placeTopCubeThenLeaveCommunityViaLongPath(arm.get(), claw.get(), driveTrain.get()));
 
         chooser.addOption("Place Top Cube Then Engage Charge Station", Autos.placeTopCubeThenEngageChargeStation(arm.get(), claw.get(), driveTrain.get()));
+
+        chooser.addOption("Test Extend", Autos.extendTest(arm.get()));
         
         SmartDashboard.putData("Autonomous", chooser);
     }

@@ -72,7 +72,6 @@ public class Arm extends Rumbler
 
         // Set PID controller parameters on the extender motor:
         var pidController = extenderMotor.getPIDController();
-        pidController = extenderMotor.getPIDController();
         pidController.setP(ExtenderConstants.PIDConstants.kP);
         pidController.setI(ExtenderConstants.PIDConstants.kI);
         pidController.setD(ExtenderConstants.PIDConstants.kD);
@@ -285,7 +284,7 @@ public class Arm extends Rumbler
      */
     public double getPivotAngleInRadians(double pivotPosition)
     {
-        return Math.min(PivotConstants.frontHorizontalPosition, pivotPosition) * PivotConstants.radiansPerMotorShaftRotation;
+        return (PivotConstants.frontHorizontalPosition - pivotPosition) * PivotConstants.radiansPerMotorShaftRotation;
     }
 
     /**
@@ -294,7 +293,7 @@ public class Arm extends Rumbler
      */
     public double getPivotAngleInDegrees()
     {
-        return getPivotAngleInDegrees(getPivotPosition());
+        return Math.toDegrees(getPivotAngleInRadians());
     }
 
     /**
@@ -303,7 +302,7 @@ public class Arm extends Rumbler
      */
     public double getPivotAngleInDegrees(double pivotPosition)
     {
-        return Math.min(PivotConstants.frontHorizontalPosition, pivotPosition) * PivotConstants.degreesPerMotorShaftRotation;
+        return Math.toDegrees(getPivotAngleInRadians(pivotPosition));
     }
 
     public boolean isPivotAtTargetPosition()
@@ -332,7 +331,7 @@ public class Arm extends Rumbler
     public boolean areExtenderAndPivotPositionsLegal(double extenderPosition, double pivotPosition)
     {
         return Constants.DEBUG
-            ? false
+            ? true
             : ExtenderConstants.maxPositionAtFrontHorizontalPivot / extenderPosition >= Math.cos(getPivotAngleInRadians(pivotPosition));
     }
 
@@ -379,6 +378,11 @@ public class Arm extends Rumbler
         SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtHardMaxPosition);
         SmartDashboard.putBoolean(ArmKeys.legalExtenderAndPivotPositions, areExtenderAndPivotPositionsLegal());
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
+        if (Constants.DEBUG)
+        {
+            SmartDashboard.putNumber(ArmKeys.pivotCurAngleDegrees, getPivotAngleInDegrees(leftPivotPosition));
+            SmartDashboard.putNumber("cos(pivotAngle)", Math.cos(getPivotAngleInRadians(leftPivotPosition)));
+        }
 
         // If we are currently extending to a specific position, see if we are
         // at the desired position. If so, indicate that we have reached the
