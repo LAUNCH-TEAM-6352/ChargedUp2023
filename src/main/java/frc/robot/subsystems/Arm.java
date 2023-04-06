@@ -123,7 +123,7 @@ public class Arm extends Rumbler
         }
         else if (!areExtenderAndPivotPositionsLegal(position, getPivotPosition()))
         {
-            position = 0.0;
+            position = getLargestLegalExtenderPosition();
         }
 
         extenderTargetPosition = position;
@@ -151,6 +151,10 @@ public class Arm extends Rumbler
         {
             rightRumbleOff();
         }
+
+        // When explicitly setting speed, indicate we are not positioning via PID:
+        isExtenderAtTargetPosition = false;
+        isExtenderPositioningStarted = false;
 
         extenderMotor.set(speed);
     }
@@ -194,7 +198,7 @@ public class Arm extends Rumbler
         }
         else if (!areExtenderAndPivotPositionsLegal(getExtenderPosition(), position))
         {
-            position = 0.0;
+            position = getLargestLegalPivotPosition();
         }
 
         pivotTargetPosition = position;
@@ -228,8 +232,10 @@ public class Arm extends Rumbler
             setPivotBrake();
         }
 
+        // When explicitly setting speed, indicate we are not positioning via PID:
         isPivotAtTargetPosition = false;
         isPivotPositioningStarted = false;
+
         leftPivotMotor.set(speed);
         
         if (speed != 0)
@@ -341,8 +347,7 @@ public class Arm extends Rumbler
      */
     public double getLargestLegalExtenderPosition()
     {
-        return ExtenderConstants.maxPositionAtFrontHorizontalPivot /
-            Math.cos(getPivotAngleInRadians());
+        return ExtenderConstants.maxPositionAtFrontHorizontalPivot / Math.cos(getPivotAngleInRadians());
     }
 
     /**
@@ -351,25 +356,39 @@ public class Arm extends Rumbler
      */
     public double getLargestLegalPivotPosition()
     {
-        var a = Math.acos(ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition());
-        // TODO: Finish.
-        return 0.0;
+        var radians = Math.acos(ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition());
+        var motorRevs = radians / PivotConstants.radiansPerMotorShaftRotation;
+        return PivotConstants.frontHorizontalPosition - motorRevs;
     }
 
     @Override
     public void periodic()
     {
-        // Get the current extender position:
-        var extenderPosition = extenderMotor.getEncoder().getPosition();
-
-        // Get the current pivot position:
-        var leftPivotPosition = leftPivotMotor.getEncoder().getPosition();
-
         // Query hardware limit switches just once:
         var isExtensionAtHardMinPosition = isExtensionAtHardMinPosition();
         var isExtensionAtHardMidPosition = isExtensionAtHardMidPosition();
         var isExtensionAtHardMaxPosition = isExtensionAtHardMaxPosition();
 
+        // Reset extender position if we are at a known position:
+        // TODO: Consider if this is a good thing or not (e.g., if the hardware limit switches fail).
+        if (isExtensionAtHardMinPosition)
+        {
+            extenderMotor.getEncoder().setPosition(ExtenderConstants.minPosition);
+        }
+        else if (isExtensionAtHardMidPosition)
+        {
+            extenderMotor.getEncoder().setPosition(ExtenderConstants.midPosition);
+        }
+        else if (isExtensionAtHardMaxPosition)
+        {
+            extenderMotor.getEncoder().setPosition(ExtenderConstants.maxPosition);
+        }
+
+        // Get the current extender position:
+        var extenderPosition = extenderMotor.getEncoder().getPosition();
+
+        // Get the current pivot position:
+        var leftPivotPosition = leftPivotMotor.getEncoder().getPosition();
 
         SmartDashboard.putNumber(ArmKeys.extenderPosition, extenderPosition);
         SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtHardMinPosition);
@@ -378,11 +397,9 @@ public class Arm extends Rumbler
         SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtHardMaxPosition);
         SmartDashboard.putBoolean(ArmKeys.legalExtenderAndPivotPositions, areExtenderAndPivotPositionsLegal());
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
-        if (Constants.DEBUG)
-        {
-            SmartDashboard.putNumber(ArmKeys.pivotCurAngleDegrees, getPivotAngleInDegrees(leftPivotPosition));
-            SmartDashboard.putNumber("cos(pivotAngle)", Math.cos(getPivotAngleInRadians(leftPivotPosition)));
-        }
+        SmartDashboard.putNumber(ArmKeys.pivotCurAngleDegrees, getPivotAngleInDegrees(leftPivotPosition));
+        SmartDashboard.putNumber("Arm cos(pivotAngle)", Math.cos(getPivotAngleInRadians(leftPivotPosition)));
+        SmartDashboard.putNumber("Arm max/ext", ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition());
 
         // If we are currently extending to a specific position, see if we are
         // at the desired position. If so, indicate that we have reached the
@@ -429,16 +446,6 @@ public class Arm extends Rumbler
     {
         // The mag limit switch returns false when the switch is engaged.
         return !extensionMidPositionSwitch.get();
-    }
-
-    public boolean isExtensionBeyondMidPosition()
-    {
-        return getExtenderPosition() > ExtenderConstants.midPosition;
-    }
-
-    public boolean isExtensionAtOrBeyondMidPosition()
-    {
-        return getExtenderPosition() >= ExtenderConstants.midPosition;
     }
 
     public boolean isExtensionAtHardMaxPosition()

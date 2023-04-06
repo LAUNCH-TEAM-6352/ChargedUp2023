@@ -24,7 +24,7 @@ public final class Constants
 {
     // Indicates if we are debugging.
     // Mainly controls how much shtuff gets sent to the Smart Dashboard.
-    public static final boolean DEBUG = true;
+    public static final boolean DEBUG = false;
     
     public static final class ArmConstants
     {
@@ -107,7 +107,7 @@ public final class Constants
                 public static final double kFF = 0.0;
                 public static final double defaultMinOutput = -1.0;
                 public static final double defaultMaxOutput = +1.0;
-                public static final double defaultTolerance = 2.0;
+                public static final double defaultTolerance = 3.0;
             }
         }
 
