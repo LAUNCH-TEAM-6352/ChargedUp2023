@@ -78,16 +78,25 @@ public final class Autos
     }
 
     /**
+     * Autonomous command for placing cube in the middle mnode.
+     */
+    public static CommandBase placeMidCube(Arm arm, Claw claw)
+    {
+        return new SequentialCommandGroup(
+            new SetArmExtenderAndPivotPositions(arm, ExtenderConstants.midCubeDeliveryPosition, ArmKeys.extenderTolerance, PivotConstants.midCubeDeliveryPosition, ArmKeys.pivotTolerance),
+           new WaitCommand(ClawConstants.autoDelayBeforeOpen),
+            new InstantCommand(() -> claw.open()),
+            new WaitCommand(ClawConstants.autoDelayAfterOpen)
+        );
+    }
+
+    /**
      * Autonomous command for placing cube in the top mnode.
      */
     public static CommandBase placeTopCube(Arm arm, Claw claw)
     {
         return new SequentialCommandGroup(
             new SetArmExtenderAndPivotPositions(arm, ExtenderConstants.maxPosition, ArmKeys.extenderTolerance, PivotConstants.topCubeDeliveryPosition, ArmKeys.pivotTolerance),
-            // new ParallelCommandGroup(
-            //     new SetArmExtenderPosition(arm, ExtenderConstants.maxPosition, ArmKeys.extenderTolerance),
-            //     new SetArmPivotPosition(arm, PivotConstants.topCubeDeliveryPosition, ArmKeys.pivotTolerance)
-            // ),
             new WaitCommand(ClawConstants.autoDelayBeforeOpen),
             new InstantCommand(() -> claw.open()),
             new WaitCommand(ClawConstants.autoDelayAfterOpen)

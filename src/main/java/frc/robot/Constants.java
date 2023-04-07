@@ -63,11 +63,12 @@ public final class Constants
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
             // With the 210:1 gear reduction, 1 motor shaft rotation equals approximately 360/210 = 1.714 degrees.
-            public static final double minPosition = -37.6;
+            public static final double minPosition = -35.0;
             public static final double homePosition = 0.0;
             public static final double verticalPosition = 12.643;
-            public static final double maxPosition = 74.0;
-            public static final double frontHorizontalPosition = 64.668;
+            public static final double maxPosition = 75.0;
+            public static final double frontHorizontalPosition = 66.88;
+            public static final double midCubeDeliveryPosition = 50.0;
             public static final double topCubeDeliveryPosition = 40.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
@@ -77,13 +78,10 @@ public final class Constants
         {
             public static final int motorChannel = 22;
             public static final boolean isMotorInverted = true;
-            public static final double defaultNormalExtendSpeed = 0.75;
-            public static final double defaultNormalRetractSpeed = -0.75;
             public static final double defaultFastExtendSpeed = 1.00;
             public static final double defaultFastRetractSpeed = -1.0;
-            public static final double autoFastExtendSeconds = 2.5;
             public static final double autoFastRetractSeconds = 1.0;
-            public static final double defaultMaxManualSpeed = 1.0;
+            public static final double defaultMaxManualSpeed = 0.6;
             public static final int maxMotorCurrent = 40;
 
             // Indicates if motor should coast or brake to a stop:
@@ -95,7 +93,8 @@ public final class Constants
             public static final double minPosition = 0;
             public static final double midPosition = 85.408;
             public static final double maxPosition = 267.0;
-            public static final double maxPositionAtFrontHorizontalPivot = 219;
+            public static final double maxPositionAtFrontHorizontalPivot = 207;
+            public static final double midCubeDeliveryPosition = 10.0;
 
             // Values for PID controller used for extending arm to a specific position:
             public static final class PIDConstants
@@ -113,7 +112,7 @@ public final class Constants
 
         //Position switches
         public static final int extensionMinPositionChannel = 0;
-        public static final int extensionMidPositionChannel = 1;
+        public static final int extensionMidPositionChannel = 2;
         public static final int extensionMaxPositionChannel = 3;
     }
 
@@ -158,10 +157,6 @@ public final class Constants
         public static final class ArmKeys
         {
             //Arm Constants
-            public static final String normalExtendSpeed = "Arm Ext %";
-            public static final String normalRetractSpeed = "Arm Ret %";
-            public static final String fastExtendSpeed = "Arm Ext Fast %";
-            public static final String fastRetractSpeed = "Arm Ret Fast %";
             public static final String extensionMinPosition = "Arm Ext Min Pos";
             public static final String extensionMidPosition = "Arm Ext Mid Pos";
             public static final String extensionBeyondMidPosition = "Arm Ext Beyond Mid Pos";

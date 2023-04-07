@@ -40,7 +40,6 @@ import frc.robot.commands.DriveToRelativePosition;
 import frc.robot.commands.DriveWithGamepad;
 import frc.robot.commands.DriveWithJoysticks;
 import frc.robot.commands.LevelChargeStation;
-import frc.robot.commands.RetractArm;
 import frc.robot.commands.RunArmWithGamepad;
 import frc.robot.commands.SetArmExtenderPosition;
 import frc.robot.commands.SetArmPivotPosition;
@@ -342,11 +341,7 @@ public class RobotContainer
 
     private void configureSmartDashboard(Arm arm)
     {
-        SmartDashboard.putNumber(ArmKeys.normalExtendSpeed, ExtenderConstants.defaultNormalExtendSpeed);
-        SmartDashboard.putNumber(ArmKeys.normalRetractSpeed, ExtenderConstants.defaultNormalRetractSpeed);
-        SmartDashboard.putNumber(ArmKeys.fastExtendSpeed, ExtenderConstants.defaultFastExtendSpeed);
-        SmartDashboard.putNumber(ArmKeys.fastRetractSpeed, ExtenderConstants.defaultFastRetractSpeed);
-        SmartDashboard.putNumber(ArmKeys.extenderMaxManSpeed, ExtenderConstants.defaultMaxManualSpeed);
+       SmartDashboard.putNumber(ArmKeys.extenderMaxManSpeed, ExtenderConstants.defaultMaxManualSpeed);
         SmartDashboard.putNumber(ArmKeys.extenderPidMaxOutput, ExtenderConstants.PIDConstants.defaultMaxOutput);
         SmartDashboard.putNumber(ArmKeys.pivotPidMinOutput, PivotConstants.PIDConstants.defaultMinOutput);
         SmartDashboard.putNumber(ArmKeys.pivotTolerance, PivotConstants.PIDConstants.defaulTolerance);
@@ -358,7 +353,6 @@ public class RobotContainer
         SmartDashboard.putNumber(ArmKeys.pivotTargetPosition, PivotConstants.maxPosition - 1);
         SmartDashboard.putData(new SetArmExtenderPosition(arm, ArmKeys.extenderTargetPosition, ArmKeys.extenderTolerance));
         SmartDashboard.putData(new SetArmPivotPosition(arm, ArmKeys.pivotTargetPosition, ArmKeys.pivotTolerance));
-        SmartDashboard.putData(new RetractArm(arm, ArmKeys.normalRetractSpeed));
         SmartDashboard.putData(new StowArm(arm));
         SmartDashboard.putData("Reset Pivot Pos", new InstantCommand(() -> arm.resetPivotPosition()));
         SmartDashboard.putData("Set Pivot Brake", new InstantCommand(() -> arm.setPivotBrake()));
@@ -393,6 +387,8 @@ public class RobotContainer
         chooser.addOption("Leave Community Then Engage Charge Station", Autos.leaveCommunityThenEngageChargeStation(driveTrain.get()));
 
         chooser.addOption("Engage Charge Station", Autos.engageChargeStation(driveTrain.get(), DriveTrainKeys.climbingSpeedReverse));
+
+        chooser.addOption("Place Mid Cube", Autos.placeMidCube(arm.get(), claw.get()));
 
         chooser.addOption("Place Top Cube", Autos.placeTopCube(arm.get(), claw.get()));
 
