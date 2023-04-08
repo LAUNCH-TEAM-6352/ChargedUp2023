@@ -166,7 +166,7 @@ public class Arm extends Rumbler
 
     public double getExtenderPosition()
     {
-        return extenderMotor.getEncoder().getPosition();
+        return Math.max(extenderMotor.getEncoder().getPosition(), 0.0);
     }
 
     public boolean isExtenderAtTargetPosition()

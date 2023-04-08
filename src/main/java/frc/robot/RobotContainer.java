@@ -249,8 +249,6 @@ public class RobotContainer
             .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CONE)));
         new JoystickButton(gamepad, Button.kX.value)
             .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.CUBE)));
-        // new JoystickButton(gamepad, Button.kB.value)
-        //     .onTrue(new InstantCommand(() -> gamePieceFlags.displayFlag(GamePieceFlag.NONE)));
     }
 
     private void configureSmartDashboard()

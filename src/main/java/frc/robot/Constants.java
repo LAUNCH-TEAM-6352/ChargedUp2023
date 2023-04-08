@@ -92,7 +92,7 @@ public final class Constants
             // One inch of extension equals approximately 12 motor shaft rotations.
             public static final double minPosition = 0;
             public static final double midPosition = 85.408;
-            public static final double maxPosition = 267.0;
+            public static final double maxPosition = 252.0;
             public static final double maxPositionAtFrontHorizontalPivot = 207;
             public static final double midCubeDeliveryPosition = 10.0;
 
