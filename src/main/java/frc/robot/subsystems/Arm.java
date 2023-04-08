@@ -50,6 +50,9 @@ public class Arm extends Rumbler
     private boolean isPivotAtTargetPosition;
     private boolean isPivotPositioningStarted;
 
+    // The following keeps track of if the brake has been set when driving manually:
+    private boolean isPivotBrakeSet;
+
 
     /** Creates a new Arm. */
     public Arm(XboxController gamepad)
@@ -224,9 +227,10 @@ public class Arm extends Rumbler
             leftRumbleOff();
         }
 
-        if (speed == 0)
+        if (speed == 0 && !isPivotBrakeSet)
         {
             setPivotBrake();
+            isPivotBrakeSet = true;
         }
 
         // When explicitly setting speed, indicate we are not positioning via PID:
@@ -238,12 +242,14 @@ public class Arm extends Rumbler
         if (speed != 0)
         {
             releasePivotBrake();
+            isPivotBrakeSet = false;
         }
     }
 
     public void stopPivot()
     {
         setPivotBrake();
+        isPivotBrakeSet = true;
         leftPivotMotor.set(0);
         leftRumbleOff();
     }
@@ -376,6 +382,7 @@ public class Arm extends Rumbler
         {
             extenderMotor.getEncoder().setPosition(ExtenderConstants.midPosition);
         }
+        // This is commented out because the max limit switch gets stuck in the "on" position.
         // else if (isExtensionAtHardMaxPosition)
         // {
         //     extenderMotor.getEncoder().setPosition(ExtenderConstants.maxPosition);

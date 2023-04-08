@@ -63,11 +63,10 @@ public final class Constants
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
             // With the 210:1 gear reduction, 1 motor shaft rotation equals approximately 360/210 = 1.714 degrees.
-            public static final double minPosition = -35.0;
+            public static final double minPosition = -31.5;
             public static final double homePosition = 0.0;
-            public static final double verticalPosition = 12.643;
-            public static final double maxPosition = 75.0;
-            public static final double frontHorizontalPosition = 66.88;
+            public static final double maxPosition = 79.0;
+            public static final double frontHorizontalPosition = 69.86;
             public static final double midCubeDeliveryPosition = 50.0;
             public static final double topCubeDeliveryPosition = 40.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
@@ -92,8 +91,9 @@ public final class Constants
             // One inch of extension equals approximately 12 motor shaft rotations.
             public static final double minPosition = 0;
             public static final double midPosition = 85.408;
-            public static final double maxPosition = 252.0;
-            public static final double maxPositionAtFrontHorizontalPivot = 207;
+            public static final double maxPosition = 264.0;
+            public static final double maxPositionAtFrontHorizontalPivot = 195
+            ;
             public static final double midCubeDeliveryPosition = 10.0;
 
             // Values for PID controller used for extending arm to a specific position:
@@ -281,8 +281,8 @@ public final class Constants
             public static final double kD = 1.0;
             public static final double iZone = 10.0;
             public static final double ff = 0.0;
-            public static final double minOutput = -0.28;
-            public static final double maxOutput = +0.28;
+            public static final double minOutput = -0.35;
+            public static final double maxOutput = +0.35;
             public static final double tolerance = 10.0;
         }
 

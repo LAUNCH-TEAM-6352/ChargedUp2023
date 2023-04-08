@@ -223,6 +223,12 @@ public class RobotContainer
             .onTrue(new StowArm(arm));
         new JoystickButton(gamepad, Button.kBack.value)
             .onTrue(new SetArmExtenderPosition(arm, ExtenderConstants.midPosition, ArmKeys.extenderTolerance));
+
+        new JoystickButton(gamepad, Button.kLeftBumper.value)
+            .onTrue(new InstantCommand(() -> arm.releasePivotBrake()));
+        new JoystickButton(gamepad, Button.kRightBumper.value)
+            .onTrue(new InstantCommand(() -> arm.setPivotBrake()));
+        
     }  
 
     private void configureTriggerBindings(Claw claw)
@@ -377,6 +383,8 @@ public class RobotContainer
     private void configureSmartDashboard(SendableChooser<Command> chooser)
     {
         chooser.setDefaultOption("Auto Nothing", Autos.doNothing());
+
+        chooser.addOption("Place Top Cube Then Leave Commuity Then Engage Charge Station", Autos.placeTopCubeThenLeaveCommunityOverChargeStationThenEngageChargeStation(arm.get(), claw.get(), driveTrain.get()));
 
         chooser.addOption("Leave Community Short", Autos.leaveCommunityViaShortPath(driveTrain.get()));
 
