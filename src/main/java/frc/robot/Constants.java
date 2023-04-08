@@ -92,8 +92,10 @@ public final class Constants
             public static final double minPosition = 0;
             public static final double midPosition = 85.408;
             public static final double maxPosition = 264.0;
-            public static final double maxPositionAtFrontHorizontalPivot = 195
-            ;
+            public static final double baselineCosinePosition = 546.0;
+            //public static final double baselineCosinePosition = 96.0;
+            public static final double maxCosinePositionAtFrontHorizontalPivot = baselineCosinePosition + 120.0;
+            
             public static final double midCubeDeliveryPosition = 10.0;
 
             // Values for PID controller used for extending arm to a specific position:

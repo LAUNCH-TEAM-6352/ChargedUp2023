@@ -341,7 +341,7 @@ public class Arm extends Rumbler
     {
         return Constants.DEBUG
             ? true
-            : ExtenderConstants.maxPositionAtFrontHorizontalPivot / extenderPosition > Math.cos(getPivotAngleInRadians(pivotPosition));
+            : ExtenderConstants.maxCosinePositionAtFrontHorizontalPivot / (extenderPosition + ExtenderConstants.baselineCosinePosition) > Math.cos(getPivotAngleInRadians(pivotPosition));
     }
 
     /**
@@ -350,7 +350,7 @@ public class Arm extends Rumbler
      */
     public double getLargestLegalExtenderPosition()
     {
-        return ExtenderConstants.maxPositionAtFrontHorizontalPivot / Math.cos(getPivotAngleInRadians());
+        return ExtenderConstants.maxCosinePositionAtFrontHorizontalPivot / Math.cos(getPivotAngleInRadians());
     }
 
     /**
@@ -359,7 +359,7 @@ public class Arm extends Rumbler
      */
     public double getLargestLegalPivotPosition()
     {
-        var radians = Math.acos(ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition());
+        var radians = Math.acos(ExtenderConstants.maxCosinePositionAtFrontHorizontalPivot / (getExtenderPosition() + ExtenderConstants.baselineCosinePosition));
         var motorRevs = radians / PivotConstants.radiansPerMotorShaftRotation;
         return PivotConstants.frontHorizontalPosition - motorRevs;
     }
@@ -402,7 +402,7 @@ public class Arm extends Rumbler
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, leftPivotPosition);
         SmartDashboard.putNumber(ArmKeys.pivotCurAngleDegrees, getPivotAngleInDegrees(leftPivotPosition));
         SmartDashboard.putNumber("Arm cos(pivotAngle)", Math.cos(getPivotAngleInRadians(leftPivotPosition)));
-        SmartDashboard.putNumber("Arm max|ext", ExtenderConstants.maxPositionAtFrontHorizontalPivot / getExtenderPosition());
+        SmartDashboard.putNumber("Arm max|ext", ExtenderConstants.maxCosinePositionAtFrontHorizontalPivot / (getExtenderPosition() + ExtenderConstants.baselineCosinePosition));
 
         // If we are currently extending to a specific position, see if we are
         // at the desired position. If so, indicate that we have reached the
