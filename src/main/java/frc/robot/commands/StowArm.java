@@ -4,7 +4,8 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
 import frc.robot.Constants.DashboardConstants.ArmKeys;
 import frc.robot.subsystems.Arm;
@@ -12,7 +13,7 @@ import frc.robot.subsystems.Arm;
 /**
  * Stows the arm by retracting it completely and moving it to the home pivot position.
  */
-public class StowArm extends ParallelCommandGroup
+public class StowArm extends SequentialCommandGroup
 {
     /** Creates a new StowArm. */
     public StowArm(Arm arm)
@@ -20,7 +21,6 @@ public class StowArm extends ParallelCommandGroup
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-            new RetractArm(arm, ArmKeys.normalRetractSpeed),
-            new SetArmPivotPosition(arm, PivotConstants.homePosition, ArmKeys.pivotTolerance));
+            new SetArmExtenderAndPivotPositions(arm, ExtenderConstants.minPosition, ArmKeys.extenderTolerance, PivotConstants.homePosition, ArmKeys.pivotTolerance));
     }
 }
