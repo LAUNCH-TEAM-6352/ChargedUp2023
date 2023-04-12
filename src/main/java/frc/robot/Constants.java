@@ -24,7 +24,7 @@ public final class Constants
 {
     // Indicates if we are debugging.
     // Mainly controls how much shtuff gets sent to the Smart Dashboard.
-    public static final boolean DEBUG = false;
+    public static final boolean DEBUG = true;
     
     public static final class ArmConstants
     {
@@ -87,16 +87,14 @@ public final class Constants
             public static final IdleMode idleMode = IdleMode.kBrake;            
 
             // Pre-defined positions:
-            // Note that position is expressed as the fractional number of motor shaft rotations.
+            // Note that positions are expressed as the fractional number of motor shaft rotations.
             // One inch of extension equals approximately 12 motor shaft rotations.
-            public static final double minPosition = 0;
-            public static final double midPosition = 85.408;
-            public static final double maxPosition = 264.0;
-            public static final double baselineCosinePosition = 546.0;
-            //public static final double baselineCosinePosition = 96.0;
-            public static final double maxCosinePositionAtFrontHorizontalPivot = baselineCosinePosition + 120.0;
-            
-            public static final double midCubeDeliveryPosition = 10.0;
+            // Fully retracted, the arm is extended 45.5" from the pivot point.
+            public static final double minPosition = 45.5 * 12.0;
+            public static final double midPosition = 85.408 + minPosition;
+            public static final double maxPosition = 264.0 + minPosition;
+            public static final double maxFrontHorizontalPosition = minPosition + 120.0;          
+            public static final double midCubeDeliveryPosition = 10.0 + minPosition;
 
             // Values for PID controller used for extending arm to a specific position:
             public static final class PIDConstants

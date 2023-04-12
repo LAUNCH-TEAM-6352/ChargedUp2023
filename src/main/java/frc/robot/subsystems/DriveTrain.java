@@ -31,8 +31,6 @@ import frc.robot.Constants.DriveTrainConstants.DriveToPositionPidDefaultValues;
 
 /***
  * Models the robot's drive train.
- * 
- * TODO: Add IMU sensor and methods for getting and resetting robot's current angle.
  */
 public class DriveTrain extends SubsystemBase
 {
