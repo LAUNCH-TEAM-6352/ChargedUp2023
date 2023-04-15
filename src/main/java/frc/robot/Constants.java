@@ -32,8 +32,8 @@ public final class Constants
         {
             public static final int leftMotorChannel = 20;
             public static final int rightMotorChannel = 21;
-            public static final boolean isLeftMotorInverted = true;
-            public static final boolean isRightMotorInverted = false;
+            public static final boolean isLeftMotorInverted = false;
+            public static final boolean isRightMotorInverted = true;
 
             public static final int brakeSolenoidForwardChannel = 0;
             public static final int brakeSolenoidReverseChannel = 1;
@@ -63,14 +63,21 @@ public final class Constants
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
             // With the 210:1 gear reduction, 1 motor shaft rotation equals approximately 360/210 = 1.714 degrees.
-            public static final double minPosition = -31.5;
-            public static final double homePosition = 0.0;
-            public static final double maxPosition = 79.0;
-            public static final double frontHorizontalPosition = 69.86;
-            public static final double midCubeDeliveryPosition = 50.0;
-            public static final double topCubeDeliveryPosition = 40.0;
+            // public static final double minPosition = -31.5;
+            // public static final double homePosition = 0.0;
+            // public static final double maxPosition = 79.0;
+            // public static final double frontHorizontalPosition = 65.906;
+            // public static final double midCubeDeliveryPosition = 50.0;
+            // public static final double topCubeDeliveryPosition = 40.0;
+            public static final double minPosition = -5.0;
+            public static final double homePosition = 67.886;
+            public static final double maxPosition = 99.386;
+            public static final double frontHorizontalPosition = 0.0;
+            public static final double midCubeDeliveryPosition = 15.906;
+            public static final double topCubeDeliveryPosition = 26.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
+            public static final double slopForCosineLimit = 15.0 / degreesPerMotorShaftRotation;
        }
 
         public static final class ExtenderConstants
@@ -91,10 +98,12 @@ public final class Constants
             // One inch of extension equals approximately 12 motor shaft rotations.
             // Fully retracted, the arm is extended 45.5" from the pivot point.
             public static final double minPosition = 45.5 * 12.0;
-            public static final double midPosition = 85.408 + minPosition;
-            public static final double maxPosition = 264.0 + minPosition;
-            public static final double maxFrontHorizontalPosition = minPosition + 120.0;          
-            public static final double midCubeDeliveryPosition = 10.0 + minPosition;
+            public static final double midPosition = 631.408
+            ;
+            public static final double maxPosition = 810.0;
+            public static final double maxFrontHorizontalPosition = 660.0;          
+            public static final double midCubeDeliveryPosition = 556.0;
+            public static final double topCubeDeliveryPosition = 785.0;
 
             // Values for PID controller used for extending arm to a specific position:
             public static final class PIDConstants
@@ -106,7 +115,7 @@ public final class Constants
                 public static final double kFF = 0.0;
                 public static final double defaultMinOutput = -1.0;
                 public static final double defaultMaxOutput = +1.0;
-                public static final double defaultTolerance = 3.0;
+                public static final double defaultTolerance = 2.0;
             }
         }
 
@@ -128,8 +137,8 @@ public final class Constants
         public static final int pneumaticsForwardChannel = 3;
         public static final int pneumaticsReverseChannel = 2;
 
-        public static final double autoDelayBeforeOpen = 0.3;
-        public static final double autoDelayAfterOpen = 0.3;
+        public static final double autoDelayBeforeOpen = 0.2;
+        public static final double autoDelayAfterOpen = 0.2;
         }
 
     public static final class DashboardConstants

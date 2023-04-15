@@ -80,7 +80,7 @@ public class Arm extends Rumbler
 
         resetExtenderPosition();
 
-                // Set configuration common to both pivot motors:
+        // Set configuration common to both pivot motors:
 		for (CANSparkMax motor : new CANSparkMax[] { leftPivotMotor, rightPivotMotor})
 		{
             motor.restoreFactoryDefaults();
@@ -215,9 +215,9 @@ public class Arm extends Rumbler
 
     public void setPivotSpeed(double speed)
     {
-        if ((speed < 0 && isPivotAtRevLimit()) ||
-            (speed > 0 && (isPivotAtFwdLimit() || 
-             !areExtenderAndPivotPositionsLegal())))
+        if ((speed > 0 && isPivotAtFwdLimit()) ||
+            (speed < 0 && (isPivotAtRevLimit() || 
+             !areExtenderAndPivotPositionsLegal(getExtenderPosition(), getPivotPosition() - PivotConstants.slopForCosineLimit))))
         {
             speed = 0;
             leftRumbleOn();
@@ -293,7 +293,7 @@ public class Arm extends Rumbler
      */
     public double getPivotAngleInRadians(double pivotPosition)
     {
-        return (PivotConstants.frontHorizontalPosition - pivotPosition) * PivotConstants.radiansPerMotorShaftRotation;
+        return pivotPosition * PivotConstants.radiansPerMotorShaftRotation;
     }
 
     /**
@@ -358,8 +358,7 @@ public class Arm extends Rumbler
     public double getLargestLegalPivotPosition()
     {
         var radians = Math.acos(ExtenderConstants.maxFrontHorizontalPosition / getExtenderPosition());
-        var motorRevs = radians / PivotConstants.radiansPerMotorShaftRotation;
-        return PivotConstants.frontHorizontalPosition - motorRevs;
+        return radians / PivotConstants.radiansPerMotorShaftRotation;
     }
 
     @Override
@@ -401,7 +400,7 @@ public class Arm extends Rumbler
         {
             SmartDashboard.putNumber(ArmKeys.pivotCurAngleDegrees, getPivotAngleInDegrees(pivotPosition));
             SmartDashboard.putNumber("Arm cos(pivotAngle)", Math.cos(getPivotAngleInRadians(pivotPosition)));
-            SmartDashboard.putNumber("Arm adj/hyp", ExtenderConstants.maxFrontHorizontalPosition / getExtenderPosition());
+            SmartDashboard.putNumber("Arm adj|hyp", ExtenderConstants.maxFrontHorizontalPosition / getExtenderPosition());
             SmartDashboard.putNumber("Arm max legal ext", getLargestLegalExtenderPosition());
             SmartDashboard.putNumber("Arm max legal pivot", getLargestLegalPivotPosition());
         }
