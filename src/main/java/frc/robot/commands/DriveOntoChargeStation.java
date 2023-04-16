@@ -21,8 +21,6 @@ import frc.robot.subsystems.DriveTrain;
  * <li> Detects when the Charge Station is starting to level out.
  * <li> Stops driving the robot.
  * </ol>
- * 
- * TODO: Add code to implement above behavior.
  */
 public class DriveOntoChargeStation extends CommandBase
 {
