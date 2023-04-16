@@ -217,7 +217,7 @@ public class Arm extends Rumbler
     {
         if ((speed > 0 && isPivotAtFwdLimit()) ||
             (speed < 0 && (isPivotAtRevLimit() || 
-             !areExtenderAndPivotPositionsLegal(getExtenderPosition(), getPivotPosition() - PivotConstants.slopForCosineLimit))))
+             !areExtenderAndPivotPositionsLegal())))
         {
             speed = 0;
             leftRumbleOn();
@@ -334,7 +334,15 @@ public class Arm extends Rumbler
      */
     public boolean areExtenderAndPivotPositionsLegal()
     {
-        return areExtenderAndPivotPositionsLegal(getExtenderPosition(), getPivotPosition());
+        // If the arm is angled towards the front of the robot, add
+        // the fudge factor to hopefully get more accurate results:
+        var pivotPosition = getPivotPosition();
+        if (pivotPosition > PivotConstants.verticalPosition)
+        {
+            pivotPosition += PivotConstants.fudgeFactorForCosineLimit;
+        }
+
+        return areExtenderAndPivotPositionsLegal(getExtenderPosition(), pivotPosition);
     }
 
     public boolean areExtenderAndPivotPositionsLegal(double extenderPosition, double pivotPosition)
