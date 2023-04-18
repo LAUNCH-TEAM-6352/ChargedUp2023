@@ -331,15 +331,29 @@ public class Arm extends Rumbler
 
     /**
      * Determines if current arm extender and pivot positions are legal.
+     * This default version of this method applies a fudge factor to the
+     * pivot position (angle) to account for hysterisis in the measurement
+     * of the arm angle.
      */
     public boolean areExtenderAndPivotPositionsLegal()
     {
-        // If the arm is angled towards the front of the robot, add
+        // If the arm is angled towards the front of the robot, apply
         // the fudge factor to hopefully get more accurate results:
         var pivotPosition = getPivotPosition();
-        if (pivotPosition > PivotConstants.verticalPosition)
+        if (pivotPosition < PivotConstants.verticalPosition)
         {
-            pivotPosition += PivotConstants.fudgeFactorForCosineLimit;
+            // Treat below horizontal the same as above horizontal.
+            // Afterall, cos(a) = cos(-a)
+            pivotPosition = Math.abs(pivotPosition);
+
+            // Apply fudge factor in a limited number of stages
+            // as we seem to get more error for larger angles:
+            int i = PivotConstants.fudgeFactorForCosineLimitMaxApplications;
+            while (pivotPosition >= PivotConstants.fudgeFactorForCosineLimit && i > 0)
+            {
+                pivotPosition -= PivotConstants.fudgeFactorForCosineLimit;
+                i--;
+            }
         }
 
         return areExtenderAndPivotPositionsLegal(getExtenderPosition(), pivotPosition);
