@@ -269,8 +269,8 @@ public class Arm extends Rumbler
      */
     public void resetPivotPosition()
     {
-        leftPivotMotor.getEncoder().setPosition(PivotConstants.homePosition);
-        rightPivotMotor.getEncoder().setPosition(PivotConstants.homePosition);
+        leftPivotMotor.getEncoder().setPosition(PivotConstants.startPosition);
+        rightPivotMotor.getEncoder().setPosition(PivotConstants.startPosition);
     }
 
     public double getPivotPosition()

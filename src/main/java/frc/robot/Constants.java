@@ -68,13 +68,15 @@ public final class Constants
             public static final double minPosition = -5.0;
             public static final double frontHorizontalPosition = 0.0;
             public static final double verticalPosition = 90.0 * 210.0 / 360.0;
-            public static final double homePosition = 67.886;
+            public static final double startPosition = 67.886;
             public static final double maxPosition = 99.386;
             public static final double midCubeDeliveryPosition = 15.906;
             public static final double topCubeDeliveryPosition = 26.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
             public static final double fudgeFactorForCosineLimit = -15.0 / degreesPerMotorShaftRotation;
+            public static final int fudgeFactorForCosineLimitMaxApplications = 3;
+
        }
 
         public static final class ExtenderConstants

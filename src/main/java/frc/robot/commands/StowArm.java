@@ -21,6 +21,6 @@ public class StowArm extends SequentialCommandGroup
         // Add your commands in the addCommands() call, e.g.
         // addCommands(new FooCommand(), new BarCommand());
         addCommands(
-            new SetArmExtenderAndPivotPositions(arm, ExtenderConstants.minPosition, ArmKeys.extenderTolerance, PivotConstants.homePosition, ArmKeys.pivotTolerance));
+            new SetArmExtenderAndPivotPositions(arm, ExtenderConstants.minPosition, ArmKeys.extenderTolerance, PivotConstants.startPosition, ArmKeys.pivotTolerance));
     }
 }
