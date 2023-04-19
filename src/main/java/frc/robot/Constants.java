@@ -62,22 +62,19 @@ public final class Constants
  
             // Pre-defined positions:
             // Note that position is expressed as the fractional number of motor shaft rotations.
+            // We use the front horizontal position as position 0 (zero), with position values
+            // increasing as the arm is pivoted up towards vertical.
             // With the 210:1 gear reduction, 1 motor shaft rotation equals approximately 360/210 = 1.714 degrees.
-            // public static final double minPosition = -31.5;
-            // public static final double homePosition = 0.0;
-            // public static final double maxPosition = 79.0;
-            // public static final double frontHorizontalPosition = 65.906;
-            // public static final double midCubeDeliveryPosition = 50.0;
-            // public static final double topCubeDeliveryPosition = 40.0;
             public static final double minPosition = -5.0;
+            public static final double frontHorizontalPosition = 0.0;
+            public static final double verticalPosition = 90.0 * 210.0 / 360.0;
             public static final double homePosition = 67.886;
             public static final double maxPosition = 99.386;
-            public static final double frontHorizontalPosition = 0.0;
             public static final double midCubeDeliveryPosition = 15.906;
             public static final double topCubeDeliveryPosition = 26.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
-            public static final double slopForCosineLimit = 15.0 / degreesPerMotorShaftRotation;
+            public static final double fudgeFactorForCosineLimit = -15.0 / degreesPerMotorShaftRotation;
        }
 
         public static final class ExtenderConstants
