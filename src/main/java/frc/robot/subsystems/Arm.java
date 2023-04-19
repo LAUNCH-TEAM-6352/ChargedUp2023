@@ -354,6 +354,11 @@ public class Arm extends Rumbler
                 pivotPosition -= PivotConstants.fudgeFactorForCosineLimit;
                 i--;
             }
+
+            if (Constants.DEBUG)
+            {
+                SmartDashboard.putNumber("Fudged Pivot Pos", pivotPosition);
+            }
         }
 
         return areExtenderAndPivotPositionsLegal(getExtenderPosition(), pivotPosition);

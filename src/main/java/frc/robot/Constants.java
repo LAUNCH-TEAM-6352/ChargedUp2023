@@ -74,7 +74,7 @@ public final class Constants
             public static final double topCubeDeliveryPosition = 26.0;
             public static final double degreesPerMotorShaftRotation = 360.0 / 210.0;
             public static final double radiansPerMotorShaftRotation = Math.toRadians(degreesPerMotorShaftRotation);
-            public static final double fudgeFactorForCosineLimit = -15.0 / degreesPerMotorShaftRotation;
+            public static final double fudgeFactorForCosineLimit = 5.0 / degreesPerMotorShaftRotation;
             public static final int fudgeFactorForCosineLimitMaxApplications = 3;
 
        }
