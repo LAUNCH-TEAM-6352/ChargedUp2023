@@ -269,8 +269,8 @@ public class Arm extends Rumbler
      */
     public void resetPivotPosition()
     {
-        leftPivotMotor.getEncoder().setPosition(PivotConstants.homePosition);
-        rightPivotMotor.getEncoder().setPosition(PivotConstants.homePosition);
+        leftPivotMotor.getEncoder().setPosition(PivotConstants.startPosition);
+        rightPivotMotor.getEncoder().setPosition(PivotConstants.startPosition);
     }
 
     public double getPivotPosition()
@@ -353,6 +353,11 @@ public class Arm extends Rumbler
             {
                 pivotPosition -= PivotConstants.fudgeFactorForCosineLimit;
                 i--;
+            }
+
+            if (Constants.DEBUG)
+            {
+                SmartDashboard.putNumber("Fudged Pivot Pos", pivotPosition);
             }
         }
 
