@@ -9,14 +9,11 @@ import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.CANSparkMax.FaultID;
 import com.revrobotics.CANSparkMax.SoftLimitDirection;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
-
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ExtenderConstants;
 import frc.robot.Constants.ArmConstants.PivotConstants;
 import frc.robot.Constants.DashboardConstants.ArmKeys;
@@ -31,10 +28,6 @@ public class Arm extends Rumbler
     private final CANSparkMax extenderMotor = new CANSparkMax(ExtenderConstants.motorChannel, MotorType.kBrushless);
 
     private final DoubleSolenoid pivotBrakeSolenoid = new DoubleSolenoid(PneumaticsConstants.moduleType, PivotConstants.brakeSolenoidForwardChannel, PivotConstants.brakeSolenoidReverseChannel);
-
-    private final DigitalInput extensionMinPositionSwitch = new DigitalInput(ArmConstants.extensionMinPositionChannel);
-    private final DigitalInput extensionMidPositionSwitch = new DigitalInput(ArmConstants.extensionMidPositionChannel);
-    private final DigitalInput extensionMaxPositionSwitch = new DigitalInput(ArmConstants.extensionMaxPositionChannel);
 
     // The following used for changing extender position:
     private double extenderTargetPosition;
@@ -139,10 +132,7 @@ public class Arm extends Rumbler
 
     public void setExtenderSpeed(double speed)
     {
-        if ((speed < 0 && isExtensionAtHardMinPosition()) ||
-            (speed > 0 && (isExtensionAtHardMaxPosition() ||
-             !areExtenderAndPivotPositionsLegal())))
-    
+        if (!areExtenderAndPivotPositionsLegal())
         {
             speed = 0;
             rightRumbleOn();
@@ -391,26 +381,6 @@ public class Arm extends Rumbler
     @Override
     public void periodic()
     {
-        // Query hardware limit switches just once:
-        var isExtensionAtHardMinPosition = isExtensionAtHardMinPosition();
-        var isExtensionAtHardMidPosition = isExtensionAtHardMidPosition();
-        var isExtensionAtHardMaxPosition = isExtensionAtHardMaxPosition();
-
-        // Reset extender position if we are at a known position:
-        if (isExtensionAtHardMinPosition)
-        {
-            extenderMotor.getEncoder().setPosition(ExtenderConstants.minPosition);
-        }
-        else if (isExtensionAtHardMidPosition)
-        {
-            extenderMotor.getEncoder().setPosition(ExtenderConstants.midPosition);
-        }
-        // This is commented out because the max limit switch gets stuck in the "on" position.
-        // else if (isExtensionAtHardMaxPosition)
-        // {
-        //     extenderMotor.getEncoder().setPosition(ExtenderConstants.maxPosition);
-        // }
-
         // Get the current extender position:
         var extenderPosition = getExtenderPosition();
 
@@ -418,9 +388,6 @@ public class Arm extends Rumbler
         var pivotPosition = getPivotPosition();
 
         SmartDashboard.putNumber(ArmKeys.extenderPosition, extenderPosition);
-        SmartDashboard.putBoolean(ArmKeys.extensionMinPosition, !isExtensionAtHardMinPosition);
-        SmartDashboard.putBoolean(ArmKeys.extensionMidPosition, isExtensionAtHardMidPosition);
-        SmartDashboard.putBoolean(ArmKeys.extensionMaxPosition, !isExtensionAtHardMaxPosition);
         SmartDashboard.putBoolean(ArmKeys.legalExtenderAndPivotPositions, areExtenderAndPivotPositionsLegal());
         SmartDashboard.putNumber(ArmKeys.pivotCurLeftPosition, pivotPosition);
         if (Constants.DEBUG)
@@ -467,21 +434,4 @@ public class Arm extends Rumbler
         }
     }
 
-    public boolean isExtensionAtHardMinPosition()
-    {
-        // The mag limit switch returns false when the switch is engaged.
-        return !extensionMinPositionSwitch.get();
-    }
-
-    public boolean isExtensionAtHardMidPosition()
-    {
-        // The mag limit switch returns false when the switch is engaged.
-        return !extensionMidPositionSwitch.get();
-    }
-
-    public boolean isExtensionAtHardMaxPosition()
-    {
-        // The mag limit switch returns false when the switch is engaged.
-        return !extensionMaxPositionSwitch.get();
-    }
 }
