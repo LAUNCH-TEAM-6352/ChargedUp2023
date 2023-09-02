@@ -117,18 +117,6 @@ public final class Constants
                 public static final double defaultTolerance = 2.0;
             }
         }
-
-        //Position switches
-        public static final int extensionMinPositionChannel = 0;
-        public static final int extensionMidPositionChannel = 2;
-        public static final int extensionMaxPositionChannel = 3;
-    }
-
-    public static final class CameraConstants
-    {
-        public static final int fps = 10;
-        public static final int width = 320;
-        public static final int height = 240;
     }
 
     public static final class ClawConstants
@@ -165,10 +153,6 @@ public final class Constants
         public static final class ArmKeys
         {
             //Arm Constants
-            public static final String extensionMinPosition = "Arm Ext Min Pos";
-            public static final String extensionMidPosition = "Arm Ext Mid Pos";
-            public static final String extensionBeyondMidPosition = "Arm Ext Beyond Mid Pos";
-            public static final String extensionMaxPosition = "Arm Ext Max Pos";
             public static final String extenderMaxManSpeed = "Arm Ext Max Man %";
             public static final String extenderPidMaxOutput = "Arm Ext PID Max %";
             public static final String extenderPidMinOutput = "Arm Ext PID Min %";            
